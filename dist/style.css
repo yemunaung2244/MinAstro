@@ -204,3 +204,17 @@ html { touch-action: pan-x pan-y; }
 @media (max-width: 670px) {
   .filters label:first-child { grid-column: 1 / -1; }
 }
+
+.page-tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+#yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
+#result-yatra { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+#result-yatra h4 { margin: 0 0 6px; color: var(--gold); }
+
+#result-yatra p + h4 { margin-top: 12px; }
+
+#yatra-entries p, #yatra2-entries p, #result-yatra p { white-space: pre-line; }
+
+.nakshatra-link { text-decoration: underline; text-underline-offset: .2em; }
+#nakshatra-detail > a { display: inline-block; margin-bottom: 12px; }
+#nakshatra-yatras p { white-space: pre-line; }
+#nakshatra-yatras h4 { margin: 12px 0 6px; color: var(--gold); }
