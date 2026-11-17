@@ -80,11 +80,16 @@
       <div class="catalog-header">
         <h2>နာဒီကာ အဟော</h2>
         <div class="filters">
+          <label>နာဒီကာ တွက်နည်း
+            <select id="catalog-slot-mode">
+              <option value="equal">နေ့/ည အညီအမျှ ၃၀ ပိုင်းစီ</option>
+              <option value="fixed">၂၄ မိနစ်စီ</option>
+            </select>
+          </label>
           <label>နေ့<select id="catalog-day"></select></label>
           <label>ရှာဖွေ<input type="search" id="search" placeholder="ဥပမာ ခရီး၊ အိမ်ဆောက်"></label>
         </div>
       </div>
-      <p class="catalog-note">အကျိုးပေးစာသားတွေကို မူရင်းကျမ်းမှ ကူးယူဖော်ပြထားပါတယ်။</p>
       <p id="count" aria-live="polite"></p>
       <div id="entries" class="entries"></div>
       <nav class="bottom-nav" id="effect-nav" aria-label="အဟောအမျိုးအစား">

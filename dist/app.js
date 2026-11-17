@@ -19,6 +19,13 @@ const time = byId('time');
 const timeMode = byId('time-mode');
 const slotMode = byId('slot-mode');
 slotMode.value = localStorage.getItem('nadika-slot-mode') === 'fixed' ? 'fixed' : 'equal';
+const catalogSlotMode = byId('catalog-slot-mode');
+catalogSlotMode.value = slotMode.value;
+catalogSlotMode.addEventListener('input', () => {
+  slotMode.value = catalogSlotMode.value;
+  slotMode.dispatchEvent(new Event('input', { bubbles: true }));
+  slotMode.dispatchEvent(new Event('change', { bubbles: true }));
+});
 const location = byId('location');
 const townSearch = byId('town-search');
 const latitude = byId('latitude');
@@ -204,7 +211,10 @@ for (const day of catalogDays) {
 }
 renderLocations(String(towns.findIndex(([, english]) => english === 'Yangon')));
 form.addEventListener('input', (event) => {
-  if (event.target === slotMode) localStorage.setItem('nadika-slot-mode', slotMode.value);
+  if (event.target === slotMode) {
+    catalogSlotMode.value = slotMode.value;
+    localStorage.setItem('nadika-slot-mode', slotMode.value);
+  }
   if (event.target === townSearch) renderLocations(location.value);
   catalogSlot = null;
   updateResult();

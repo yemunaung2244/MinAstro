@@ -207,3 +207,7 @@ html { touch-action: pan-x pan-y; }
   color: var(--ink);
   background: var(--night);
 }
+
+@media (max-width: 670px) {
+  .filters label:first-child { grid-column: 1 / -1; }
+}
