@@ -1,4 +1,4 @@
-import { catalogs, getRuler, myanmarUtcOffset, slotMinutes, solarTimes, toMinutes, windowsFor } from './nadika.js';
+import { catalogs, getRuler, myanmarUtcOffset, solarTimes, toMinutes, windowsFor } from './nadika.js';
 
 const byId = (id) => document.getElementById(id);
 const weekdays = ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'];
@@ -129,17 +129,15 @@ function updateResult() {
 
   if (!slot || slot.start >= limit) {
     byId('result-time').textContent = 'နာဒီကာအကွက် မရှိပါ';
-    byId('result-note').textContent = slot ? 'ဒီအကွက်မစခင် အချိန်ပိုင်း ကုန်ဆုံးပါတယ်။'
-      : 'ကျမ်းပါ ၂၄ မိနစ်စာ အကွက် ၃၀ ကုန်ဆုံးသွားပါပြီ။';
+    byId('result-note').textContent = 'ရက်စွဲနှင့် အချိန်ကို စစ်ပေးပါ။';
     return;
   }
 
   const dateOffset = beforeSunrise ? dayMinutes : 0;
   byId('result-time').textContent = `${timeLabel(slot.start - dateOffset)} – ${timeLabel(slot.end - dateOffset)}`;
   const seconds = Math.round((slot.end - slot.start) * 60);
-  byId('result-note').textContent = seconds < slotMinutes * 60
-    ? `အချိန်ပိုင်းကုန်ဆုံးချိန်အထိ ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့်သာ ကျန်ပါတယ်။`
-    : `${night ? 'နေဝင်ချိန်' : 'နေထွက်ချိန်'}မှ ရေတွက်ထားတဲ့ ၂၄ မိနစ်စာ အကွက်ဖြစ်ပါတယ်။`;
+  const period = night ? 'နေဝင်ချိန်မှ နောက်တစ်ကြိမ် နေထွက်ချိန်အထိ' : 'နေထွက်ချိန်မှ နေဝင်ချိန်အထိ';
+  byId('result-note').textContent = `${period} အညီအမျှ ၃၀ ပိုင်းခွဲထားပါတယ်။ တစ်ပိုင်းလျှင် ခန့်မှန်း ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့် ကြာပါတယ်။`;
   const [name, effect, type] = catalogs[weekday][slot.number - 1];
   byId('result-name').textContent = name;
   byId('result-effect').textContent = effect;
@@ -177,7 +175,7 @@ function renderCatalog() {
       const coordinates = location.value ? selectedCoordinates() : [];
       if (coordinates.length && coordinates.every(Number.isFinite)) {
         const { sunrise, sunset } = solarTimes(date.value, ...coordinates);
-        const preview = Math.min(sunrise + (id - 1) * slotMinutes, sunset - 1 / 60);
+        const preview = Math.min(sunrise + (id - 1) * sunset - 1 / 60);
         time.value = new Date(Math.round(preview * 60) * 1000).toISOString().slice(11, 19);
       }
       updateResult();

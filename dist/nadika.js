@@ -1,4 +1,4 @@
-export const slotMinutes = 24;
+export const slotCount = 30;
 
 const sunday = [
   ['ဝိသာခါ', 'မိတ်ဖွဲ့ခြင်း/ အစုစပ် လုပ်ခြင်း/ လက်ထပ်ခြင်းတို့ကို ဖြစ်ပေါ်စေတတ်သည်။', 'good'],
@@ -263,10 +263,12 @@ export function toMinutes(time) {
 }
 
 export function windowsFor(anchor, limit) {
-  return Array.from({ length: 30 }, (_, index) => {
-    const start = anchor + index * slotMinutes;
-    return { number: index + 1, start, end: Math.min(start + slotMinutes, limit) };
-  });
+  const boundary = (index) => anchor + (limit - anchor) * index / slotCount;
+  return Array.from({ length: slotCount }, (_, index) => ({
+    number: index + 1,
+    start: boundary(index),
+    end: index + 1 === slotCount ? limit : boundary(index + 1),
+  }));
 }
 
 export const myanmarUtcOffset = 390;
