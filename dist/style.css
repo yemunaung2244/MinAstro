@@ -25,7 +25,6 @@ h1, h2, h3 { line-height: 1.55; }
 .top { border-bottom: 1px solid var(--line); }
 .nav { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: inline-flex; align-items: center; gap: 9px; font-size: 1.18rem; font-weight: 850; white-space: nowrap; letter-spacing: .01em; }
-.brand img { display: block; border-radius: 10px; box-shadow: 0 2px 8px #2c28642a; }
 .brand-myanmar { color: var(--muted); font-size: .92em; font-weight: 700; letter-spacing: 0; }
 nav { display: flex; gap: clamp(12px, 4vw, 38px); font-size: .9rem; }
 nav a:hover { text-decoration: underline; }
