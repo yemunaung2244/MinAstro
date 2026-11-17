@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "node server.mjs"
+  },
+  "dependencies": {
+    "web-push": "^4.0.0"
   }
 }

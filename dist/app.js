@@ -232,3 +232,91 @@ function showPage() {
 
 window.addEventListener('hashchange', showPage);
 showPage();
+
+const pushServer = 'https://nakshatra-notifications.astrok-pro-mobile.workers.dev';
+const notificationControls = byId('notification-controls');
+const notificationToggle = byId('notification-toggle');
+const notificationStatus = byId('notification-status');
+let pushRegistration;
+let pushKey;
+let subscription;
+
+function updateNotificationButton() {
+  notificationToggle.textContent = subscription ? 'အသိပေးချက် ပိတ်ရန်' : 'အသိပေးချက် ဖွင့်ရန်';
+}
+
+async function saveSubscription(method) {
+  const [lat, lon] = selectedCoordinates();
+  const response = await fetch(pushServer, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription, lat, lon }),
+  });
+  if (!response.ok) throw new Error('Subscription update failed');
+}
+
+if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window) {
+  notificationControls.hidden = false;
+  notificationToggle.disabled = true;
+  Promise.all([
+    navigator.serviceWorker.register('/push-sw.js').then(() => navigator.serviceWorker.ready),
+    fetch(pushServer).then(response => response.json()),
+  ]).then(async ([registration, config]) => {
+    if (!config.key) throw new Error('Missing public key');
+    pushRegistration = registration;
+    pushKey = config.key;
+    subscription = await registration.pushManager.getSubscription();
+    updateNotificationButton();
+    notificationToggle.disabled = false;
+  }).catch(() => {
+    notificationStatus.textContent = 'အသိပေးချက် ဝန်ဆောင်မှုကို ချိတ်ဆက်၍မရပါ။';
+  });
+
+  notificationToggle.addEventListener('click', async () => {
+    notificationToggle.disabled = true;
+    try {
+      if (subscription) {
+        await saveSubscription('DELETE');
+        await subscription.unsubscribe();
+        subscription = null;
+        notificationStatus.textContent = 'အသိပေးချက် ပိတ်ထားပါပြီ။';
+      } else {
+        if (!location.value || !form.checkValidity()) {
+          notificationStatus.textContent = 'တည်နေရာကို အရင်ရွေးပေးပါ။';
+          return;
+        }
+        subscription = await pushRegistration.pushManager.subscribe({
+          userVisibleOnly: true, applicationServerKey: pushKey,
+        });
+        try {
+          await saveSubscription('POST');
+        } catch (error) {
+          await subscription.unsubscribe();
+          subscription = null;
+          throw error;
+        }
+        notificationStatus.textContent = 'ရွေးထားတဲ့ တည်နေရာအတွက် အသိပေးချက် ဖွင့်ထားပါပြီ။';
+      }
+    } catch {
+      notificationStatus.textContent = 'အသိပေးချက်ကို ပြောင်း၍မရပါ။ ဖုန်းဆက်တင်နှင့် အင်တာနက်ကို စစ်ပေးပါ။';
+    } finally {
+      updateNotificationButton();
+      notificationToggle.disabled = false;
+    }
+  });
+
+  form.addEventListener('change', async (event) => {
+    if (!subscription || ![location, latitude, longitude, townSearch].includes(event.target) ||
+        !location.value || !form.checkValidity()) return;
+    try {
+      await saveSubscription('POST');
+      notificationStatus.textContent = 'အသိပေးချက် တည်နေရာ ပြောင်းထားပါပြီ။';
+    } catch {
+      notificationStatus.textContent = 'အသိပေးချက် တည်နေရာ ပြောင်း၍မရပါ။';
+    }
+  });
+} else {
+  notificationControls.hidden = false;
+  notificationToggle.hidden = true;
+  notificationStatus.textContent = 'iPhone တွင် အက်ပ်ကို Home Screen ထဲထည့်ပြီး ဖွင့်ပါ။';
+}

@@ -5,6 +5,7 @@ const assets = new Map([
   ['/', ['index.html', 'text/html']],
   ['/index.html', ['index.html', 'text/html']],
   ['/style.css', ['style.css', 'text/css']],
+  ['/push-sw.js', ['push-sw.js', 'text/javascript']],
   ['/app.js', ['app.js', 'text/javascript']],
   ['/nadika.js', ['nadika.js', 'text/javascript']],
   ['/manifest.webmanifest', ['manifest.webmanifest', 'application/manifest+json']],
