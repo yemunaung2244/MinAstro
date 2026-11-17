@@ -1,9 +1,15 @@
-self.addEventListener('push', (event) => {
-  const { name, effect } = event.data.json();
-  event.waitUntil(self.registration.showNotification('နာဒီကာ · ' + name, { body: effect }));
+// Retire the previous notification service worker on returning devices.
+self.addEventListener('install', (event) => {
+  event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(self.clients.openWindow('/#calculator'));
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const subscription = await self.registration.pushManager.getSubscription();
+    try {
+      if (subscription) await subscription.unsubscribe();
+    } finally {
+      await self.registration.unregister();
+    }
+  })());
 });
