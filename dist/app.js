@@ -1,6 +1,11 @@
-import { catalogs, getRuler, myanmarUtcOffset, solarTimes, toMinutes, windowsFor } from './nadika.js';
+import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
+import { yatra6Title, yatra6Descriptions } from './yatra6.js';
 
 const byId = (id) => document.getElementById(id);
+const effectText = (name, effect) => {
+  const practice = nadikaPractices.get(name);
+  return practice ? effect + '\n\n' + practice : effect;
+};
 const weekdays = ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'];
 const planetName = (number) => weekdays[number - 1] + 'ဂြိုဟ်';
 // ချိုးရေ စီရင်နည်း၊ အခန်း ၁၂
@@ -174,7 +179,7 @@ function updateResult() {
   const seconds = Math.round((slot.end - slot.start) * 60);
   const modeLabel = fixed ? '၂၄ မိနစ်စီ စနစ်' : 'နေ့/ည အညီအမျှ ၃၀ ပိုင်းစီ';
   byId('result-duration').textContent = `${modeLabel} · ဒီအပိုင်းကြာချိန် ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့်`;
-  byId('result-effect').textContent = effect;
+  byId('result-effect').textContent = effectText(name, effect);
   const ruler = getRuler(weekday, slot.number, night ? 'night' : 'day');
   byId('result-ruler').textContent = `စိုးမိုးဂြိုဟ် - ${planetName(ruler)}`;
   byId('result-materials').replaceChildren(materialList(ruler));
@@ -195,7 +200,8 @@ function renderCatalog() {
   catalogs[weekday].forEach(([name, effect, type], index) => {
     const id = index + 1;
     if (effectFilter !== 'all' && type !== effectFilter) return;
-    if (query && !`${id} ${name} ${effect}`.normalize().includes(query)) return;
+    const reading = effectText(name, effect);
+    if (query && !`${id} ${name} ${reading}`.normalize().includes(query)) return;
 
     const card = byId('entry-template').content.cloneNode(true);
     card.querySelector('.badge').textContent = mm(id);
@@ -205,7 +211,7 @@ function renderCatalog() {
     detailLink.textContent = name;
     card.querySelector('h3').append(detailLink);
     tag(card.querySelector('.pill'), type);
-    card.querySelector('.effect').textContent = effect;
+    card.querySelector('.effect').textContent = reading;
     card.querySelector('small').textContent = `စိုးမိုးဂြိုဟ် - နေ့ ${planetName(getRuler(weekday, id, 'day'))} / ည ${planetName(getRuler(weekday, id, 'night'))}`;
     const materials = card.querySelector('.entry-materials');
     for (const [period, label] of [['day', 'နေ့ပိုင်း'], ['night', 'ညပိုင်း']]) {
@@ -446,6 +452,8 @@ renderYatraCards('yatra2-entries', yatra2Descriptions);
 renderYatraCards('yatra3-entries', yatra3Descriptions);
 renderYatraCards('yatra4-entries', yatra4Descriptions);
 renderYatraCards('yatra5-entries', yatra5Descriptions);
+renderYatraCards('yatra6-entries', yatra6Descriptions);
+byId('yatra6-title').textContent = yatra6Title;
 const abhijit = document.createElement('article');
 abhijit.className = 'entry';
 abhijit.innerHTML = '<h3>အဘိဇိနက္ခတ်</h3><p>နို့ထမင်း လှူခြင်း။</p>';
@@ -463,8 +471,8 @@ function renderNakshatraDetail([name], source) {
     list.textContent = 'ဒီနက္ခတ်အတွက် ကျမ်းပါ ယတြာ မရှိပါ။';
     return;
   }
-  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု"];
+  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions];
+  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု", yatra6Title];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
@@ -478,25 +486,23 @@ function showPage() {
   const hash = window.location.hash.slice(1);
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
+  const yatraTabs = byId('yatra-tabs');
+  const yatraLinks = [...yatraTabs.querySelectorAll('[data-yatra-tab]')];
+  const isYatraPage = yatraLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'yatra', 'yatra2', 'yatra3', 'yatra4', 'yatra5'].includes(hash) ? hash : 'calculator';
+    : hash === 'catalog' || isYatraPage ? hash : 'calculator';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
     byId('nakshatra-title').focus();
   }
-  const yatraTabs = byId('yatra-tabs');
-  const yatraLinks = [...yatraTabs.querySelectorAll('[data-yatra-tab]')];
-  yatraTabs.hidden = !yatraLinks.some(link => link.dataset.yatraTab === page);
+  yatraTabs.hidden = !isYatraPage;
   for (const link of yatraLinks) {
-    if (link.dataset.yatraTab === page) link.setAttribute('aria-current', 'page');
+    const active = link.dataset.yatraTab === page;
+    byId(link.dataset.yatraTab).hidden = !active;
+    if (active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
-  byId('yatra5').hidden = page !== 'yatra5';
-  byId('yatra4').hidden = page !== 'yatra4';
-  byId('yatra3').hidden = page !== 'yatra3';
-  byId('yatra2').hidden = page !== 'yatra2';
-  byId('yatra').hidden = page !== 'yatra';
   byId('calculator').hidden = page !== 'calculator';
   byId('calculator-intro').hidden = page !== 'calculator';
   byId('catalog').hidden = page !== 'catalog';

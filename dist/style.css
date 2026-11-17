@@ -85,6 +85,7 @@ legend { font-size: .86rem; font-weight: 700; margin-bottom: 4px; padding: 0; }
 .pill.good { background: #e2eee6; color: #285442; }
 .pill.caution { background: #f6e3d6; color: #793c24; }
 .effect { font-size: .88rem; color: var(--ink); }
+.effect, #result-effect { white-space: pre-line; }
 .entry-footer { justify-content: space-between; border-top: 1px solid var(--line); margin-top: auto; padding-top: 10px; color: var(--muted); }
 .entry-footer button { background: transparent; border: 0; padding: 4px; color: #78511f; font-size: .82rem; font-weight: 800; }
 .entry-footer button:hover { text-decoration: underline; }
@@ -206,7 +207,7 @@ html { touch-action: pan-x pan-y; }
 }
 
 .page-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-#yatra5-entries, #yatra4-entries, #yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
+#yatra6-entries, #yatra5-entries, #yatra4-entries, #yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
 #result-yatra { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 #result-yatra h4 { margin: 0 0 6px; color: var(--gold); }
 
@@ -219,13 +220,13 @@ html { touch-action: pan-x pan-y; }
 #nakshatra-yatras p { white-space: pre-line; }
 #nakshatra-yatras h4 { margin: 12px 0 6px; color: var(--gold); }
 
-#yatra5-entries p, #yatra4-entries p { white-space: pre-line; }
+#yatra6-entries p, #yatra5-entries p, #yatra4-entries p { white-space: pre-line; }
 .page-tabs a { white-space: nowrap; min-width: 0; padding-inline: 0; }
 .page-tabs { column-gap: 4px; }
 
 #yatra-tabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
   margin-bottom: 12px;
 }
@@ -237,8 +238,11 @@ html { touch-action: pan-x pan-y; }
 }
 #yatra-tabs a[aria-current="page"] { background: #f7e7bd; font-weight: 800; }
 
-#yatra5 details { margin-top: 12px; }
 #yatra-tabs a { font-size: clamp(.72rem, 3vw, .9rem); white-space: nowrap; }
+
+@media (max-width: 480px) {
+  #yatra-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 .planet-materials { list-style: none; margin: 6px 0 0; padding: 0; }
 .planet-materials li + li { margin-top: 4px; }
