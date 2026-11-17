@@ -195,3 +195,8 @@ body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   color: #67430e;
   font-weight: 800;
 }
+
+html { touch-action: pan-x pan-y; }
+@media (pointer: coarse) {
+  input:not([type=radio]), select { font-size: 16px; }
+}
