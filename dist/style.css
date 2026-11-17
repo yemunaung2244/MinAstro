@@ -205,8 +205,8 @@ html { touch-action: pan-x pan-y; }
   .filters label:first-child { grid-column: 1 / -1; }
 }
 
-.page-tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-#yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
+.page-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#yatra5-entries, #yatra4-entries, #yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
 #result-yatra { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 #result-yatra h4 { margin: 0 0 6px; color: var(--gold); }
 
@@ -218,3 +218,28 @@ html { touch-action: pan-x pan-y; }
 #nakshatra-detail > a { display: inline-block; margin-bottom: 12px; }
 #nakshatra-yatras p { white-space: pre-line; }
 #nakshatra-yatras h4 { margin: 12px 0 6px; color: var(--gold); }
+
+#yatra5-entries p, #yatra4-entries p { white-space: pre-line; }
+.page-tabs a { white-space: nowrap; min-width: 0; padding-inline: 0; }
+.page-tabs { column-gap: 4px; }
+
+#yatra-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 12px;
+}
+#yatra-tabs a {
+  padding: 10px 2px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+#yatra-tabs a[aria-current="page"] { background: #f7e7bd; font-weight: 800; }
+
+#yatra5 details { margin-top: 12px; }
+#yatra-tabs a { font-size: clamp(.72rem, 3vw, .9rem); white-space: nowrap; }
+
+.planet-materials { list-style: none; margin: 6px 0 0; padding: 0; }
+.planet-materials li + li { margin-top: 4px; }
+.entry-materials > p { margin-top: 8px; font-weight: 700; }

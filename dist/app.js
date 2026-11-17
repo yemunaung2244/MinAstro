@@ -3,6 +3,28 @@ import { catalogs, getRuler, myanmarUtcOffset, solarTimes, toMinutes, windowsFor
 const byId = (id) => document.getElementById(id);
 const weekdays = ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'];
 const planetName = (number) => weekdays[number - 1] + 'ဂြိုဟ်';
+// ချိုးရေ စီရင်နည်း၊ အခန်း ၁၂
+const planetMaterials = [
+  ['ကုံကုမံ', 'ကြာပွင့်', 'နွယ်ချို', 'ဖလာ', 'အနီရောင်ရှိသည့် မည်သည့်ပန်းမဆို'],
+  ['ဟိန္ဒူဘာသာရေး အခမ်းအနားတွေမှာသုံးတဲ့ ခရုသင်းထဲ ထည့်ထားတဲ့ရေ', 'ကျောက်ချဉ်', 'ဥသျှစ်ရွက်', 'ကြာပွင့်'],
+  ['ခရမ်းပင်၏ အမြစ်', 'ဥသျှစ်ရွက်', 'ဆီးဖြူသီး', 'ဆီးဖြူရွက်', 'ကုံကုမံ'],
+  ['ကြာစေ့', 'ကုံကုမံ', 'ဆန်', 'ပျားရည်'],
+  ['မုန်ညင်းစေ့ အဝါ', 'နွယ်ချို', 'ပျားရည်', 'ဆီးဖြူသီး'],
+  ['စမုန်စပါး', 'ဖလာ', 'ကုံကုမံ'],
+  ['ဒန်းပင်၏ ရရာ အစိတ်အပိုင်း။ ဆေးဆိုးသော ဒန်းမှုန့်အသန့်ရလျှင် အကောင်းဆုံး။ ဒန်းမြစ်သည် ဒုတိယ အကောင်းဆုံး။'],
+];
+
+function materialList(number) {
+  const list = document.createElement('ol');
+  list.className = 'planet-materials';
+  for (const [index, material] of planetMaterials[number - 1].entries()) {
+    const item = document.createElement('li');
+    item.textContent = `${mm(index + 1)}။ ${material}`;
+    list.append(item);
+  }
+  return list;
+}
+
 const digits = '၀၁၂၃၄၅၆၇၈၉';
 const mm = (value) => String(value).replace(/[0-9]/g, (digit) => digits[Number(digit)]);
 const ascii = (value) => value.replace(/[၀-၉]/g, (digit) => String(digits.indexOf(digit)));
@@ -77,8 +99,6 @@ function tag(element, type) {
   element.textContent = type === 'good' ? 'သင့်တော်' : 'သတိပြု';
 }
 
-let resultDetails;
-
 function updateResult() {
   const fixed = slotMode.value === 'fixed';
   byId('dial-number').textContent = fixed ? '၂၄' : '၃၀';
@@ -97,11 +117,12 @@ function updateResult() {
   latitude.required = longitude.required = custom;
   latitude.disabled = longitude.disabled = !custom;
 
+  const content = byId('result-content');
   const nameLink = byId('result-name');
   const status = byId('result-note');
   if (!form.checkValidity() || !Number.isFinite(weekdayFor(date.value))) {
     lastUpdate = '';
-    nameLink.hidden = true;
+    content.hidden = true;
     status.hidden = false;
     for (const id of ['sunrise', 'sunset', 'next-rise']) byId(id).value = '—';
     byId('next-field').hidden = true;
@@ -138,27 +159,29 @@ function updateResult() {
   byId('sunset').value = timeLabel(sunset);
   byId('next-field').hidden = !night;
   if (night) byId('next-rise').value = timeLabel(nextRise + (beforeSunrise ? 0 : dayMinutes));
-  nameLink.hidden = true;
+  content.hidden = true;
   status.hidden = false;
   if (!slot || slot.start >= limit) {
     status.textContent = fixed ? 'ဒီအချိန်မှာ ၂၄ မိနစ်စီ စနစ်ရဲ့ အပိုင်း ၃၀ အတွင်း မကျပါ။' : 'နာဒီကာအကွက် မရှိပါ။';
     return;
   }
 
-  const [name] = catalogs[weekday][slot.number - 1];
+  const [name, effect, type] = catalogs[weekday][slot.number - 1];
   const route = `#nakshatra/${weekday}/${slot.number}/calculator`;
   const dateOffset = beforeSunrise ? dayMinutes : 0;
-  resultDetails = {
-    route,
-    lines: [
-      `${weekdays[weekday]} · ${night ? 'ညပိုင်း' : 'နေ့ပိုင်း'} · အမှတ် ${mm(slot.number + (night ? 30 : 0))}`,
-      `${timeLabel(slot.start - dateOffset)} – ${timeLabel(slot.end - dateOffset)}`,
-      `စိုးမိုးဂြိုဟ် - ${planetName(getRuler(weekday, slot.number, night ? 'night' : 'day'))}`,
-    ],
-  };
+  byId('result-label').textContent = `${weekdays[weekday]} · ${night ? 'ညပိုင်း' : 'နေ့ပိုင်း'} · အမှတ် ${mm(slot.number + (night ? 30 : 0))}`;
+  byId('result-time').textContent = `${timeLabel(slot.start - dateOffset)} – ${timeLabel(slot.end - dateOffset)}`;
+  const seconds = Math.round((slot.end - slot.start) * 60);
+  const modeLabel = fixed ? '၂၄ မိနစ်စီ စနစ်' : 'နေ့/ည အညီအမျှ ၃၀ ပိုင်းစီ';
+  byId('result-duration').textContent = `${modeLabel} · ဒီအပိုင်းကြာချိန် ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့်`;
+  byId('result-effect').textContent = effect;
+  const ruler = getRuler(weekday, slot.number, night ? 'night' : 'day');
+  byId('result-ruler').textContent = `စိုးမိုးဂြိုဟ် - ${planetName(ruler)}`;
+  byId('result-materials').replaceChildren(materialList(ruler));
+  tag(byId('result-tag'), type);
   nameLink.textContent = name;
   nameLink.href = route;
-  nameLink.hidden = false;
+  content.hidden = false;
   status.hidden = true;
 }
 
@@ -184,6 +207,13 @@ function renderCatalog() {
     tag(card.querySelector('.pill'), type);
     card.querySelector('.effect').textContent = effect;
     card.querySelector('small').textContent = `စိုးမိုးဂြိုဟ် - နေ့ ${planetName(getRuler(weekday, id, 'day'))} / ည ${planetName(getRuler(weekday, id, 'night'))}`;
+    const materials = card.querySelector('.entry-materials');
+    for (const [period, label] of [['day', 'နေ့ပိုင်း'], ['night', 'ညပိုင်း']]) {
+      const ruler = getRuler(weekday, id, period);
+      const heading = document.createElement('p');
+      heading.textContent = `${label} - ${planetName(ruler)}`;
+      materials.append(heading, materialList(ruler));
+    }
     const button = card.querySelector('button');
     button.setAttribute('aria-label', `အမှတ် ${mm(id)} ${name} အချိန်ကြည့်`);
     button.addEventListener('click', () => {
@@ -331,6 +361,71 @@ const yatra3Descriptions = [
   "အဖြူရောင် အဝတ်များ လှူခြင်း။"
 ];
 
+const yatra4Descriptions = [
+  "(က) ဆေးလှူရတယ်။ အကျိုးကျေးဇူး ကျမ်းမှာ ပြမထား။\n(ခ) ယာဉ်ဒါန ပြုလုပ်ရတယ်။ တစ်မိသားစုလုံး ချမ်းသာကြွယ်ဝတယ်။ ဩဇာအာဏာ ကြီးမားတယ်။\n(ဂ) ကြေးခွက်မှာ ထောပတ်အပြည့်ထည့်ပြီး လှူရတယ်။ ရောဂါကင်းစေတယ်။",
+  "(က) အပြာရောင်ပန်း လှူရတယ် ဒါမှမဟုတ် ပရုပ်ပြား မီးထွန်းပြီး ပူဇော်ရတယ်။ အကာလမရဏဘေးက ကင်းစေတယ်။\n(ခ) နှမ်းလှူရတယ်။ စည်းစိမ်ဥစ္စာ ချမ်းသာကြွယ်ဝစေတယ်။ နာမည်ဂုဏ်သတင်းကောင်း ထင်ပေါ် ကျော်ကြားစေတယ်။ ကောင်းမွန်သော အသိုင်းအဝိုင်းအတွင်းကို ရောက်စေတယ်။ အရေးကြီးသော/ ခက်ခဲသော အလုပ်တွေကို အလွယ်တကူ ပြီးမြောက် အောင်မြင်စေတယ်။",
+  "(က) အနီရောင်ပန်း လှူရတယ်။ အနီရောင်ပန်းကုံးချိတ်ဆွဲပြီး လှူရင် ပိုကောင်းတယ် (ဒါမှမဟုတ်) မီးပူဇော်ရမယ်။ အကျိုးကျေးဇူးက အကုသိုလ် အကျိုးပေး ကင်းစေတယ်။ စိတ်ကြည်လင် အေးချမ်းစေတယ်။ အလိုဆန္ဒ ပြည့်ဝစေတယ်။\n(ခ) နို့ထမင်း/ ထောပတ်/ ဒိန်ချဉ်/ နို့/ နို့ထွက်ပစ္စည်းတွေနဲ့ လုပ်ထားတဲ့ အစားအသောက်တွေ လှူဒါန်းကျွေးမွေးရတယ်။ လူများများ ကျွေးနိုင်ရင် ပိုကောင်းတယ်။ အကျိုးကျေးဇူးက ကျန်းမာရေးကို အထူးကောင်းစေတယ်။ ကောင်းမွန်သော အသိုင်းအဝိုင်းအတွင်းကို ရောက်စေတယ်။",
+  "(က) ထောပတ်လှူခြင်း၊ ထောပတ်နှင့်ချက်သော ထမင်းဟင်းများကို ကျွေးမွေးခြင်း။ အကျိုးကျေးဇူးမှာ ကျန်းမာရေးအထူးကောင်း၍ အသက်ရှည် စေသည်။ လိုအင်ဆန္ဒ ပြည့်ဝစေသည်။ ကောင်းမွန်သော အသိုင်းအဝိုင်းအတွင်းကို ရောက်စေတယ်။",
+  "(က) နွားနို့လှူရတယ်။ အကြွေးကင်းစေတယ်။ ကျန်းမာရေး ကောင်းစေတယ်။\n(ခ) ခွန်အားကိုဖြစ်စေသော ဖျော်ရည်များ၊ အချိုရည်များ လှူဒါန်းရတယ်။ ပညာတိုးစေတယ်။ ကျန်းမာရေးကိုလဲ ကောင်းစေတယ်။",
+  "(က) အနံ့မွှေးသော ဘယ်ပန်းမဆို လှူဒါန်းနိုင်တယ်။ အထူးသဖြင့် ကြာပွင့်လှူတာ ပိုကောင်းတယ်။ အောင်မြင်ခြင်း အထွေထွေကို ရရှိစေပါတယ်။\n(ခ) ပဲထမင်းလှူခြင်း၊ နှမ်းလှူခြင်း အထူးကောင်းတယ်။ အခက်အခဲအားလုံးကနေ လွတ်မြောက်စေတယ်။",
+  "ထောပတ်လှူခြင်း၊ ထောပတ်နှင့်ချက်သော ထမင်းဟင်းများကို ကျွေးမွေးခြင်း။ မိသားစု သာယာငြိမ်းချမ်းစေတယ်။ နာမည် ဂုဏ်သတင်းကောင်း ထင်ပေါ်ကျော်ကြားစေတယ်။ ချမ်းသာကြွယ်ဝ စေတယ်။ ပီယအားကောင်းစေတယ်။ သွားလေရာမှာ ကာကွယ်ကူညီ စောင့်ရှောက်မှုကို ရစေတယ်။",
+  "(က) ပျားရည်လှူရတယ်။ ပညာရေး အထူးကောင်းစေတယ်။ စကားထစ်ခြင်း၊ စကားပြော မကောင်းခြင်းတွေကို ကင်းစင်ပျောက်စေတယ်။\n(ခ) ရွှေလှူရတယ်။ အပြစ်ကင်းစေတယ်။ အခက်အခဲတွေက လွတ်မြောက်စေတယ်။ ပီယအား ကောင်းစေတယ်။",
+  "(က) ငွေထည်ပစ္စည်းများ လှူရတယ်။ ဘယ်လောက်ကြီးမားတဲ့ အခက်အခဲကနေမဆို လွယ်လင့်တကူ လွတ်မြောက်စေတယ်။ ဉာဏ်ပညာ ကြီးမားစေတယ်။ ရောဂါကင်းစေတယ်။\nမှတ်ချက်။ နဂါးနဲ့ အဆက်အစပ်ရှိသူတွေကို ဒီနက္ခတ်မှာ နဂါးစာကျွေးခိုင်းတဲ့အခါ အပေါ်မှာ ပြောခဲ့တဲ့ အကျိုးကျေးဇူးတွေ ရတာ တွေ့ရဖူးပါတယ်။",
+  "မြေအိုးထဲမှာ နှမ်းအပြည့်ထည့်ပြီး လှူရပါတယ်။ သားသမီးရစေတယ်။ အထူးသဖြင့် သားရစေတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။ ရောဂါကင်းစေတယ်။",
+  "(က) ယာဉ်ဒါနပြုလုပ်ရတယ်။ ကောင်းမွန်သော အသိုင်းအဝိုင်းထဲကို ရောက်ရှိစေတယ်။\n(ခ) ဟိန္ဒူများမှာ သျှီဝလိင် လှူရတယ်။ စည်းစိမ်ဥစ္စာ ချမ်းသာကြွယ်ဝစေတယ်။ ကောင်းမွန်တဲ့ အိမ်ထောင်ဘက်ကို ရရှိစေတယ်။ အိမ်ထောင်ရေး သာယာစေတယ်။ ပီယအားကောင်းစေတယ်။",
+  "ရွှေလှူခြင်း၊ ကြာပန်းကို ရွှေချ၍ လှူခြင်း၊ ရွှေကြာပန်းလှူခြင်း။\nအခက်အခဲများအားလုံးကို ပြေလည်စေတယ်။ ဘုန်းတန်ခိုး ဩဇာ အာဏာ အထူးကြီးမားစေတယ်။ အနာကင်းပြီး အသက်ရှည်စေတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။ သွားလေရာမှာ အောင်မြင်စေတယ်။",
+  "(က) ရနံ့မွှေးသောပန်း လှူရတယ်။ နံ့သာနီအမှုန့်ကို ရေနဲ့ ပျစ်ပျစ်ဖျော်ပြီး ကပ်လှူရတယ်။ အထူးချမ်းသာကြွယ်ဝစေတယ်။\n(ခ) ရွှေလှူရတယ်။ ယာဉ်ရထားတွေ ရရှိစေတယ်။ ဩဇာအာဏာ ကြီးမားစေတယ်။\n(ဂ) ပိုက်ဆံ လှူရသည်။ ရေလှူရသည်။ အကျိုးကျေးဇူးမှာ ရောဂါကင်းစေသည်။",
+  "(က) ယာဉ်ဒါနပြုရတယ်။ အထူးသဖြင့် သူတစ်ပါးကို စီးပွားဥစ္စာဖြစ်ထွန်းစေဖို့ ကူညီပေးရတယ်။ မိမိကိုယ်တိုင် အလွန်ချမ်းသာ ကြွယ်ဝလာမယ်။\n(ခ) ကြေးခွက်/ ကြေးထည် လှူရတယ်။ ထောပတ်လှူရတယ်။ ကျက်သရေ မင်္ဂလာရှိစေတယ်။\nအထူးမှတ်ချက်-အပေါ်က အမှတ်စဉ် (က)နဲ့ (ခ) နှစ်မျိုးလုံးမှာ တူတဲ့ အကျိုးကျေးဇူးက- မိမိနဲ့ မိမိရဲ့ မိသားစု ပြီးတော့ မိမိရဲ့ လုပ်ငန်းခွင်မှာ ရန် လုံးဝ ကင်းစေတယ်။",
+  "မိမိအနှစ်သက်ဆုံးသောအရာကို လှူရပါတယ်။ လှူတဲ့နေ့မှာ အဲဒီအရာကို မိမိကိုယ်တိုင် မသုံးဆောင်ပဲ ရှောင်နိုင်ရင် အာနိသင် ပိုကောင်းပါတယ်။ နာမည်ဂုဏ်သတင်းကောင်း အထူး ထင်ပေါ်ကျော်ကြားစေတယ်။ စိတ်ကို ငြိမ်းချမ်းစေတယ်။ ဉာဏ်ပညာ အထူးတိုးတက်စေတယ်။",
+  "(က) ဆန်၊ ပဲ အစရှိသော အစေ့အဆံများ လှူရတယ် ဒါမှမဟုတ် အဝတ်အထည်နဲ့အတူ ပိုက်ဆံ လှူရတယ်။ အခက်အခဲ အားလုံးကနေ ကင်းလွတ်စေတယ်။\n(ခ) အနီရောင်ပန်း လှူဒါန်းရတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။ ခန္ဓာကိုယ်အသားအရေ အရောင်အဆင်း တောက်ပစေတယ်။",
+  "ခြုံထည်တွေ/ စောင်တွေ/ အဝတ်အစားတွေ လှူဒါန်းရတယ်။ ကျန်းမာပြီး အသက်ရှည်စေတယ်။ ကျက်သရေမင်္ဂလာရှိစွာနဲ့ ချမ်းသာကြွယ်ဝစေတယ်။\nအထူးမှတ်ချက်။ အဲလို လှူဒါန်းရာမှာ အသိုင်းအဝိုင်းတစ်ခုအထဲမှာ လူချစ်လူခင် အများဆုံး (ဒါမှမဟုတ်) လွှမ်းမိုးမှု အရှိဆုံး အမျိုးသမီးကို ရှာဖွေပြီး လှူဒါန်းနိုင်ရင် ပိုကောင်းပါတယ်။",
+  "(က) မတူညီသော အသီးအနှံအမျိုးမျိုး စုပေါင်းပြီး လှူဒါန်းရတယ်။ ကောင်းမွန်သော အသိုင်းအဝိုင်းအတွင်းသို့ ရောက်ရှိစေတယ်။\n(ခ) အမြစ်မှဖြစ်သော မြေပဲ၊ ကန်စွန်းဥလို အရာများကို လှူဒါန်းရတယ်။ မိမိအလိုရှိသော အရာကို ရရှိစေတတ်တယ်။\nအထူးမှတ်ချက်။ အပေါ်က အလှူနှစ်မျိုးထဲက တစ်မျိုးမျိုး ဒါမှမဟုတ် နှစ်မျိုးလုံးကို အသိုင်းအဝိုင်းတစ်ခုထဲမှာ အာဏာရှိသော / အုပ်ချုပ်ရသော အမျိုးသားတစ်ဦးတစ်ယောက်ဆီကို ပေးပို့လှူဒါန်းနိုင်ရင် မိမိကိုယ်တိုင် ဩဇာအာဏာကြီးမားလာတာ၊ ချမ်းသာ ကြွယ်ဝလာတာကို ထင်ထင်ရှားရှား တွေ့ရပါတယ်။",
+  "ဒါနတွေဟာ ဇေဋ္ဌနက္ခတ်နဲ့ တူတယ်။ အကျိုးပေးကတော့ မတူဘူး။ ခု ဒီမှာက အကျိုးပေးဟာ ကောင်းမွန်သော အသိုင်း အဝိုင်းအတွင်းကို ရောက်ရှိစေမယ်။ ကျန်းမာရေး အထူးကောင်းစေတယ်။ ဘဝဟောင်းက ကုသိုလ်တွေ အကျိုးပေးလာစေတယ်။",
+  "မြေအိုးထဲမှာ ဒိန်ချဉ်အပြည့်ထည့်ပြီး လှူရတယ်။ သားသမီး၊ မြေးမြစ် များ ရရှိစေတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။ မိသားစု သာယာငြိမ်းချမ်းစေတယ်။ အခက်အခဲများ ပြေလည်စေတယ်။",
+  "(က) ထန်းလျက်၊ ကြံသကာ၊ ပျားရည်၊ ထောပတ် မိမိအဆင်ပြေရာ တစ်မျိုးမျိုးကို လှူဒါန်းနိုင်တယ်။ အလိုဆန္ဒများ ပြည့်စေတယ်။ ရောဂါကင်းစေတယ်။\n(ခ) ရနံ့မွှေးသော ပန်းများ လှူရတယ်။ ဆန္ဒ ပြည့်စေတယ်။",
+  "(က) စာရေးကိရိယာများ အထူးသဖြင့် စာအုပ်များ/ ဓမ္မစာပေများ လှူဒါန်းရတယ်။ ယာဉ်ရထား ရရှိစေတယ်။ အချုပ်အနှောင် ကင်းစေတယ်။\n(ခ) အဖြူရောင်/ အဝါရောင်/ အပြာရောင်ရှိတဲ့ ပန်းတွေ လှူဒါန်းရတယ်။ အောင်မြင်ခြင်း အထွေထွေကို ရရှိစေတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။",
+  "(က) ရနံ့မွှေးသောပန်းများ လှူဒါန်းရတယ် ဒါမှမဟုတ် နံ့သာနီအမှုန့်ကို ရေနဲ့ ပျစ်ပျစ်ဖျော်ပြီး ကပ်လှူရတယ်။ ဘယ်လောက်ကြီးမားသော အခက်အခဲတွေဖြစ်စေ လွယ်လင့်တကူ လွတ်မြောက်စေတယ်။\n(ခ) လင်မယားစုံတွဲ တစ်တွဲကို ဧည့်ခံကျွေးမွေးတာ၊ လက်ဆောင်ပေးတာ ပြုလုပ်ရတယ်။ ရောဂါကင်းစေတယ်။ စည်းစိမ်ဥစ္စာ တိုးပွားစေတယ်။",
+  "နံ့သာနီ၊ နံ့သာဖြူ အဆင်ပြေရာ လှူရတယ်။ ရောဂါကင်းစေတယ်။ အထူးအားဖြင့် အဆစ်အမြစ်ရောဂါတွေအတွက် အလွန်ကောင်းတယ်။ ချမ်းသာကြွယ်ဝစေတယ်။ ခွန်အား ကြီးမားစေတယ်။",
+  "(က) ပဲစင်းငုံ လှူရတယ်။ အစာရေစာပေါများခြင်း၊ အခက် အခဲများ ပြေလည်ခြင်း၊ သုခ ချမ်းသာတိုးပွားခြင်းဆိုတဲ့ အကျိုးပေးတွေ ရှိတယ်။\n(ခ) သလင်းကျောက် လှူရတယ်။ အဲဒီကျောက်အနာအဆာကင်းရင် ပိုကောင်းတယ်။ ဘုန်းတန်ခိုး ဩဇာအာဏာ အထူးကြီးမားစေတယ်။ သွားလေရာ၊ လုပ်လေရာမှာ အောင်မြင်စေတယ်။",
+  "လှပပြီး တန်ဖိုးရှိတဲ့ အဝတ်အထည်တွေ လှူဒါန်းရတယ်။ မိဘဘိုးဘွားတို့ရဲ့ ကောင်းမွန်သော အမွေတွေ ဆက်ခံရရှိစေတယ်။ အထူးငြိမ်းချမ်းစေတယ်။",
+  "ကြေးခွက်/ ကြေးထည် လှူရတယ်။ ဆန္ဒပြည့်စေတယ်။ စိတ်ခွန်အား ကောင်းစေတယ်။ အောင်မြင်ခြင်း အထွေထွေ ရရှိစေတယ်။"
+];
+
+// Chapter 35, in the same nakshatra order as the other yatra lists.
+const yatra5Descriptions = [
+  ["မြောက်အရပ်", "အနီရောင်", "၁၄၅၉", "12345"],
+  ["မြောက်အရပ်", "အဖြူရောင်။ အနီရောင်", "၄၆၇၉", "134"],
+  ["မြောက်အရပ်", "အဖြူရောင်။ အနီရောင်", "၃၄၅၉", "356"],
+  ["အရှေ့မြောက်", "အဖြူရောင်", "၁၂၃၄", "346"],
+  ["တောင်အရပ်", "အနီရောင်", "၂၃၄၇", "146"],
+  ["အရှေ့မြောက်ထောင့်။ အရှေ့", "မီးခိုးရောင်။ အညိုရောင်", "၄", "16"],
+  ["အရှေ့အရပ်", "အဝါရောင်", "၂၃၇၉", "146"],
+  ["မြောက်အရပ်", "အနက်ရောင်", "၁၃၄၈", "136"],
+  ["တောင်အရပ်", "အစိမ်းရောင်", "၅", "1345"],
+  ["အနောက်အရပ်", "အရောင်အသွေး စုံလင် စိုပြေသော", "", "034"],
+  ["မြောက်အရပ်", "အဖြူရောင်", "၃၅၆၇", "356"],
+  ["အရှေ့အရပ်", "အနီရောင်", "၁", "01345"],
+  ["အရှေ့တောင်အရပ်", "အဖြူရောင်", "၁၃၅၇", "134"],
+  ["တောင်အရပ်", "အနီရောင်", "၂၃၄၆", "236"],
+  ["တောင်အရပ်", "မီးခိုးရောင်။ အညိုရောင်", "၃၅၇၉", "456"],
+  ["တောင်အရပ်", "အဝါရောင်", "၃၄၆၇", "012"],
+  ["အနောက်တောင်အရပ်", "အနက်ရောင်", "၃၇၈၉", "345"],
+  ["အနောက်တောင်အရပ်", "အစိမ်းရောင်", "၂၃၄၅", "035"],
+  ["အနောက်တောင်အရပ်", "အရောင်အသွေး စုံလင် စိုပြေသော", "၂၃၄၈", "136"],
+  ["အနောက်တောင်အရပ်။ အနောက်အရပ်", "အဖြူရောင်", "၃၆၇၉", "046"],
+  ["အနောက်", "အနီ", "၁၃၅၉", "023"],
+  ["အနောက်အရပ်", "အဖြူရောင်", "၁၄၅၇", "134"],
+  ["အနောက်မြောက်အရပ်", "အနီရောင်", "၁၂၃၄", "236"],
+  ["အနောက်မြောက်အရပ်", "အညိုရောင်။ မီးခိုးရောင်", "၂၆၇၈", "035"],
+  ["အနောက်မြောက်အရပ်", "အဝါရောင်", "၃၄၅၉", "046"],
+  ["အနောက်မြောက်အရပ်", "အနက်ရောင်", "၂၄၇၉", "016"],
+  ["မြောက်အရပ်", "အစိမ်းရောင်", "၂၅၇၉", "023"]].map(([direction, color, numbers, days]) => [
+  `စွမ်းအင်ရှိရာ အရပ် - ${direction}။`,
+  `စွမ်းအင်ရှိရာ အရောင် - ${color}။`,
+  `စွမ်းအင်ရှိသော ဂဏန်း - ${numbers ? [...numbers].join(' - ') : 'ကျမ်းတွင် ပြမထား'}။`,
+  `စွမ်းအင်ရှိသော နေ့ - ${[...days].map(day => weekdays[day]).join('၊ ')}။`,
+].join('\n'));
+
 function renderYatraCards(containerId, descriptions) {
   const yatraCards = document.createDocumentFragment();
   yatraNames.forEach((name, index) => {
@@ -349,6 +444,8 @@ function renderYatraCards(containerId, descriptions) {
 renderYatraCards('yatra-entries', yatraDescriptions);
 renderYatraCards('yatra2-entries', yatra2Descriptions);
 renderYatraCards('yatra3-entries', yatra3Descriptions);
+renderYatraCards('yatra4-entries', yatra4Descriptions);
+renderYatraCards('yatra5-entries', yatra5Descriptions);
 const abhijit = document.createElement('article');
 abhijit.className = 'entry';
 abhijit.innerHTML = '<h3>အဘိဇိနက္ခတ်</h3><p>နို့ထမင်း လှူခြင်း။</p>';
@@ -356,18 +453,9 @@ byId('yatra3-entries').children[20].after(abhijit);
 
 updateResult();
 
-function renderNakshatraDetail([name, effect], source) {
+function renderNakshatraDetail([name], source) {
   byId('nakshatra-back').href = '#' + source;
   byId('nakshatra-title').textContent = 'နက္ခတ် - ' + name;
-  byId('nakshatra-effect').textContent = effect;
-  const timing = byId('nakshatra-timing');
-  const lines = resultDetails?.route === window.location.hash ? resultDetails.lines : [];
-  timing.replaceChildren(...lines.map(line => {
-    const paragraph = document.createElement('p');
-    paragraph.textContent = line;
-    return paragraph;
-  }));
-  timing.hidden = lines.length === 0;
   const list = byId('nakshatra-yatras');
   list.replaceChildren();
   const index = yatraNames.indexOf(name);
@@ -375,8 +463,8 @@ function renderNakshatraDetail([name, effect], source) {
     list.textContent = 'ဒီနက္ခတ်အတွက် ကျမ်းပါ ယတြာ မရှိပါ။';
     return;
   }
-  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)"];
+  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions];
+  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု"];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
@@ -391,12 +479,21 @@ function showPage() {
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'yatra', 'yatra2', 'yatra3'].includes(hash) ? hash : 'calculator';
+    : ['catalog', 'yatra', 'yatra2', 'yatra3', 'yatra4', 'yatra5'].includes(hash) ? hash : 'calculator';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
     byId('nakshatra-title').focus();
   }
+  const yatraTabs = byId('yatra-tabs');
+  const yatraLinks = [...yatraTabs.querySelectorAll('[data-yatra-tab]')];
+  yatraTabs.hidden = !yatraLinks.some(link => link.dataset.yatraTab === page);
+  for (const link of yatraLinks) {
+    if (link.dataset.yatraTab === page) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  }
+  byId('yatra5').hidden = page !== 'yatra5';
+  byId('yatra4').hidden = page !== 'yatra4';
   byId('yatra3').hidden = page !== 'yatra3';
   byId('yatra2').hidden = page !== 'yatra2';
   byId('yatra').hidden = page !== 'yatra';
@@ -404,7 +501,7 @@ function showPage() {
   byId('calculator-intro').hidden = page !== 'calculator';
   byId('catalog').hidden = page !== 'catalog';
   for (const link of document.querySelectorAll('[data-page]')) {
-    if (link.dataset.page === page) link.setAttribute('aria-current', 'page');
+    if (link.dataset.page === page || (link.dataset.page === 'yatras' && !yatraTabs.hidden)) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
 }
