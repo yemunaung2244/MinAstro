@@ -1,0 +1,14 @@
+{
+  "name": "Nakshatra (နက္ခတ်)",
+  "short_name": "Nakshatra",
+  "description": "ဆရာမင်းနိုင်ရဲ့ နက္ခတ်မှတ်စုမှ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbf0",
+  "theme_color": "#fff7e5",
+  "icons": [
+    { "src": "/assets/nakshatra.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/assets/nakshatra-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/nakshatra-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

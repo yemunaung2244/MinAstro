@@ -1,0 +1,7 @@
+{
+  "name": "minastro-nadika",
+  "private": true,
+  "scripts": {
+    "dev": "node server.mjs"
+  }
+}
