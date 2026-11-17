@@ -252,18 +252,20 @@ showPage();
 const pushServer = 'https://nakshatra-notifications.astrok-pro-mobile.workers.dev';
 const notificationControls = byId('notification-controls');
 const notificationToggle = byId('notification-toggle');
+const notificationTest = byId('notification-test');
 const notificationStatus = byId('notification-status');
 let pushRegistration;
 let pushKey;
 let subscription;
 
 function updateNotificationButton() {
+  notificationTest.hidden = !subscription;
   notificationToggle.textContent = subscription ? 'အသိပေးချက် ပိတ်ရန်' : 'အသိပေးချက် ဖွင့်ရန်';
 }
 
-async function saveSubscription(method) {
+async function saveSubscription(method, path = '') {
   const [lat, lon] = selectedCoordinates();
-  const response = await fetch(pushServer, {
+  const response = await fetch(pushServer + path, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ subscription, lat, lon, mode: slotMode.value }),
@@ -286,6 +288,18 @@ if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in
     notificationToggle.disabled = false;
   }).catch(() => {
     notificationStatus.textContent = 'အသိပေးချက် ဝန်ဆောင်မှုကို ချိတ်ဆက်၍မရပါ။';
+  });
+
+  notificationTest.addEventListener('click', async () => {
+    notificationTest.disabled = true;
+    try {
+      await saveSubscription('POST', '/test');
+      notificationStatus.textContent = 'စမ်းသပ် အသိပေးချက်ကို ပို့လိုက်ပါပြီ။';
+    } catch {
+      notificationStatus.textContent = 'စမ်းသပ် အသိပေးချက် ပို့၍မရပါ။ ပိတ်ပြီး ပြန်ဖွင့်ကြည့်ပါ။';
+    } finally {
+      notificationTest.disabled = false;
+    }
   });
 
   notificationToggle.addEventListener('click', async () => {

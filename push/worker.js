@@ -32,6 +32,10 @@ export class Subscription extends DurableObject {
       return new Response(null, { status: 204 });
     }
     const config = await request.json();
+    if (new URL(request.url).pathname === '/test') {
+      const response = await this.send(config, 'စမ်းသပ် အသိပေးချက်', 'Nakshatra အသိပေးချက်ကို ဖုန်းတွင် လက်ခံရရှိပါပြီ။');
+      return new Response(null, { status: response.ok ? 204 : response.status });
+    }
     await this.ctx.storage.put('config', config);
     await this.ctx.storage.setAlarm(reading(Date.now(), config.lat, config.lon, config.mode).next);
     return new Response(null, { status: 204 });
@@ -41,26 +45,30 @@ export class Subscription extends DurableObject {
     const config = await this.ctx.storage.get('config');
     if (!config) return;
     const { entry, next } = reading(Date.now(), config.lat, config.lon, config.mode);
-    if (entry) {
-      const [name, effect] = entry;
-      const details = webPush.generateRequestDetails(config.subscription, JSON.stringify({ name, effect, site }), {
-        TTL: 120,
-        vapidDetails: {
-          subject: site,
-          publicKey: this.env.VAPID_PUBLIC,
-          privateKey: this.env.VAPID_PRIVATE,
-        },
-      });
-      const response = await fetch(details.endpoint, {
-        method: 'POST', headers: details.headers, body: details.body, redirect: 'error',
-      });
-      if ([404, 410].includes(response.status)) {
-        await this.ctx.storage.deleteAll();
-        return;
-      }
-      if (!response.ok) throw new Error('Push provider returned ' + response.status);
-    }
     await this.ctx.storage.setAlarm(next);
+    if (!entry) return;
+    const [name, effect] = entry;
+    const response = await this.send(config, name, effect);
+    if ([404, 410].includes(response.status)) {
+      await this.ctx.storage.deleteAlarm();
+      await this.ctx.storage.deleteAll();
+    } else if (!response.ok) {
+      console.error('Push provider returned', response.status);
+    }
+  }
+
+  async send(config, name, effect) {
+    const details = webPush.generateRequestDetails(config.subscription, JSON.stringify({ name, effect }), {
+      TTL: 120,
+      vapidDetails: {
+        subject: site,
+        publicKey: this.env.VAPID_PUBLIC,
+        privateKey: this.env.VAPID_PRIVATE,
+      },
+    });
+    return fetch(details.endpoint, {
+      method: 'POST', headers: details.headers, body: details.body, redirect: 'error',
+    });
   }
 }
 
@@ -84,12 +92,21 @@ export default {
           !['web.push.apple.com', 'fcm.googleapis.com', 'updates.push.services.mozilla.com'].some(
             host => endpoint.hostname === host || endpoint.hostname.endsWith('.' + host)
           )) throw new Error('Invalid push endpoint');
+      if (request.method === 'POST') {
+        for (const key of ['p256dh', 'auth']) {
+          if (typeof config.subscription.keys?.[key] === 'string') {
+            config.subscription.keys[key] = config.subscription.keys[key].replace(/=+$/, '');
+          }
+        }
+      }
       if (request.method === 'POST' && !(Number.isFinite(config.lat) && config.lat >= 9 && config.lat <= 29 &&
           Number.isFinite(config.lon) && config.lon >= 92 && config.lon <= 102 &&
           /^[\w-]{87}$/.test(config.subscription.keys?.p256dh) &&
           /^[\w-]{22}$/.test(config.subscription.keys?.auth))) throw new Error('Invalid subscription');
       const object = env.SUBSCRIPTIONS.getByName(endpoint.href);
-      const response = await object.fetch('https://subscription.internal/', { method: request.method, body: raw });
+      const response = await object.fetch('https://subscription.internal' + new URL(request.url).pathname, {
+        method: request.method, body: JSON.stringify(config),
+      });
       return new Response(null, { status: response.status, headers });
     } catch {
       return new Response(null, { status: 400, headers });
