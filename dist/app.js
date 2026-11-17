@@ -17,6 +17,8 @@ const form = byId('inputs');
 const date = byId('date');
 const time = byId('time');
 const timeMode = byId('time-mode');
+const slotMode = byId('slot-mode');
+slotMode.value = localStorage.getItem('nadika-slot-mode') === 'fixed' ? 'fixed' : 'equal';
 const location = byId('location');
 const townSearch = byId('town-search');
 const latitude = byId('latitude');
@@ -69,6 +71,9 @@ function tag(element, type) {
 }
 
 function updateResult() {
+  const fixed = slotMode.value === 'fixed';
+  byId('dial-number').textContent = fixed ? '၂၄' : '၃၀';
+  byId('dial-unit').textContent = fixed ? 'မိနစ်စီ' : 'အပိုင်းစီ';
   const live = timeMode.value === 'live';
   const now = myanmarNow();
   if (live) {
@@ -107,11 +112,11 @@ function updateResult() {
   const nextRise = night && !beforeSunrise ? solarTimes(offsetDate(date.value, 1), lat, lon).sunrise : sunrise;
   const limit = night ? dayMinutes + nextRise : sunset;
   const clockMinute = beforeSunrise ? dayMinutes + minute : minute;
-  const windows = windowsFor(anchor, limit);
+  const windows = windowsFor(anchor, limit, slotMode.value);
   const slot = catalogSlot === null
     ? windows.find(({ start, end }) => clockMinute >= start && clockMinute < end)
     : windows[catalogSlot - 1];
-  const signature = [live, date.value, lat, lon, night, slot?.number, catalogSlot].join('|');
+  const signature = [slotMode.value, live, date.value, lat, lon, night, slot?.number, catalogSlot].join('|');
   if (signature === lastUpdate) return;
   lastUpdate = signature;
 
@@ -129,7 +134,7 @@ function updateResult() {
 
   if (!slot || slot.start >= limit) {
     byId('result-time').textContent = 'နာဒီကာအကွက် မရှိပါ';
-    byId('result-note').textContent = 'ရက်စွဲနှင့် အချိန်ကို စစ်ပေးပါ။';
+    byId('result-note').textContent = fixed ? 'ဒီအချိန်မှာ ၂၄ မိနစ်စီ စနစ်ရဲ့ အပိုင်း ၃၀ အတွင်း မကျပါ။' : 'ရက်စွဲနှင့် အချိန်ကို စစ်ပေးပါ။';
     return;
   }
 
@@ -137,7 +142,9 @@ function updateResult() {
   byId('result-time').textContent = `${timeLabel(slot.start - dateOffset)} – ${timeLabel(slot.end - dateOffset)}`;
   const seconds = Math.round((slot.end - slot.start) * 60);
   const period = night ? 'နေဝင်ချိန်မှ နောက်တစ်ကြိမ် နေထွက်ချိန်အထိ' : 'နေထွက်ချိန်မှ နေဝင်ချိန်အထိ';
-  byId('result-note').textContent = `${period} အညီအမျှ ၃၀ ပိုင်းခွဲထားပါတယ်။ တစ်ပိုင်းလျှင် ခန့်မှန်း ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့် ကြာပါတယ်။`;
+  byId('result-note').textContent = fixed
+    ? `၂၄ မိနစ်စီ စနစ် · ဒီအပိုင်းက ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့် ကြာပါတယ်။`
+    : `${period} အညီအမျှ ၃၀ ပိုင်းခွဲထားပါတယ်။ တစ်ပိုင်းလျှင် ခန့်မှန်း ${mm(Math.floor(seconds / 60))} မိနစ် ${mm(seconds % 60)} စက္ကန့် ကြာပါတယ်။`;
   const [name, effect, type] = catalogs[weekday][slot.number - 1];
   byId('result-name').textContent = name;
   byId('result-effect').textContent = effect;
@@ -197,6 +204,7 @@ for (const day of catalogDays) {
 }
 renderLocations(String(towns.findIndex(([, english]) => english === 'Yangon')));
 form.addEventListener('input', (event) => {
+  if (event.target === slotMode) localStorage.setItem('nadika-slot-mode', slotMode.value);
   if (event.target === townSearch) renderLocations(location.value);
   catalogSlot = null;
   updateResult();
@@ -248,7 +256,7 @@ async function saveSubscription(method) {
   const response = await fetch(pushServer, {
     method,
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subscription, lat, lon }),
+    body: JSON.stringify({ subscription, lat, lon, mode: slotMode.value }),
   });
   if (!response.ok) throw new Error('Subscription update failed');
 }
@@ -304,13 +312,13 @@ if ('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in
   });
 
   form.addEventListener('change', async (event) => {
-    if (!subscription || ![location, latitude, longitude, townSearch].includes(event.target) ||
+    if (!subscription || ![location, latitude, longitude, townSearch, slotMode].includes(event.target) ||
         !location.value || !form.checkValidity()) return;
     try {
       await saveSubscription('POST');
-      notificationStatus.textContent = 'အသိပေးချက် တည်နေရာ ပြောင်းထားပါပြီ။';
+      notificationStatus.textContent = 'အသိပေးချက် ဆက်တင် ပြောင်းထားပါပြီ။';
     } catch {
-      notificationStatus.textContent = 'အသိပေးချက် တည်နေရာ ပြောင်း၍မရပါ။';
+      notificationStatus.textContent = 'အသိပေးချက် ဆက်တင် ပြောင်း၍မရပါ။';
     }
   });
 } else {

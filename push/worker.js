@@ -6,7 +6,7 @@ const site = 'https://nakshatra-minastro.peppydell22.chatgpt.site';
 const minute = 60000;
 const day = 1440 * minute;
 
-function reading(now, lat, lon) {
+function reading(now, lat, lon, mode) {
   const local = now + 390 * minute;
   const midnight = Math.floor(local / day) * day;
   const dateAt = (t) => new Date(t).toISOString().slice(0, 10);
@@ -17,7 +17,7 @@ function reading(now, lat, lon) {
   const cycle = previous ? midnight - day : midnight;
   const start = previous ? solarTimes(dateAt(cycle), lat, lon).sunset - 1440 : night ? sunset : sunrise;
   const end = previous ? sunrise : night ? 1440 + solarTimes(dateAt(midnight + day), lat, lon).sunrise : sunset;
-  const slot = windowsFor(start, end).find(({ start, end }) => clock >= start && clock < end);
+  const slot = windowsFor(start, end, mode).find(({ start, end }) => clock >= start && clock < end);
   return {
     entry: slot && catalogs[new Date(cycle).getUTCDay()][slot.number - 1],
     next: Math.ceil(midnight + (slot?.end ?? end) * minute - 390 * minute) + 250,
@@ -33,14 +33,14 @@ export class Subscription extends DurableObject {
     }
     const config = await request.json();
     await this.ctx.storage.put('config', config);
-    await this.ctx.storage.setAlarm(reading(Date.now(), config.lat, config.lon).next);
+    await this.ctx.storage.setAlarm(reading(Date.now(), config.lat, config.lon, config.mode).next);
     return new Response(null, { status: 204 });
   }
 
   async alarm() {
     const config = await this.ctx.storage.get('config');
     if (!config) return;
-    const { entry, next } = reading(Date.now(), config.lat, config.lon);
+    const { entry, next } = reading(Date.now(), config.lat, config.lon, config.mode);
     if (entry) {
       const [name, effect] = entry;
       const details = webPush.generateRequestDetails(config.subscription, JSON.stringify({ name, effect, site }), {

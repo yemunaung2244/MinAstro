@@ -20,14 +20,20 @@
     <section class="hero">
       <div>
         <h1>ဆရာမင်းနိုင်ရဲ့ နက္ခတ်မှတ်စုမှ…</h1>
-        <p id="calculator-intro">နေထွက်မှ နေဝင်အထိ ၃၀ ပိုင်း၊ နေဝင်မှ နောက်နေ့ နေထွက်အထိ ၃၀ ပိုင်း အညီအမျှ ခွဲတွက်ထားပါတယ်။</p>
+        <p id="calculator-intro">၂၄ မိနစ်စီ သို့မဟုတ် နေ့ပိုင်း၊ ညပိုင်း ၃၀ ပိုင်းစီ ရွေးတွက်နိုင်ပါတယ်။</p>
       </div>
-      <div class="dial" aria-hidden="true"><div><span>✦</span><strong>၃၀</strong><small>အပိုင်းစီ</small></div></div>
+      <div class="dial" aria-hidden="true"><div><span>✦</span><strong id="dial-number">၃၀</strong><small id="dial-unit">အပိုင်းစီ</small></div></div>
     </section>
 
     <section id="calculator" class="calculator" aria-label="နာဒီကာတွက်စက်">
       <form id="inputs" class="panel controls">
         <h2>အချိန်သတ်မှတ်ရန်</h2>
+        <label class="field">နာဒီကာ တွက်နည်း
+          <select id="slot-mode">
+            <option value="equal">နေ့/ည အညီအမျှ ၃၀ ပိုင်းစီ</option>
+            <option value="fixed">၂၄ မိနစ်စီ</option>
+          </select>
+        </label>
         <label class="field">အချိန်ရွေးနည်း
           <select id="time-mode">
             <option value="live">လက်ရှိအချိန် (အလိုအလျောက်)</option>

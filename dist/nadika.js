@@ -262,12 +262,13 @@ export function toMinutes(time) {
   return hours * 60 + minutes + seconds / 60;
 }
 
-export function windowsFor(anchor, limit) {
-  const boundary = (index) => anchor + (limit - anchor) * index / slotCount;
+export function windowsFor(anchor, limit, mode = 'equal') {
+  const duration = mode === 'fixed' ? 24 : (limit - anchor) / slotCount;
+  const boundary = (index) => anchor + duration * index;
   return Array.from({ length: slotCount }, (_, index) => ({
     number: index + 1,
     start: boundary(index),
-    end: index + 1 === slotCount ? limit : boundary(index + 1),
+    end: mode === 'equal' && index + 1 === slotCount ? limit : Math.min(limit, boundary(index + 1)),
   }));
 }
 
