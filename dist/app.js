@@ -590,7 +590,7 @@ function renderSuriyaStars(sunIndex) {
     group.setAttribute('tabindex', '0');
     group.setAttribute('aria-label', label.textContent + ' အဟော');
     const showReading = () => {
-      byId('suriya-star-title').textContent = label.textContent + ' — ' + suriyaRegions[regionIndex][0];
+      byId('suriya-star-title').textContent = (group.dataset.gozaName || label.textContent) + ' — ' + suriyaRegions[regionIndex][0];
       byId('suriya-star-reading').textContent = suriyaReadings[regionIndex];
       byId('suriya-star-dialog').showModal();
     };
@@ -649,11 +649,14 @@ for (const [index, reading] of suriyaReadings.entries()) {
 
 let birthStarIndex;
 const gozaResult = byId('goza-result');
-let gozaNatalSunIndex;
-
-function updateGoza(natalSunIndex, instant = new Date()) {
-  gozaNatalSunIndex = natalSunIndex;
-  byId('suriya-all-markers').querySelector('.goza-marker')?.classList.remove('goza-marker');
+function updateGoza(instant = new Date()) {
+  const markers = byId('suriya-all-markers');
+  const previous = markers.querySelector('.goza-marker');
+  if (previous) {
+    previous.classList.remove('goza-marker');
+    previous.setAttribute('aria-label', previous.dataset.originalLabel);
+    delete previous.dataset.gozaName;
+  }
   byId('goza-time').textContent = new Intl.DateTimeFormat('my-MM', {
     timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'medium',
   }).format(instant) + ' (မြန်မာစံတော်ချိန်)';
@@ -664,7 +667,11 @@ function updateGoza(natalSunIndex, instant = new Date()) {
     const regionIndex = suriyaRegionForStar[slot];
     highlightSuriyaSlot(slot, 'goza-marker');
     const position = document.createElement('p');
-    const starName = yatraNames[(natalSunIndex + slot) % yatraNames.length];
+    const starName = yatraNames[(sun.index + slot) % yatraNames.length];
+    const marker = markers.children[slot];
+    marker.dataset.gozaName = starName;
+    marker.dataset.originalLabel = marker.getAttribute('aria-label');
+    marker.setAttribute('aria-label', starName + ' အဟော');
     position.textContent = 'ကောဇာအရ ဇနမနက္ခတ် — ' + starName + '။';
     const reading = document.createElement('p');
     reading.textContent = suriyaReadings[regionIndex];
@@ -682,7 +689,7 @@ byId('goza-custom-form').addEventListener('submit', event => {
   const [date, time] = byId('goza-custom-time').value.split('T');
   const error = byId('goza-custom-error');
   try {
-    updateGoza(gozaNatalSunIndex, myanmarBirthInstant(date, time));
+    updateGoza(myanmarBirthInstant(date, time));
     error.textContent = '';
   } catch {
     error.textContent = 'ရွေးထားတဲ့ ရက်နဲ့ အချိန်ကို ပြန်စစ်ပါ။';
@@ -693,7 +700,7 @@ byId('goza-now').addEventListener('click', () => {
   if (birthStarIndex === undefined) return;
   byId('goza-custom-time').value = '';
   byId('goza-custom-error').textContent = '';
-  updateGoza(gozaNatalSunIndex);
+  updateGoza();
 });
 
 const janmaCity = byId('janma-city');
@@ -746,7 +753,7 @@ byId('janma-form').addEventListener('submit', event => {
     birthStarIndex = index;
     showReadingTab('current');
     updateSuriya(index, sun.index);
-    updateGoza(sun.index);
+    updateGoza();
     const degree = mm(longitude.toFixed(4));
     result.textContent = '';
     byId('suriya-calculation').textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
