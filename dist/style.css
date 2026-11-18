@@ -517,3 +517,31 @@ html { touch-action: pan-x pan-y; }
 #upa-table .upa-comparison th:first-child { width: 36%; }
 #upa-table .upa-comparison td.upa-natal-cell:not(.upa-hit) { background: #dbeafe; color: #163c72; }
 #upa-table .upa-comparison td.upa-goza-cell:not(.upa-hit) { background: #dcfce7; color: #14532d; }
+
+#upa-all-readings .entry { margin-block: 12px; }
+
+.upa-reading-link {
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--sky-accent);
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  white-space: pre-line;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#upa-reading-dialog {
+  width: min(92vw, 42rem);
+  max-height: 85dvh;
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--ink);
+}
+#upa-reading-dialog-text { white-space: pre-line; }
+#upa-reading-dialog::backdrop { background: #142e4577; }

@@ -1092,6 +1092,34 @@ const upa28Readings = [
   'ဝဇိရ။',
   'ပရိဒေသမှာ ရေကြောင်း ဘေးသင့်ခြင်း၊ ကြွေးတင် ကျွန်ဖြစ်ခြင်း၊ အချုပ်အနှောင်ခံရခြင်းတို့ကို ပြောပါတယ်။ အစာရေစာ လှူခြင်း၊ အဝတ်အထည် လှူခြင်းများ လုပ်ရမယ်လို့ ပြောပါတယ်။',
 ];
+const upa28Extra = {
+  1: 'နက္ခတ် တူကွဲပေမယ့် ဝိဒြုမရဲ့ သဘောတရားချင်း အတူတူပါပဲ။ နောင်မှာ အဲလို သဘောတရားချင်း ကွာတာတွေကို ပြည့်စုံနားလည်ပေးတော့ပါ။ အဲလို ညှိနားလည်ရင် သဘာဝပေါက်စေချင်ပါတယ်။ ဒီနက္ခတ်ကို နိရ္ဃာတနက္ခတ်လို့လဲ ခေါ်ပါသေးတယ်။ ဒီမှာလဲ သဘောတရား တူပါတယ်။',
+  5: 'အလွန် ရက်စက် ကြမ်းကြုတ်မယ်။ အဲလို ရက်စက် ကြမ်းကြုတ်ရင် ဘဝဟာ ဆင်းရဲနွမ်းပါးမယ်။ ဒါမှမဟုတ် အနေအထိုင် အစားအသောက် ညစ်ညမ်း ပတ်တတ်မယ်။ အဲလို ညစ်ညမ်း ပတ်တတ်ခဲ့ရင် ရောဂါကြီးတွေ တစ်မျိုးပြီး တစ်မျိုး ဝင်လိမ့်မယ်။ အသက်တိုမယ်။ ဒါမှမဟုတ် အောက်လမ်း အပြင်းအထန် အတိုက်ခံရမယ်။\n\nအကျိုးပေး သုံးမျိုး ပြောထားပါတယ်။ ဒါကို ဇာတာပါ နက္ခတ်များနဲ့ ညှိယူ ချိန်ဆပြီးမှ ဆုံးဖြတ်ရပါတယ်။',
+  8: 'ဇာတာရှင်ကို မောဟ ကြီးကျယ်စွာ ဖုံးလွှမ်းစေသော နက္ခတ် ဖြစ်ပါတယ်။ ဥပဂြဟတွေ အားလုံးထဲမှာ ကြောက်စရာ အကောင်းဆုံး ဖြစ်တယ်လို့ ကျမ်းက ပြောပါတယ်။',
+  10: 'ဒီနက္ခတ်ကို မဟာကမ္ပလို့လဲ ခေါ်ပါသေးတယ်။',
+  12: 'ပရိဝေသမှာ ရေကြောင်း ဘေးသင့်ခြင်း၊ ကြွေးတင် ကျွန်ဖြစ်ခြင်း၊ အချုပ်အနှောင် ခံရခြင်းတို့ကို ပြောပါတယ်။ ဒီမှာက အစာရေစာ လှူခြင်း၊ အဝတ်အထည် လှူခြင်းများ လုပ်ရမယ်လို့ ပြောပါတယ်။',
+};
+for (const [index, text] of Object.entries(upa28Extra)) upa28Readings[index] = text;
+
+const upa28Marriage = {
+  1: 'ဝိဒြုမ သင့်နေရင် — သား သေမယ်။',
+  2: 'သူလ သင့်နေရင် — လင် သေမယ်။',
+  4: 'သန္နိပါတ သင့်နေရင် — လက်ထပ်ပြီး ဆယ်ရက်မြောက်နေ့မှာ လင်ဖြစ်သူ သေရာသေ မသေရင် ဒဏ်ရာ အကြီးအကျယ် ရမယ်။',
+  6: 'ကေတု သင့်နေရင် — မတ်ဖြစ်သူ သေရာသေ မသေရင် ဒဏ်ရာ အကြီးအကျယ် ရမယ်။',
+  7: 'ဥက္ကလ သင့်နေရင် — စီးပွား ပျက်မယ်။',
+  11: 'ဝဇိရ သင့်နေရင် — လင်ငယ် နေမိမယ်။ ဒါမှမဟုတ် တခြားသော ယောကျ်ားက မုဒိမ်းကျင့်တာ ခံရမယ်။',
+  10: 'ကမ္ပ သင့်နေရင် — အိုးအိမ်နေရာ ပျက်စီးမယ်။',
+  12: 'နိရ္ဃာတ သင့်နေရင် — တစ်မျိုး တစ်ဆွေလုံး သေမယ်။',
+};
+for (const [index, text] of Object.entries(upa28Marriage)) {
+  upa28Readings[index] += '\n\nမင်္ဂလာဆောင်ချိန်၏ နက္ခတ်အတွက် ကျမ်းဖော်ပြချက်\n' + text;
+}
+const nameOnly = [2, 3, 4, 6, 7, 9, 11];
+for (const index of nameOnly) {
+  const note = 'ပေးထားသော ၂၈ လုံးမူစာမျက်နှာတွင် ဤရေတွက်နေရာအတွက် ဥပဂြဟအမည်ကို ဖော်ပြထားပြီး သီးခြားအဟောရှည် မဖော်ပြထားပါ။';
+  upa28Readings[index] += '\n\n' + note;
+}
+
 let upaMode = 'upagraha';
 let upaResultMode;
 const upaNames = () => upaMode === 'upagraha28' ? guruNames : yatraNames;
@@ -1149,6 +1177,39 @@ document.addEventListener('fullscreenchange', () => {
 });
 window.addEventListener('hashchange', () => byId('upa-table-panel').classList.remove('upa-expanded'));
 
+function showUpaTab(tab) {
+  byId('upa-result').hidden = tab !== 'result';
+  byId('upa-all-readings').hidden = tab !== 'all';
+  for (const button of document.querySelectorAll('[data-upa-tab]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.upaTab === tab));
+  }
+}
+for (const button of document.querySelectorAll('[data-upa-tab]')) {
+  button.addEventListener('click', () => showUpaTab(button.dataset.upaTab));
+}
+function renderAllUpaReadings() {
+  const container = byId('upa-all-readings');
+  container.replaceChildren();
+  const readings = upaMode === 'upagraha28' ? upa28Readings : upaReadings;
+  if (upaMode === 'upagraha28') {
+    const notes = document.createElement('p');
+    notes.className = 'upa-reading-notes';
+    notes.textContent = 'မင်္ဂလာဆောင်ချိန်၏ နက္ခတ်အဟောများကို ကျမ်းတွင် ဖော်ပြထားသည်။ ယင်းအဟောကို မွေးဖွားမှု သို့မဟုတ် လက်ရှိကောဇာတစ်ခုတည်းနှင့် မင်္ဂလာအခါအဖြစ် အလိုအလျောက်မယူဘဲ သက်ဆိုင်ရာ အခါနက္ခတ်နှင့် ချိန်ဆရန် လိုသည်။ စာရေးသူက နက္ခတ်ပေါ် ဂြိုဟ်စီးမှု၊ သက်ဆိုင်ရာနက္ခတ်၏ အခြားသဘောများကိုပါ ပေါင်းစပ်ချိန်ဆရန် ဖော်ပြထားသည်။ ဥပမာတွင် ပါပဂြိုဟ်စီးနက္ခတ်၊ ဂြိုဟ်၏ ဝေဓနက္ခတ်တို့နှင့် တွဲဖက်၍ စဉ်းစားထားသည်။';
+    container.append(notes);
+  }
+  upaRules().forEach(([name, offset], index) => {
+    const card = document.createElement('article');
+    card.className = 'entry upa-reading';
+    const heading = document.createElement('h3');
+    heading.textContent = name;
+    const position = document.createElement('p');
+    position.textContent = 'နေစီးနက္ခတ်မှ ' + mm(offset + 1) + ' လုံးမြောက်';
+    const text = document.createElement('p');
+    text.textContent = readings[index];
+    card.append(heading, position, text);
+    container.append(card);
+  });
+}
 let upaHasResult = false;
 byId('upagraha-form').addEventListener('submit', event => {
   event.preventDefault();
@@ -1225,7 +1286,22 @@ byId('upagraha-form').addEventListener('submit', event => {
       const row = comparisonBody.insertRow();
       const heading = document.createElement('th');
       heading.scope = 'row';
-      heading.textContent = original.textContent.replaceAll(' / ', '\n');
+      if (index === 0) {
+        heading.textContent = original.textContent;
+      } else {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'upa-reading-link';
+        button.textContent = original.textContent.replaceAll(' / ', '\n');
+        button.setAttribute('aria-haspopup', 'dialog');
+        button.addEventListener('click', () => {
+          const readings = upaMode === 'upagraha28' ? upa28Readings : upaReadings;
+          byId('upa-reading-dialog-title').textContent = upaRules()[index - 1][0];
+          byId('upa-reading-dialog-text').textContent = readings[index - 1];
+          byId('upa-reading-dialog').showModal();
+        });
+        heading.append(button);
+      }
       row.append(heading);
       rows.forEach((source, column) => {
         const cell = source.cells[index].cloneNode(true);
@@ -1276,6 +1352,8 @@ byId('upagraha-form').addEventListener('submit', event => {
       output.append(card);
     }
     byId('upa-error').textContent = '';
+    renderAllUpaReadings();
+    showUpaTab('result');
     upaHasResult = true;
     upaResultMode = upaMode;
     window.location.hash = upaMode + '-result';

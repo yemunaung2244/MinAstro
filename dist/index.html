@@ -29,6 +29,11 @@
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
     <section id="upagraha" class="catalog" hidden>
       <h1 id="upa-title">ဥပဂြဟ</h1>
+      <dialog id="upa-reading-dialog" aria-labelledby="upa-reading-dialog-title">
+        <h2 id="upa-reading-dialog-title"></h2>
+        <p id="upa-reading-dialog-text"></p>
+        <form method="dialog"><button autofocus>ပိတ်ရန်</button></form>
+      </dialog>
       <form id="upagraha-form" class="controls">
         <fieldset class="janma-parts">
           <legend>မွေးသက္ကရာဇ်</legend>
@@ -55,7 +60,12 @@
           <div class="upa-table-heading"><h3>မူလနှင့် ကောဇာနေစီးနက္ခတ် ဥပဂြဟဇယား</h3><button id="upa-fullscreen" type="button">မျက်နှာပြင်အပြည့်</button></div>
           <div class="upa-table-scroll" id="upa-table"></div>
         </section>
+        <nav class="suriya-reading-tabs" aria-label="ဥပဂြဟ အဟောများ">
+          <button type="button" data-upa-tab="result" aria-pressed="true">အဟောပိုင်း</button>
+          <button type="button" data-upa-tab="all" aria-pressed="false">အဟောအားလုံး</button>
+        </nav>
         <div id="upa-result" aria-live="polite"></div>
+        <section id="upa-all-readings" hidden></section>
       </section>
       <details><summary>တွက်နည်းနှင့် အသုံးပြုပုံ</summary>
         <p>နေစီးနက္ခတ်ကို စမှတ်ယူပြီး နက္ခတ် ၂၇ လုံးအစဉ်အတိုင်း ဥပဂြဟများကို တွက်သည်။ ဝိဒြုမကို ၅ လုံးမြောက်၊ သူလကို ၈ လုံးမြောက်၊ သန္နိပါတကို ၁၄ လုံးမြောက်၊ ကေတုကို ၁၈ လုံးမြောက်၊ ဥက္ကလကို ၂၂ လုံးမြောက်၊ ကမ္ပကို ၂၃ လုံးမြောက်၊ ဝဇိရကို ၂၄ လုံးမြောက်၊ နိရ္ဃာတကို ၂၅ လုံးမြောက်တွင် ထားသည်။</p>
