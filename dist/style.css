@@ -201,7 +201,7 @@ html { touch-action: pan-x pan-y; }
 }
 
 .page-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-#yatra8-entries, #yatra7-entries, #yatra6-entries, #yatra5-entries, #yatra4-entries, #yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
+#yatra-food-entries, #yatra8-entries, #yatra7-entries, #yatra6-entries, #yatra5-entries, #yatra4-entries, #yatra3-entries, #yatra2-entries, #yatra-entries { margin-top: 16px; }
 #result-yatra { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
 #result-yatra h4 { margin: 0 0 6px; color: var(--sky-accent); }
 
@@ -214,25 +214,25 @@ html { touch-action: pan-x pan-y; }
 #nakshatra-yatras p { white-space: pre-line; }
 #nakshatra-yatras h4 { margin: 12px 0 6px; color: var(--sky-accent); }
 
-#yatra6-entries p, #yatra5-entries p, #yatra4-entries p { white-space: pre-line; }
+#yatra-food-entries p, #yatra6-entries p, #yatra5-entries p, #yatra4-entries p { white-space: pre-line; }
 .page-tabs a { white-space: nowrap; min-width: 0; padding-inline: 0; }
 .page-tabs { column-gap: 4px; }
 
-#yatra-tabs {
+#yatra-tabs, #general-tabs {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
   margin-bottom: 12px;
 }
-#yatra-tabs a {
+:is(#yatra-tabs, #general-tabs) a {
   padding: 10px 2px;
   text-align: center;
   border: 1px solid var(--line);
   border-radius: 8px;
 }
-#yatra-tabs a[aria-current="page"] { background: #ccecff; font-weight: 800; }
+:is(#yatra-tabs, #general-tabs) a[aria-current="page"] { background: #ccecff; font-weight: 800; }
 
-#yatra-tabs a { font-size: clamp(.72rem, 3vw, .9rem); white-space: nowrap; }
+:is(#yatra-tabs, #general-tabs) a { font-size: clamp(.72rem, 3vw, .9rem); white-space: nowrap; }
 
 @media (max-width: 480px) {
   #yatra-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -241,3 +241,5 @@ html { touch-action: pan-x pan-y; }
 .planet-materials { list-style: none; margin: 6px 0 0; padding: 0; }
 .planet-materials li + li { margin-top: 4px; }
 .entry-materials > p { margin-top: 8px; font-weight: 700; }
+
+#general-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }

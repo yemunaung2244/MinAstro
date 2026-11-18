@@ -1,3 +1,4 @@
+import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
 
@@ -498,6 +499,8 @@ renderYatraCards('yatra4-entries', yatra4Descriptions);
 renderYatraCards('yatra5-entries', yatra5Descriptions);
 renderYatraCards('yatra6-entries', yatra6Descriptions);
 renderYatraCards('yatra7-entries', yatra7Descriptions);
+renderYatraCards('yatra-food-entries', foodDescriptions);
+byId('yatra-food-title').textContent = foodTitle;
 byId('yatra7-title').textContent = yatra7Title;
 renderYatraCards('yatra8-entries', yatra8Descriptions);
 byId('yatra8-title').textContent = yatra8Title;
@@ -526,8 +529,8 @@ function renderNakshatraDetail([name], source) {
     list.textContent = 'ဒီနက္ခတ်အတွက် ကျမ်းပါ ယတြာ မရှိပါ။';
     return;
   }
-  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု", yatra6Title, yatra7Title, yatra8Title];
+  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
+  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု", yatra6Title, yatra7Title, yatra8Title, foodTitle];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
@@ -545,15 +548,19 @@ function showPage() {
   const yatraTabs = byId('yatra-tabs');
   const yatraLinks = [...yatraTabs.querySelectorAll('[data-yatra-tab]')];
   const isYatraPage = yatraLinks.some(link => link.dataset.yatraTab === hash);
+  const generalTabs = byId('general-tabs');
+  const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
+  const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : hash === 'catalog' || hash === 'practice' || isYatraPage ? hash : 'calculator';
+    : hash === 'catalog' || isGeneralPage || isYatraPage ? hash : 'calculator';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
     byId('nakshatra-title').focus();
   }
   yatraTabs.hidden = !isYatraPage;
-  for (const link of yatraLinks) {
+  generalTabs.hidden = !isGeneralPage;
+  for (const link of [...yatraLinks, ...generalLinks]) {
     const active = link.dataset.yatraTab === page;
     byId(link.dataset.yatraTab).hidden = !active;
     if (active) link.setAttribute('aria-current', 'page');
@@ -561,10 +568,9 @@ function showPage() {
   }
   byId('calculator').hidden = page !== 'calculator';
   byId('calculator-intro').hidden = page !== 'calculator';
-  byId('practice').hidden = page !== 'practice';
   byId('catalog').hidden = page !== 'catalog';
   for (const link of document.querySelectorAll('[data-page]')) {
-    if (link.dataset.page === page || (link.dataset.page === 'yatras' && !yatraTabs.hidden)) link.setAttribute('aria-current', 'page');
+    if (link.dataset.page === page || (link.dataset.page === 'yatras' && isYatraPage) || (link.dataset.page === 'general' && isGeneralPage)) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
 }

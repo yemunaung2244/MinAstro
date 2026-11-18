@@ -9,6 +9,7 @@ const assets = new Map([
   ['/app.js', ['app.js', 'text/javascript']],
   ['/nadika.js', ['nadika.js', 'text/javascript']],
   ['/manifest.webmanifest', ['manifest.webmanifest', 'application/manifest+json']],
+  ['/yatra-food.js', ['yatra-food.js', 'text/javascript; charset=utf-8']],
   ['/assets/nakshatra.svg', ['assets/nakshatra.svg', 'image/svg+xml']],
   ['/assets/nakshatra-180.png', ['assets/nakshatra-180.png', 'image/png']],
   ['/assets/nakshatra-192.png', ['assets/nakshatra-192.png', 'image/png']],
