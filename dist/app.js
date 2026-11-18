@@ -106,8 +106,6 @@ function tag(element, type) {
 
 function updateResult() {
   const fixed = slotMode.value === 'fixed';
-  byId('dial-number').textContent = fixed ? '၂၄' : '၃၀';
-  byId('dial-unit').textContent = fixed ? 'မိနစ်စီ' : 'အပိုင်းစီ';
   const live = timeMode.value === 'live';
   const now = myanmarNow();
   if (live) {
@@ -433,7 +431,7 @@ const yatra5Descriptions = [
 ].join('\n'));
 
 // Chapter 39, in the same nakshatra order as the other yatra lists.
-const yatra7Title = 'နက္ခတ်တွေရဲ့ ပြဒါးဓာတ်';
+const yatra7Title = 'နက္ခတ်၏ ပြဒါးဓာတ်';
 const yatra7Descriptions = [
   'ထောပတ်။',
   'နှမ်း။',
@@ -464,7 +462,7 @@ const yatra7Descriptions = [
   'ဒိန်ချဉ်ထမင်း။',
 ];
 
-const yatra8Title = 'နက္ခတ်ရဲ့ ကျင့်စဉ် တစ်မျိုး';
+const yatra8Title = 'နက္ခတ်၏ ကျင့်စဉ်';
 const yatra8Groups = [
   [[1, 8, 15], 'တရားထိုင်တာ၊ ဝင်လေ ထွက်လေနဲ့ ပတ်သက်သော ကျင့်စဉ်တွေ၊ ယောဂကျင့်တာ၊ ကျန်းမာရေး လေ့ကျင့်ခန်းတွေ လုပ်တာ အလွန် ကောင်းပါတယ်။'],
   [[2, 9, 16, 22], 'သီလစင်ကြယ်ခြင်းကို ကျင့်စဉ်အနေနဲ့ ကျင့်ရပါတယ်။'],
@@ -529,7 +527,7 @@ function renderNakshatraDetail([name], source) {
     return;
   }
   const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု", yatra6Title, yatra7Title, yatra8Title];
+  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု", yatra6Title, yatra7Title, yatra8Title];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
