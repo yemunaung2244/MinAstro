@@ -340,3 +340,25 @@ html { touch-action: pan-x pan-y; }
 }
 
 #goza-arrow-label { fill: #854078; }
+
+.suriya-reading-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-block: 16px;
+}
+
+.suriya-reading-tabs button {
+  padding: 8px 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--sky-accent);
+}
+
+.suriya-reading-tabs button[aria-pressed="true"] {
+  background: var(--sky-accent);
+  color: white;
+}
+
+#reading-natal .entry, #reading-transit .entry { margin-block: 10px; }

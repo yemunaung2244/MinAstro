@@ -604,6 +604,33 @@ const gozaReadings = {
   7: 'ဆန့်ကျင်ဘက် လိင်နဲ့ ပတ်သက်တဲ့ ပီယ အစီအရင် လုပ်စေပါတယ်။ ဘာမှ မလုပ်တတ်ရင်တောင် အဲဒီအချိန်မှာ ရေမွှေး တစ်ပုလင်းလောက် ဝယ်လာခဲ့ရင် .... အဲဒီရေမွှေး ဆွတ်ထားချိန်မှာ .... သမင်လည်ပြန်တွေ ဖြစ်ကုန်တတ်ပါတယ်။',
 };
 
+const readingButtons = [...document.querySelectorAll('[data-reading]')];
+
+function showReadingTab(tab) {
+  for (const button of readingButtons) {
+    const active = button.dataset.reading === tab;
+    button.setAttribute('aria-pressed', String(active));
+    byId('reading-' + button.dataset.reading).hidden = !active;
+  }
+}
+
+for (const button of readingButtons) {
+  button.addEventListener('click', () => showReadingTab(button.dataset.reading));
+}
+
+for (const [tab, readings] of [['natal', suriyaReadings], ['transit', gozaReadings]]) {
+  for (const [index, reading] of Object.entries(readings)) {
+    const card = document.createElement('article');
+    card.className = 'entry';
+    const heading = document.createElement('h3');
+    heading.textContent = suriyaRegions[index][0];
+    const paragraph = document.createElement('p');
+    paragraph.textContent = reading;
+    card.append(heading, paragraph);
+    byId('reading-' + tab).append(card);
+  }
+}
+
 let birthStarIndex;
 const gozaResult = byId('goza-result');
 function updateGoza() {
@@ -676,10 +703,13 @@ byId('janma-form').addEventListener('submit', event => {
     const { index, pada, longitude } = janmaAt(instant);
     const sun = solarNakshatraAt(instant);
     birthStarIndex = index;
+    showReadingTab('current');
     updateGoza();
     updateSuriya(index, sun.index);
     const degree = mm(longitude.toFixed(4));
-    result.textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
+    result.textContent = '';
+    byId('suriya-calculation').textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
+    window.location.hash = 'suriya-result';
   } catch {
     birthStarIndex = undefined;
     updateChartMarker('suriya');
@@ -694,7 +724,8 @@ byId('janma-form').addEventListener('submit', event => {
 
 function showPage() {
   const rawHash = window.location.hash.slice(1);
-  const hash = rawHash === 'yatra8' ? 'practice' : rawHash;
+  const hash = rawHash === 'yatra8' ? 'practice'
+    : rawHash === 'suriya-result' ? 'suriya' : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -710,6 +741,11 @@ function showPage() {
   byId('back-home').hidden = isHome;
   const isSuriya = page === 'suriya';
   byId('suriya').hidden = !isSuriya;
+  const showSuriyaResult = isSuriya && rawHash === 'suriya-result' && birthStarIndex !== undefined;
+  byId('janma-form').hidden = showSuriyaResult;
+  byId('suriya-output').hidden = !showSuriyaResult;
+  if (showSuriyaResult) byId('suriya-output-title').focus();
+  else if (rawHash === 'suriya-result') window.history.replaceState(null, '', '#suriya');
   byId('nadika-hero').hidden = isHome || isSuriya;
   byId('nadika-tabs').hidden = isHome || isSuriya;
   byId('nakshatra-detail').hidden = !entry;
