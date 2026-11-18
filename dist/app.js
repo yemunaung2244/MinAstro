@@ -1,4 +1,4 @@
-import { guruNakshatraAt, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
+import { upagraha28At, guruNakshatraAt, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
@@ -1070,6 +1070,34 @@ const upaDefinitions = [
   ['ဝိဒြုမ', 4], ['သူလ', 7], ['သန္နိပါတ', 13], ['ကေတု', 17],
   ['ဥက္ကလ', 21], ['ကမ္ပ', 22], ['ဝဇိရ', 23], ['နိရ္ဃာတ', 24],
 ];
+const upa28Definitions = [
+  ['နေစီးနက္ခတ် (ဘူကမ္ပ၊ မြေလျှော၊ လုပ်ငန်းနှင့် ကုလ)', 0],
+  ['ဝိဒြုမ / နိရ္ဃာတ', 4], ['သူလ', 6], ['ဝဇိရ / နိရ္ဃာတ', 8],
+  ['သန္နိပါတ', 13], ['စဏ္ဍာလ', 14], ['ကေတု', 17], ['ဥက္ကလ', 18],
+  ['သောက', 19], ['ဥက္ကလ / နိရ္ဃာတ', 20], ['ကမ္ပ', 21], ['ဝဇိရ', 22],
+  ['နိရ္ဃာတ / ပရိဝေသ', 23],
+];
+const upa28Readings = [
+  'ဤနက္ခတ်သည် ဇာတာရှင်ကို ဆောက်တည်ရာမရ ဖြစ်စေတတ်သည်။ ပတ်ဝန်းကျင်နှင့် သဘောထားများ ပြောင်းလဲလာတိုင်း အတွင်းစိတ်လှုပ်ရှားမှု၊ ပြဿနာနှင့် စိတ်မတည်ငြိမ်မှု ဖြစ်စေတတ်သည်။',
+  'နက္ခတ်တူသော်လည်း ၂၇ လုံးမူ ဝိဒြုမနှင့် သဘောတရားချင်း အနည်းငယ်ကွာသည်။ နိရ္ဃာတနက္ခတ်ဟုလည်း ခေါ်သည်။',
+  'သူလ။',
+  'ဝဇိရ၊ နိရ္ဃာတ။',
+  'သန္နိပါတ။',
+  'အလွန် ရက်စက် ကြမ်းကြုတ်မယ်။ အဲသလို ရက်စက် ကြမ်းကြုတ်ရင် ဘဝဟာ ဆင်းရဲနွမ်းပါးမယ်။ ဒါမှမဟုတ် အနေအထိုင်အစားအသောက် ညစ်ညမ်း ပတ်တတ်မယ်။ အဲသလို ညစ်ညမ်း ပတ်တတ်ခဲ့ရင် ရောဂါကြီး တစ်မျိုးမျိုး ဝင်လိမ့်မယ်။ အသက်တိုမယ်။ ဒါမှမဟုတ် အောက်လမ်း အပြင်းအထန် အတိုက်ခံရမယ်။ အကျိုးပေး သုံးမျိုး ပြောထားပါတယ်။ ဇာတာပါ နက္ခတ်များနဲ့ ညှိယူ ချိန်ဆပြီးမှ ဆုံးဖြတ်ရပါတယ်။',
+  'ကေတု။',
+  'ဥက္ကလ။',
+  'ဇာတာရှင်ကို မောဟ ကြီးကျယ်စွာ ဖုံးလွှမ်းစေသော နက္ခတ် ဖြစ်သည်။ ဥပဂြဟအားလုံးထဲတွင် ကြောက်စရာ အကောင်းဆုံးဟု ကျမ်းက ဖော်ပြထားသည်။',
+  'ဥက္ကလ၊ နိရ္ဃာတ။',
+  'ကမ္ပနက္ခတ်ကို မဟာကမ္ပဟုလည်း ခေါ်သည်။',
+  'ဝဇိရ။',
+  'ပရိဒေသမှာ ရေကြောင်း ဘေးသင့်ခြင်း၊ ကြွေးတင် ကျွန်ဖြစ်ခြင်း၊ အချုပ်အနှောင်ခံရခြင်းတို့ကို ပြောပါတယ်။ အစာရေစာ လှူခြင်း၊ အဝတ်အထည် လှူခြင်းများ လုပ်ရမယ်လို့ ပြောပါတယ်။',
+];
+let upaMode = 'upagraha';
+let upaResultMode;
+const upaNames = () => upaMode === 'upagraha28' ? guruNames : yatraNames;
+const upaRules = () => upaMode === 'upagraha28' ? upa28Definitions : upaDefinitions;
+const upaPosition = (instant, moon = false) => upaMode === 'upagraha28'
+  ? upagraha28At(instant, moon) : moon ? janmaAt(instant) : solarNakshatraAt(instant);
 const upaCity = byId('upa-city');
 function renderUpaCities() {
   const selected = upaCity.value;
@@ -1084,11 +1112,11 @@ function renderUpaCities() {
 }
 byId('upa-city-search').addEventListener('input', renderUpaCities);
 renderUpaCities();
-const upaTargets = start => upaDefinitions.map(([name, offset]) => ({ name, index: (start + offset) % 27 }));
+const upaTargets = start => upaRules().map(([name, offset]) => ({ name, index: (start + offset) % upaNames().length }));
 function upaTable(starts) {
   const table = document.createElement('table');
   const header = table.createTHead().insertRow();
-  for (const name of ['နေစီးနက္ခတ်', ...upaDefinitions.map(([name]) => name)]) {
+  for (const name of ['နေစီးနက္ခတ်', ...upaRules().map(([name]) => name)]) {
     const cell = document.createElement('th');
     cell.textContent = name;
     header.append(cell);
@@ -1096,13 +1124,13 @@ function upaTable(starts) {
   const body = table.createTBody();
   for (const start of starts) {
     const row = body.insertRow();
-    for (const name of [yatraNames[start], ...upaTargets(start).map(target => yatraNames[target.index])]) {
+    for (const name of [upaNames()[start], ...upaTargets(start).map(target => upaNames()[target.index])]) {
       row.insertCell().textContent = name;
     }
   }
   return table;
 }
-byId('upa-table').append(upaTable(yatraNames.map((_, index) => index)));
+
 byId('upa-fullscreen').addEventListener('click', async () => {
   const panel = byId('upa-table-panel');
   if (document.fullscreenElement === panel) {
@@ -1142,23 +1170,25 @@ byId('upagraha-form').addEventListener('submit', event => {
     const second = readPart('second', 0, 59);
     const hour24 = hour % 12 + (byId('upa-period').value === 'PM' ? 12 : 0);
     const birth = myanmarBirthInstant([year, pad(month), pad(day)].join('-'), [hour24, minute, second].map(pad).join(':'));
-    const star = janmaAt(birth).index;
+    const star = upaPosition(birth, true).index;
     const transit = new Date();
     const formatter = new Intl.DateTimeFormat('my-MM', {timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'short'});
-    const birthSun = solarNakshatraAt(birth);
-    const transitSun = solarNakshatraAt(transit);
-    const transitMoon = janmaAt(transit);
+    const birthSun = upaPosition(birth);
+    const transitSun = upaPosition(transit);
+    const transitMoon = upaPosition(transit, true);
+    byId('upa-table').replaceChildren(upaTable([birthSun.index, transitSun.index]));
     const rows = byId('upa-table').querySelectorAll('tbody tr');
-    rows.forEach((row, start) => {
-      const natal = start === birthSun.index;
-      const goza = start === transitSun.index;
+    rows.forEach((row, rowIndex) => {
+      const start = rowIndex === 0 ? birthSun.index : transitSun.index;
+      const natal = rowIndex === 0;
+      const goza = rowIndex === 1;
       row.classList.toggle('upa-natal-row', natal);
       row.classList.toggle('upa-goza-row', goza);
-      row.cells[0].textContent = yatraNames[start]
+      row.cells[0].textContent = upaNames()[start]
         + (natal ? ' (မူလ)' : '') + (goza ? ' (ကောဇာ)' : '');
       upaTargets(start).forEach((target, column) => {
         const cell = row.cells[column + 1];
-        cell.replaceChildren(document.createTextNode(yatraNames[target.index]));
+        cell.replaceChildren(document.createTextNode(upaNames()[target.index]));
         cell.classList.remove('upa-hit', 'upa-hit-janma', 'upa-hit-moon');
         cell.removeAttribute('aria-label');
         const matches = [];
@@ -1173,16 +1203,42 @@ byId('upagraha-form').addEventListener('submit', event => {
           pointer.textContent = '➜';
           pointer.setAttribute('aria-hidden', 'true');
           cell.prepend(pointer);
-          cell.setAttribute('aria-label', target.name + ' - ' + yatraNames[target.index]
+          cell.setAttribute('aria-label', target.name + ' - ' + upaNames()[target.index]
             + '။ ' + matches.join('၊ ') + ' သင့်နေသည်');
           cell.title = matches.join('၊ ') + ' သင့်နေသည်';
         }
       });
     });
 
+    const comparison = document.createElement('table');
+    comparison.className = 'upa-comparison';
+    const comparisonHeader = comparison.createTHead().insertRow();
+    for (const name of ['ဥပဂြဟ', 'မူလ', 'ကောဇာ']) {
+      const heading = document.createElement('th');
+      heading.scope = 'col';
+      heading.textContent = name;
+      comparisonHeader.append(heading);
+    }
+    const comparisonBody = comparison.createTBody();
+    const originalHeaders = byId('upa-table').querySelectorAll('thead th');
+    originalHeaders.forEach((original, index) => {
+      const row = comparisonBody.insertRow();
+      const heading = document.createElement('th');
+      heading.scope = 'row';
+      heading.textContent = original.textContent.replaceAll(' / ', '\n');
+      row.append(heading);
+      rows.forEach((source, column) => {
+        const cell = source.cells[index].cloneNode(true);
+        cell.classList.add(column === 0 ? 'upa-natal-cell' : 'upa-goza-cell');
+        if (index === 0) cell.textContent = upaNames()[column === 0 ? birthSun.index : transitSun.index];
+        row.append(cell);
+      });
+    });
+    byId('upa-table').replaceChildren(comparison);
+
     const overview = document.createElement('p');
-    overview.textContent = 'မူလဇနမနက္ခတ် - ' + yatraNames[star] + '။ လက်ရှိစန်းယှဉ်နက္ခတ် - '
-      + yatraNames[transitMoon.index] + '၊ ပါဒ ' + mm(transitMoon.pada) + '။';
+    overview.textContent = 'မူလဇနမနက္ခတ် - ' + upaNames()[star] + '။ လက်ရှိစန်းယှဉ်နက္ခတ် - '
+      + upaNames()[transitMoon.index] + '၊ ပါဒ ' + mm(transitMoon.pada) + '။';
     output.append(overview);
     const checks = [
       ['မူလနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', birthSun, star, birth],
@@ -1196,9 +1252,9 @@ byId('upagraha-form').addEventListener('submit', event => {
       const heading = document.createElement('h2');
       heading.textContent = title;
       const info = document.createElement('p');
-      const distance = (targetIndex - sun.index + 27) % 27;
-      info.textContent = formatter.format(instant) + '။ နေစီးနက္ခတ် - ' + yatraNames[sun.index]
-        + '။ စစ်ဆေးသောနက္ခတ် - ' + yatraNames[targetIndex]
+      const distance = (targetIndex - sun.index + upaNames().length) % upaNames().length;
+      info.textContent = formatter.format(instant) + '။ နေစီးနက္ခတ် - ' + upaNames()[sun.index]
+        + '။ စစ်ဆေးသောနက္ခတ် - ' + upaNames()[targetIndex]
         + '။ နေစီးနက္ခတ်ကို ၁ အဖြစ် ထည့်ရေတွက်လျှင် ' + mm(distance + 1) + ' လုံးမြောက်။';
       card.append(heading, info);
       const match = upaTargets(sun.index).find(target => target.index === targetIndex);
@@ -1209,7 +1265,7 @@ byId('upagraha-form').addEventListener('submit', event => {
         const reading = document.createElement('div');
         reading.className = 'upa-reading';
         const text = document.createElement('p');
-        text.textContent = upaReadings[upaDefinitions.findIndex(([name]) => name === match.name)];
+        text.textContent = (upaMode === 'upagraha28' ? upa28Readings : upaReadings)[upaRules().findIndex(([name]) => name === match.name)];
         reading.append(text);
         card.append(result, reading);
       } else {
@@ -1221,7 +1277,8 @@ byId('upagraha-form').addEventListener('submit', event => {
     }
     byId('upa-error').textContent = '';
     upaHasResult = true;
-    window.location.hash = 'upagraha-result';
+    upaResultMode = upaMode;
+    window.location.hash = upaMode + '-result';
   } catch {
     byId('upa-error').textContent = 'ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
   }
@@ -1230,7 +1287,7 @@ byId('upagraha-form').addEventListener('submit', event => {
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = rawHash === 'yatra8' ? 'practice'
-    : ['suriya-result', 'guru-result', 'upagraha-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
+    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -1240,14 +1297,18 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
-  byId('upagraha').hidden = page !== 'upagraha';
-  const showUpaResult = page === 'upagraha' && rawHash === 'upagraha-result' && upaHasResult;
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+  const isUpa = page === 'upagraha' || page === 'upagraha28';
+  if (isUpa) upaMode = page;
+  byId('upa-title').textContent = upaMode === 'upagraha28' ? 'ဥပဂြဟ (၂၈) လုံးမူ' : 'ဥပဂြဟ (၂၇) လုံးမူ';
+  byId('upa-edit').href = '#' + upaMode;
+  byId('upagraha').hidden = !isUpa;
+  const showUpaResult = isUpa && rawHash === page + '-result' && upaHasResult && upaResultMode === page;
   byId('upagraha-form').hidden = showUpaResult;
   byId('upa-output').hidden = !showUpaResult;
   for (const details of byId('upagraha').querySelectorAll(':scope > details')) details.hidden = !showUpaResult;
   if (showUpaResult) byId('upa-output-title').focus();
-  else if (rawHash === 'upagraha-result') window.history.replaceState(null, '', '#upagraha');
+  else if (isUpa && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
   const isHome = page === 'home';
   byId('home').hidden = !isHome;
   byId('back-home').hidden = isHome;
@@ -1259,8 +1320,8 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || page === 'upagraha';
-  byId('nadika-tabs').hidden = isHome || isSuriya || page === 'upagraha';
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);

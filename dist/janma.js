@@ -68,3 +68,12 @@ export function solarNakshatraWindow(instant, nakshatra = solarNakshatraAt) {
 
   return { entry: boundary(-1), exit: boundary(1) };
 }
+
+
+export function upagraha28At(instant, moon = false) {
+  const result = moon ? janmaAt(instant) : solarNakshatraAt(instant);
+  if (result.longitude >= 276 + 40 / 60 && result.longitude < 280 + 53 / 60 + 20 / 3600) {
+    return { ...result, index: 21 };
+  }
+  return { ...result, index: result.index + Number(result.index >= 21) };
+}

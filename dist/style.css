@@ -510,3 +510,10 @@ html { touch-action: pan-x pan-y; }
   box-shadow: inset 0 0 0 2px #b91c1c;
 }
 #upa-table .upa-cell-arrow { color: currentColor; }
+
+#upa-table .upa-comparison { font-size: clamp(11px, 2.8vw, 15px); }
+#upa-table .upa-comparison th,
+#upa-table .upa-comparison td { padding: 9px 6px; white-space: pre-line; overflow-wrap: anywhere; }
+#upa-table .upa-comparison th:first-child { width: 36%; }
+#upa-table .upa-comparison td.upa-natal-cell:not(.upa-hit) { background: #dbeafe; color: #163c72; }
+#upa-table .upa-comparison td.upa-goza-cell:not(.upa-hit) { background: #dcfce7; color: #14532d; }
