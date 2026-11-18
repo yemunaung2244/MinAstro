@@ -15,11 +15,65 @@
 </head>
 <body>
   <header class="top"><div class="shell nav">
-    <a class="brand" href="#calculator"><img class="brand-logo" src="assets/nakshatra-192.png" width="36" height="36" alt="">Nakshatra <span class="brand-myanmar">(နက္ခတ်)</span></a>
+    <a class="brand" href="#home"><img class="brand-logo" src="assets/nakshatra-192.png" width="36" height="36" alt="">Nakshatra <span class="brand-myanmar">(နက္ခတ်)</span></a>
   </div></header>
 
   <main class="shell">
-    <section class="hero">
+    <nav id="home" class="home-menu" aria-label="ပင်မစာမျက်နှာ">
+      <a class="home-choice" href="#calculator">နာဒီကာ</a>
+      <a class="home-choice" href="#suriya">သူရိယစက်</a>
+    </nav>
+    <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
+    <section id="suriya" class="catalog" hidden>
+      <h1>သူရိယစက်</h1>
+      <form id="janma-form" class="controls">
+        <fieldset class="janma-parts">
+          <legend>မွေးသက္ကရာဇ်</legend>
+          <label>ရက်<input id="janma-day" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>လ<input id="janma-month" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>နှစ်<input id="janma-year" type="text" inputmode="numeric" maxlength="4" required></label>
+        </fieldset>
+        <fieldset class="janma-parts">
+          <legend>မွေးချိန်</legend>
+          <label>နာရီ<input id="janma-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>မိနစ်<input id="janma-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>စက္ကန့်<input id="janma-second" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>AM/PM<select id="janma-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+        </fieldset>
+        <label>မွေးဖွားရာမြို့ ရှာရန် <input id="janma-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label>မွေးဖွားရာမြို့ <select id="janma-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+        <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+        <p id="janma-result" role="status"></p>
+      </form>
+      <p id="suriya-result" aria-live="polite"></p>
+      <div class="suriya-chart">
+      <svg class="suriya-figure" viewBox="0 0 240 360" role="img" aria-label="ရှေ့မျက်နှာမူ လူပုံတွင် ကိုယ်ခန္ဓာအပိုင်း ဆယ်မျိုး ပြထားသည်">
+        <image href="assets/suriya-person.jpg" width="240" height="360"/>
+        <defs>
+          <marker id="suriya-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0 0 10 5 0 10z" fill="#15547b"/>
+          </marker>
+          <marker id="goza-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0 0 10 5 0 10z" fill="#854078"/>
+          </marker>
+        </defs>
+        <line id="suriya-arrow" stroke="#15547b" stroke-width="3" marker-end="url(#suriya-arrowhead)" hidden/>
+        <text id="suriya-arrow-label" class="suriya-marker-label" hidden></text>
+        <line id="goza-arrow" stroke="#854078" stroke-width="2.5" stroke-dasharray="4 2" marker-end="url(#goza-arrowhead)" hidden/>
+        <text id="goza-arrow-label" class="suriya-marker-label" hidden></text>
+      </svg>
+      </div>
+      <article id="suriya-reading" class="entry" hidden>
+        <h2>မူလအရ အဟော</h2>
+        <p id="suriya-reading-text" aria-live="polite"></p>
+      </article>
+      <section id="goza-panel" class="entry" hidden>
+        <h2>ကောဇာအရ အဟော</h2>
+        <p id="goza-time"></p>
+        <div id="goza-result" role="status"></div>
+      </section>
+    </section>
+    <section id="nadika-hero" class="hero" hidden>
       <img class="hero-logo" src="assets/nakshatra-192.png" width="192" height="192" alt="">
       <div>
         <h1>မင်းနိုင်<br>နက္ခတ်မှတ်စု</h1>
@@ -172,7 +226,7 @@
       <div id="yatra8-entries" class="entries"></div>
     </section>
   </main>
-  <nav class="page-tabs" aria-label="အဓိက စာမျက်နှာများ">
+  <nav id="nadika-tabs" class="page-tabs" hidden aria-label="အဓိက စာမျက်နှာများ">
     <a href="#calculator" data-page="calculator" aria-current="page"><span aria-hidden="true">◷</span>တွက်ကိန်း</a>
     <a href="#catalog" data-page="catalog"><span aria-hidden="true">✦</span>အဟော</a>
     <a href="#yatra" data-page="yatras"><span aria-hidden="true">❖</span>ယတြာများ</a>

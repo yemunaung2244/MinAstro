@@ -243,3 +243,100 @@ html { touch-action: pan-x pan-y; }
 .entry-materials > p { margin-top: 8px; font-weight: 700; }
 
 #general-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.home-menu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-block: 28px;
+}
+.home-choice {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  min-height: 110px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--night);
+  color: var(--sky-accent);
+  font-size: clamp(1rem, 4vw, 1.55rem);
+  font-weight: 800;
+  text-align: center;
+}
+.home-choice:disabled { cursor: default; color: var(--muted); background: var(--paper); }
+.home-choice small { font-size: .75rem; font-weight: 600; }
+.back-home { display: inline-block; margin-top: 14px; color: var(--sky-accent); font-weight: 700; }
+
+#suriya { margin-block: 20px; }
+#suriya h2 { margin-top: 16px; }
+#suriya-result { color: var(--sky-accent); font-weight: 800; }
+.suriya-figure { display: block; width: min(100%, 300px); margin: 16px auto; }
+.suriya-chart {
+  margin-block: 16px;
+  padding: 10px;
+  border: 1px solid #82b7d5;
+  border-radius: 18px;
+  background: #dff3ff;
+}
+.suriya-marker-label {
+  font-size: 9px;
+  fill: var(--ink);
+  stroke: #f5fbff;
+  stroke-width: 2px;
+  paint-order: stroke;
+}
+
+#janma-form label small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.janma-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 8px;
+  padding: 10px 22px;
+  border: 1px solid #15547b;
+  border-radius: 14px;
+  background: linear-gradient(115deg, #15547b, #23729d);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 10px #15547b33;
+}
+
+.janma-submit:hover { background: #15547b; }
+.janma-submit:focus-visible {
+  outline: 3px solid #23729d;
+  outline-offset: 3px;
+}
+
+#janma-form .janma-parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.janma-parts input, .janma-parts select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+#janma-form .janma-parts input {
+  max-width: 6rem;
+  min-height: 38px;
+  padding: 5px 9px;
+}
+
+#goza-arrow-label { fill: #854078; }

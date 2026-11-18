@@ -1,3 +1,4 @@
+import { janmaAt, myanmarBirthInstant, solarNakshatraAt, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
@@ -540,6 +541,157 @@ function renderNakshatraDetail([name], source) {
   });
 }
 
+const suriyaRegions = [
+  ['ဦးခေါင်းပိုင်း', 3, [[120, 23]]],
+  ['မျက်နှာ', 3, [[120, 43]]],
+  ['ပခုံးနှစ်ဖက်', 2, [[89, 77], [151, 77]]],
+  ['လက်မောင်းနှစ်ဖက်', 2, [[86, 108], [154, 108]]],
+  ['လက်ဖျံနှစ်ဖက်', 2, [[79, 139], [161, 139]]],
+  ['ရင်ဘတ်', 5, [[120, 89]]],
+  ['ဝမ်းဗိုက်', 1, [[120, 132]]],
+  ['အင်္ဂါစပ်', 1, [[120, 170]]],
+  ['ခြေထောက်ပိုင်း', 6, [[100, 280], [140, 280]]],
+  ['ခြေဖမိုးနှစ်ဖက်', 2, [[94, 341], [146, 341]]],
+];
+const suriyaReadings = [
+  "ဦးခေါင်းမှာ ရှိရင် – ချမ်းသာကြွယ်ဝမယ်။",
+  "မျက်နှာမှာ ရှိရင် – စားကောင်းသောက်ဖွယ်တွေ စားရမယ်။ စည်းစိမ်ရှိရှိ နေရမယ်။ မျက်နှာ ပွင့်မယ်။ ပြုံးပျော် ရွှင်လန်းနေမယ်။",
+  "ပခုံးမှာ ရှိရင် – အလွန် သတ္တိရှိမယ်။ အလှူဒါန ရက်ရောမယ်။ လွတ်လပ်သော အတွေးအခေါ် အယူအဆ ရှိမယ်။ မိသားစုထဲမှာ/ ကျင်လည်ရာ အသိုင်းအဝိုင်းကြားမှာ နှစ်သက်မြတ်နိုးခြင်း ခံရမယ်။",
+  "လက်မောင်းနှစ်ဖက်မှာ ရှိရင် – ဇာတိမြေကို စွန့်ခွာသွားလိမ့်မယ်။ ရေခြား မြေခြားမှာ အခြေချ နေထိုင်လိမ့်မယ်။ အဲလို နေထိုင်ပြီးရင် အဲဒီ နေရာဒေသမှာ အင်မတန် နာမည်ဂုဏ်သတင်း ထင်ရှားကျော်ကြားလိမ့်မယ်။ ဒေါသလဲ အလွန် ကြီးသလို သတ္တိလဲ အလွန်ကောင်းပါတယ်။ ဒီလူတွေဟာ ဇာတိမြေမှာ နေထိုင်တယ်ဆိုရင် စွန့်ခွာသင့်ချိန်ကို ဉာဏ်နဲ့ ချိန်ဆပြီး သိရပါမယ်။ မသိခဲ့ရင် ဇာတိမြေမှာ အားလုံး ပျက်စီး ဆုံးရှုံးပြီးမှ ရေခြား မြေခြားကို ထွက်သွားရ တတ်ပါတယ်။",
+  "လက်ဖျံနှစ်ဖက်မှာ ရှိရင် – ရာဖြတ် လုပ်ငန်း အလွန် ထူးချွန်လိမ့်မယ်။ ရိုးသားဖြောင့်မတ်မှုဟာ ရှိတစ်လှည့် မရှိတစ်လှည့် ဖြစ်နေတတ်တယ်။ ဒီအချက်ကို သတိထားသင့်တယ်။",
+  "ရင်ဘတ်မှာ ရှိရင် – မိသားစု/ ကျင်လည်ရာ အသိုင်းအဝိုင်း ကြားထဲမှာ ဩဇာအာဏာ အလွန် ကြီးပါလိမ့်မယ်။ ကိုယ်ကျင့်သိက္ခာ ကောင်းမွန်မယ်။ ပညာရှိမယ်။",
+  "ဝမ်းဗိုက်မှာ ရှိရင် – ကရုဏာတရား ကြီးမားတယ်။ သည်းခံ ခွင့်လွှတ်တတ်တယ်။ အလှူဒါန ရက်ရောတာများဆိုရင် ဝတ်ထားတဲ့ အဝတ်တွေတောင် ချွတ်ပြီး လှူခဲ့တတ်သူ ဖြစ်တယ်။ ပညာရပ်တွေမှာ အထူးသဖြင့် အနုပညာမှာ အင်မတန် ထူးချွန် ထက်မြက်လိမ့်မယ်။ အားကစားဘက်ကို လိုက်စားရင်လဲ အလွန် ပေါက်မြောက်ပါလိမ့်မယ်။",
+  "အင်္ဂါစပ်မှာ ရှိခဲ့ရင် – ဆန့်ကျင်ဘက်လိင်တွေ ဝိုင်းဝိုင်းလည်နေလိမ့်မယ်။ ကာမဆက်ဆံမှု အတတ် သူမတူအောင် ထူးချွန်မယ်။ အနုပညာ အရည်အသွေးကောင်းမယ်။ သီချင်းဆိုတာ၊ ကတာ သိပ်တော်မယ်။ ရုပ်ရည် အင်မတန် ချောမယ်။ နာမည် ကျော်ကြားမယ်။",
+  "ခြေထောက်တွေမှာ ရှိရင် – ခရီးသွားနေမယ်။ လိင်မှုကို အလွန်အကဲ လိုက်စားသူ ဖြစ်မယ်။ ဖြောင့်မတ် မှန်ကန်မှု နည်းမယ်။",
+  "ခြေဖမိုး နှစ်ဖက်မှာ ရှိရင် – အသက်တိုတတ်တယ်။ ဘာသာ သာသနာ သိပ်စိတ်မဝင်စားတတ်ပါ။ စိုက်ပျိုးရေး ဝါသနာပါမယ်။ မိမိရဲ့ တာဝန်များကို ရှောင်ပယ်လေ့ ရှိပါတယ်။"
+];
+const suriyaRegionForStar = suriyaRegions.flatMap(([, count], index) => Array(count).fill(index));
+
+function updateChartMarker(prefix, region, name, isGoza = false) {
+  const arrow = byId(prefix + '-arrow');
+  const label = byId(prefix + '-arrow-label');
+  arrow.toggleAttribute('hidden', !region);
+  label.toggleAttribute('hidden', !region);
+  if (!region) return;
+
+  const [[x, y]] = region[2];
+  const edge = isGoza ? 8 : 232;
+  const labelY = Math.max(12, Math.min(355, y + (isGoza ? 15 : -8)));
+  arrow.setAttribute('x1', edge);
+  arrow.setAttribute('y1', labelY + 3);
+  arrow.setAttribute('x2', x);
+  arrow.setAttribute('y2', y);
+  label.setAttribute('x', edge);
+  label.setAttribute('y', labelY);
+  label.setAttribute('text-anchor', isGoza ? 'start' : 'end');
+  label.textContent = name + (isGoza ? ' (ကောဇာ)' : ' (မူလ)');
+}
+
+function updateSuriya(starIndex, sunIndex) {
+  const regionIndex = suriyaRegionForStar[suriyaSlot(starIndex, sunIndex)];
+  const region = suriyaRegions[regionIndex];
+  const starName = yatraNames[starIndex];
+  byId('suriya-result').textContent = starName + ' — ' + region[0];
+  byId('suriya-reading').hidden = false;
+  byId('suriya-reading-text').textContent = suriyaReadings[regionIndex];
+  updateChartMarker('suriya', region, starName);
+}
+// Page 168 gives examples for these positions.
+const gozaReadings = {
+  0: 'ကုန်ကြမ်းတွေ ဝယ်ယူစုဆောင်းစေပါတယ်။ စီးပွားတက်စေသော၊ ချမ်းသာကြွယ်ဝစေသော ယတြာ အစီအရင်တွေ လုပ်စေပါတယ်။',
+  3: 'ရတနာလုပ်ငန်း ဥပမာမှာ ဇနမနက္ခတ် လက်မောင်းပေါ် ရောက်ချိန်၌ ကျောက်များကို ယိုးဒယားသို့ သွားရောင်းစေပါတယ်။',
+  4: 'ရတနာလုပ်ငန်း ဥပမာမှာ ဇနမနက္ခတ် လက်ဖျံကို ရောက်နေရမယ်။ ပြီးတော့ ပါပဂြိုဟ် ဘာညာတွေကနေ ကင်းလွတ်ရမယ်။ အချိန်တန်တော့ ကျောက်တွေ စိတ်ကြိုက် ဈေးဖြတ် ဝယ်ယူစေပါတယ်။',
+  7: 'ဆန့်ကျင်ဘက် လိင်နဲ့ ပတ်သက်တဲ့ ပီယ အစီအရင် လုပ်စေပါတယ်။ ဘာမှ မလုပ်တတ်ရင်တောင် အဲဒီအချိန်မှာ ရေမွှေး တစ်ပုလင်းလောက် ဝယ်လာခဲ့ရင် .... အဲဒီရေမွှေး ဆွတ်ထားချိန်မှာ .... သမင်လည်ပြန်တွေ ဖြစ်ကုန်တတ်ပါတယ်။',
+};
+
+let birthStarIndex;
+const gozaResult = byId('goza-result');
+function updateGoza() {
+  const instant = new Date();
+  byId('goza-time').textContent = new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'short',
+  }).format(instant) + ' (မြန်မာစံတော်ချိန်)';
+  byId('goza-panel').hidden = false;
+  try {
+    const sun = solarNakshatraAt(instant);
+    const regionIndex = suriyaRegionForStar[suriyaSlot(birthStarIndex, sun.index)];
+    updateChartMarker('goza', suriyaRegions[regionIndex], yatraNames[birthStarIndex], true);
+    const position = document.createElement('p');
+    position.textContent = 'ကောဇာနေစီးနက္ခတ် — ' + yatraNames[sun.index]
+      + '။ ဇနမနက္ခတ်ကျရာ — ' + suriyaRegions[regionIndex][0] + '။';
+    const reading = document.createElement('p');
+    reading.textContent = gozaReadings[regionIndex] ?? 'ပေးထားသော စာမျက်နှာတွင် ဤအပိုင်းအတွက် ကောဇာအဟော မပါရှိပါ။';
+    gozaResult.replaceChildren(position, reading);
+  } catch {
+    updateChartMarker('goza');
+    gozaResult.textContent = 'ကောဇာအဟောကို တွက်မရပါ။';
+  }
+}
+
+const janmaCity = byId('janma-city');
+const janmaCitySearch = byId('janma-city-search');
+
+function renderJanmaCities() {
+  const selected = janmaCity.value;
+  const query = janmaCitySearch.value.trim().normalize().toLowerCase();
+  janmaCity.replaceChildren(new Option('မြို့ရွေးပါ', ''));
+  for (const [index, [name, english, region]] of towns.entries()) {
+    const label = [name, english, region].filter(Boolean).join(' · ');
+    if (label.normalize().toLowerCase().includes(query)) {
+      janmaCity.add(new Option(label, String(index)));
+    }
+  }
+  if (janmaCity.options.length === 1) {
+    janmaCity.options[0].text = 'ကိုက်ညီတဲ့ မြို့ မတွေ့ပါ';
+  }
+  janmaCity.value = [...janmaCity.options].some(option => option.value === selected) ? selected : '';
+}
+
+janmaCitySearch.addEventListener('input', renderJanmaCities);
+renderJanmaCities();
+
+byId('janma-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const result = byId('janma-result');
+  try {
+    const readPart = (name, min, max) => {
+      const value = ascii(byId('janma-' + name).value.trim());
+      const number = Number(value);
+      if (!/^\d+$/.test(value) || number < min || number > max) {
+        throw new RangeError('Invalid birth ' + name);
+      }
+      return number;
+    };
+    const pad = number => String(number).padStart(2, '0');
+    const day = readPart('day', 1, 31);
+    const month = readPart('month', 1, 12);
+    const year = readPart('year', 1900, 2100);
+    const hour = readPart('hour', 1, 12);
+    const minute = readPart('minute', 0, 59);
+    const second = readPart('second', 0, 59);
+    const hour24 = hour % 12 + (byId('janma-period').value === 'PM' ? 12 : 0);
+    const birthDate = [year, pad(month), pad(day)].join('-');
+    const birthTime = [hour24, minute, second].map(pad).join(':');
+    const instant = myanmarBirthInstant(birthDate, birthTime);
+    const { index, pada, longitude } = janmaAt(instant);
+    const sun = solarNakshatraAt(instant);
+    birthStarIndex = index;
+    updateGoza();
+    updateSuriya(index, sun.index);
+    const degree = mm(longitude.toFixed(4));
+    result.textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
+  } catch {
+    birthStarIndex = undefined;
+    updateChartMarker('suriya');
+    updateChartMarker('goza');
+    byId('suriya-result').textContent = '';
+    byId('suriya-reading').hidden = true;
+    byId('goza-panel').hidden = true;
+    gozaResult.replaceChildren();
+    result.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = rawHash === 'yatra8' ? 'practice' : rawHash;
@@ -552,7 +704,14 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : hash === 'catalog' || isGeneralPage || isYatraPage ? hash : 'calculator';
+    : ['catalog', 'calculator', 'suriya'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+  const isHome = page === 'home';
+  byId('home').hidden = !isHome;
+  byId('back-home').hidden = isHome;
+  const isSuriya = page === 'suriya';
+  byId('suriya').hidden = !isSuriya;
+  byId('nadika-hero').hidden = isHome || isSuriya;
+  byId('nadika-tabs').hidden = isHome || isSuriya;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
