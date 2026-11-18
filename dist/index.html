@@ -23,8 +23,48 @@
       <a class="home-choice" href="#calculator">နာဒီကာ</a>
       <a class="home-choice" href="#suriya">သူရိယစက်</a>
       <a class="home-choice" href="#guru">ဂုရုစက်</a>
+      <a class="home-choice" href="#upagraha">ဥပဂြဟ</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
+    <section id="upagraha" class="catalog" hidden>
+      <h1>ဥပဂြဟ</h1>
+      <form id="upagraha-form" class="controls">
+        <fieldset class="janma-parts">
+          <legend>မွေးသက္ကရာဇ်</legend>
+          <label>ရက်<input id="upa-day" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>လ<input id="upa-month" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>နှစ်<input id="upa-year" type="text" inputmode="numeric" maxlength="4" required></label>
+        </fieldset>
+        <fieldset class="janma-parts">
+          <legend>မွေးချိန်</legend>
+          <label>နာရီ<input id="upa-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>မိနစ်<input id="upa-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>စက္ကန့်<input id="upa-second" type="text" inputmode="numeric" maxlength="2" required></label>
+          <label>AM/PM<select id="upa-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+        </fieldset>
+        <label>မွေးဖွားရာမြို့ ရှာရန် <input id="upa-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label>မွေးဖွားရာမြို့ <select id="upa-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+        <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+        <p id="upa-error" role="status"></p>
+      </form>
+      <section id="upa-output" hidden>
+        <a class="back-home" href="#upagraha">← မွေးဖွားမှုအချက်အလက် ပြန်ပြင်ရန်</a>
+        <h2 id="upa-output-title" tabindex="-1">ဥပဂြဟ အဟော</h2>
+        <section id="upa-table-panel">
+          <div class="upa-table-heading"><h3>နက္ခတ် ၂၇ လုံး ဥပဂြဟဇယား</h3><button id="upa-fullscreen" type="button">မျက်နှာပြင်အပြည့်</button></div>
+          <div class="upa-table-scroll" id="upa-table"></div>
+        </section>
+        <div id="upa-result" aria-live="polite"></div>
+      </section>
+      <details><summary>တွက်နည်းနှင့် အသုံးပြုပုံ</summary>
+        <p>နေစီးနက္ခတ်ကို စမှတ်ယူပြီး နက္ခတ် ၂၇ လုံးအစဉ်အတိုင်း ဥပဂြဟများကို တွက်သည်။ ဝိဒြုမကို ၅ လုံးမြောက်၊ သူလကို ၈ လုံးမြောက်၊ သန္နိပါတကို ၁၄ လုံးမြောက်၊ ကေတုကို ၁၈ လုံးမြောက်၊ ဥက္ကလကို ၂၂ လုံးမြောက်၊ ကမ္ပကို ၂၃ လုံးမြောက်၊ ဝဇိရကို ၂၄ လုံးမြောက်၊ နိရ္ဃာတကို ၂၅ လုံးမြောက်တွင် ထားသည်။</p>
+        <p>အခါရွေးရာတွင် မူလဇာတာ တနင်္ဂနွေကနေ ကြည့်လိုက်သော နက္ခတ်များကို ရှောင်ရသည်။ ကောဇာ တနင်္ဂနွေစီးနက္ခတ်ကနေ သင့်သော ဥပဂြဟများကိုလည်း ရှောင်ရသည်။</p>
+        <p>မူလ ဇနမနက္ခတ်က ဥပဂြဟသင့်လျှင် ကျန်းမာရေးညံ့ခြင်း၊ မတော်တဆ ထိခိုက်မှုတို့ကို ဖော်ပြထားပြီး သက်ဆိုင်ရာ ယတြာကို အသုံးပြုရန် ဆိုထားသည်။ ကောဇာအရ သင့်နေသောကာလတွင်လည်း ကျန်းမာရေးနှင့် ထိခိုက်မှုအတွက် သတိပြုရန် ဖော်ပြထားသည်။ ပါပဂြိုဟ် တစ်လုံးလုံးက ဇနမနက္ခတ်ကို စီးနေခြင်းနှင့် တွဲဖက်၍ ချိန်ဆရသည်။</p>
+        <p>ဥပဂြဟကို ဇာတာပါ အခြားအချက်များနှင့် ချိန်ဆရန်၊ မိမိ၏ ဥပဂြဟနက္ခတ်နှင့် စန်းယှဉ်မွေးသူများကို ရေရှည် မပေါင်းသင်းရန်ဆိုသည့် ကျမ်းဖော်ပြချက်ကိုလည်း စာမျက်နှာတွင် ထည့်ထားသည်။ ယင်းနောက်ဆုံးအချက်ကို စာရေးသူက စနစ်တကျ မလေ့လာရသေးကြောင်း ဆိုထားသည်။</p>
+        <p>ဝိဒြုမသည် သားသမီးဆုံးရှုံးမှု၊ အခက်အခဲနှင့် ထူးခြားသော ဉာဏ်ရည်၊ မေ့လျော့ထားသော အချက်များ ပြန်သတိရခြင်းတို့နှင့် ဆက်စပ်ဖော်ပြထားသည်။ အရေးကြီးလုပ်ငန်းများအတွက် သက်ဆိုင်ရာကာလတွင် ကြိုတင်အစီအစဉ်ချခြင်း၊ အဓိဋ္ဌာန်ဝင်ခြင်းတို့ကို ဆိုထားသည်။ နေ၊ ပါပဂြိုဟ်များနှင့် ဆက်စပ်မှုအလိုက် ယတြာကို ချိန်ဆရန် ဖော်ပြထားသည်။</p>
+      </details>
+
+    </section>
     <section id="suriya" class="catalog" hidden>
       <h1 id="chart-title">သူရိယစက်</h1>
       <form id="janma-form" class="controls">
