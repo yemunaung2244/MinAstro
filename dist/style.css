@@ -406,3 +406,10 @@ html { touch-action: pan-x pan-y; }
   font-weight: 700;
   color: var(--sky-accent);
 }
+
+#goza-solar-window dt {
+  margin-top: .75rem;
+  color: var(--sky-accent);
+  font-weight: 700;
+}
+#goza-solar-window dd { margin-inline-start: 0; }

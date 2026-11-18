@@ -1,4 +1,4 @@
-import { janmaAt, myanmarBirthInstant, solarNakshatraAt, suriyaSlot } from './janma.js';
+import { janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
@@ -677,8 +677,16 @@ function updateGoza(instant = new Date()) {
     reading.textContent = suriyaReadings[regionIndex];
     byId('goza-solar-star').textContent = 'ကောဇာနေစီးနက္ခတ် — ' + yatraNames[sun.index] + '၊ ပါဒ ' + mm(sun.pada);
     byId('goza-longitude').textContent = 'နေလောင်ဂျီတွဒ် — ' + mm(sun.longitude.toFixed(4)) + '°';
+    const { entry, exit } = solarNakshatraWindow(instant);
+    const boundaryFormat = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'short',
+    });
+    byId('goza-solar-entry').textContent = boundaryFormat.format(entry);
+    byId('goza-solar-exit').textContent = boundaryFormat.format(exit);
+    byId('goza-solar-window').hidden = false;
     gozaResult.replaceChildren(position, reading);
   } catch {
+    byId('goza-solar-window').hidden = true;
     gozaResult.textContent = 'ကောဇာအဟောကို တွက်မရပါ။';
   }
 }

@@ -36,3 +36,26 @@ export function myanmarBirthInstant(date, time) {
   const seconds = (Number(offset[2]) * 3600 + Number(offset[3]) * 60 + Number(offset[4] || 0));
   return new Date(civil.getTime() - (offset[1] === '-' ? -seconds : seconds) * 1000);
 }
+
+export function solarNakshatraWindow(instant) {
+  const { index } = solarNakshatraAt(instant);
+  const center = instant.getTime();
+  const day = 86400000;
+
+  function boundary(direction) {
+    let inside = center;
+    let outside = center + direction * day;
+    while (solarNakshatraAt(new Date(outside)).index === index) {
+      inside = outside;
+      outside += direction * day;
+    }
+    while (Math.abs(outside - inside) > 1000) {
+      const midpoint = Math.round((inside + outside) / 2);
+      if (solarNakshatraAt(new Date(midpoint)).index === index) inside = midpoint;
+      else outside = midpoint;
+    }
+    return new Date(Math.max(inside, outside));
+  }
+
+  return { entry: boundary(-1), exit: boundary(1) };
+}
