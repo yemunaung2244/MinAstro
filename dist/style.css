@@ -435,3 +435,5 @@ html { touch-action: pan-x pan-y; }
   stroke-width: 3px;
   paint-order: stroke;
 }
+
+#natal-reading-info { white-space: pre-line; }

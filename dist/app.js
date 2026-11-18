@@ -693,17 +693,17 @@ function renderSuriyaStars(sunIndex) {
     arrow.setAttribute('class', 'suriya-star-line');
     arrow.setAttribute('marker-end', 'url(#suriya-neutral-arrowhead)');
     const label = document.createElementNS(svg, 'text');
-    label.setAttribute('x', left ? -84 : 324);
+    label.setAttribute('x', left ? -149 : 389);
     label.setAttribute('y', rowY + 3);
     label.setAttribute('text-anchor', left ? 'start' : 'end');
     label.setAttribute('class', 'suriya-marker-label');
-    label.textContent = chartNames[(sunIndex + slot) % chartNames.length];
+    label.textContent = chartNames[(sunIndex + slot) % chartNames.length] + ' (' + chartRegions[regionIndex][0] + ')';
     const group = document.createElementNS(svg, 'g');
     group.setAttribute('role', 'button');
     group.setAttribute('tabindex', '0');
     group.setAttribute('aria-label', label.textContent + ' အဟော');
     const showReading = () => {
-      byId('suriya-star-title').textContent = (group.dataset.gozaName || label.textContent) + ' — ' + chartRegions[regionIndex][0];
+      byId('suriya-star-title').textContent = group.dataset.gozaName || label.textContent;
       byId('suriya-star-reading').textContent = chartReadings[regionIndex];
       byId('suriya-star-dialog').showModal();
     };
@@ -732,6 +732,8 @@ function updateSuriya(starIndex, sunIndex) {
   const starName = chartNames[starIndex];
   byId('suriya-result').textContent = starName + ' — ' + region[0];
   byId('suriya-reading').hidden = false;
+  byId('natal-reading-title').textContent = 'မူလအရအဟော';
+  byId('natal-reading-info').textContent = 'ဇနမနက္ခတ် - ' + starName + 'နက္ခတ်\nခန္ဓာကိုယ်အစိတ်အပိုင်း - ' + region[0];
   byId('suriya-reading-text').textContent = chartReadings[regionIndex];
   renderSuriyaStars(sunIndex);
   highlightSuriyaSlot(chartSlot(starIndex, sunIndex), 'natal-marker');
@@ -796,13 +798,14 @@ function updateGoza(instant = new Date()) {
       label.setAttribute('x', 120);
       label.setAttribute('y', labelY);
       label.setAttribute('text-anchor', 'middle');
-      label.textContent = starName + ' (ကောဇာ)';
+      label.textContent = starName + ' (' + chartRegions[regionIndex][0] + ') (ကောဇာ)';
     }
     const marker = markers.children[slot];
-    marker.dataset.gozaName = starName;
+    marker.dataset.gozaName = starName + ' (' + chartRegions[regionIndex][0] + ')';
     marker.dataset.originalLabel = marker.getAttribute('aria-label');
     marker.setAttribute('aria-label', starName + ' အဟော');
-    position.textContent = 'ကောဇာအရ ဇနမနက္ခတ် — ' + starName + '။';
+    position.textContent = 'ဇနမနက္ခတ် - ' + starName + 'နက္ခတ်\nခန္ဓာကိုယ်အစိတ်အပိုင်း - ' + chartRegions[regionIndex][0];
+    byId('goza-reading-title').textContent = 'ကောဇာအရအဟော';
     const reading = document.createElement('p');
     reading.textContent = chartReadings[regionIndex];
     byId('goza-solar-star').textContent = 'ကောဇာ' + chartPlanetLabel() + ' — ' + chartNames[sun.index] + '၊ ပါဒ ' + mm(sun.pada);
@@ -915,7 +918,7 @@ function selectChart(mode) {
   if (chartMode !== mode) byId('guru-goza-marker').setAttribute('hidden', '');
   chartMode = mode;
   byId('suriya').classList.toggle('guru-chart', mode === 'guru');
-  byId('suriya').querySelector('.suriya-figure').setAttribute('viewBox', mode === 'guru' ? '-90 0 420 400' : '-12 0 264 360');
+  byId('suriya').querySelector('.suriya-figure').setAttribute('viewBox', mode === 'guru' ? '-155 0 550 400' : '-12 0 264 360');
   const guru = mode === 'guru';
   chartNames = guru ? guruNames : yatraNames;
   chartRegions = guru ? guruRegions : suriyaRegions;
