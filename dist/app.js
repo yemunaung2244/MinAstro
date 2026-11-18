@@ -432,6 +432,52 @@ const yatra5Descriptions = [
   `စွမ်းအင်ရှိသော နေ့ - ${[...days].map(day => weekdays[day]).join('၊ ')}။`,
 ].join('\n'));
 
+// Chapter 39, in the same nakshatra order as the other yatra lists.
+const yatra7Title = 'နက္ခတ်တွေရဲ့ ပြဒါးဓာတ်';
+const yatra7Descriptions = [
+  'ထောပတ်။',
+  'နှမ်း။',
+  'ပဲစင်းငုံ။',
+  'ဒိန်ချဉ်။',
+  'ထောပတ်။',
+  'နွားနို့။',
+  'သမင်။',
+  'သမင်။',
+  'နို့ထမင်း။',
+  'ငှက်ခါး။',
+  'သမင်။',
+  'ယုန်။',
+  'ဂျုံမှုန့်၊ ဆန်မှုန့်စသည်ဖြင့် ပြုလုပ်သော အစားအစာ။',
+  'မြင်းခေါင်းနားယောင်အပင်။',
+  'ဂျုံ။',
+  'ဒေါင်း။',
+  'သလဲသီး။',
+  'လိပ်။',
+  'ဖြူကောင်။',
+  'ပုတ်သင်ညို။',
+  'မြင်း။ ဥသျှစ်ပင်။ ဥသျှစ်ရွက်။',
+  'ထမနဲ။',
+  'ပဲနီလေး သို့မဟုတ် ပဲဝါလေးနှင့် ချက်ထားသော ထမင်း။',
+  'ဂျုံမှုန့်။',
+  'ငါးဟင်းနှင့် ထမင်း။',
+  'ထမနဲ။',
+  'ဒိန်ချဉ်ထမင်း။',
+];
+
+const yatra8Title = 'နက္ခတ်ရဲ့ ကျင့်စဉ် တစ်မျိုး';
+const yatra8Groups = [
+  [[1, 8, 15], 'တရားထိုင်တာ၊ ဝင်လေ ထွက်လေနဲ့ ပတ်သက်သော ကျင့်စဉ်တွေ၊ ယောဂကျင့်တာ၊ ကျန်းမာရေး လေ့ကျင့်ခန်းတွေ လုပ်တာ အလွန် ကောင်းပါတယ်။'],
+  [[2, 9, 16, 22], 'သီလစင်ကြယ်ခြင်းကို ကျင့်စဉ်အနေနဲ့ ကျင့်ရပါတယ်။'],
+  [[3, 10, 17, 23], 'ပညာသင်ယူခြင်း၊ ပညာသင်ပေးခြင်းကို နှစ်သက်မြတ်နိုးပါတယ်။ ဒါကိုက ကျင့်စဉ်ပါ။ ဒီပညာဆိုရာမှာ ဘာသာ/သာသနာဆိုင်ရာ စာပေပညာတွေက ပိုကောင်းပါတယ်။ အဲဒီမှာမှ ကိုးကွယ်ရာ သာသနာဆိုင်ရာ ဘာမှမလုပ်နိုင်ရင်တောင် အဲလို လုပ်ဆောင်နေသူတွေကို နိုင်တဲ့ဘက်က ကူညီ၊ ထောက်ပံ့၊ လှူဒါန်းတာ ကောင်းတာပေါ့လေ။'],
+  [[4, 11, 18, 24], 'မုဒိတာ ပွားခြင်းကို နှစ်သက်ပါတယ်။'],
+  [[5, 12, 19, 25], 'မေတ္တာပွားများခြင်းကို နှစ်သက်ပါတယ်။'],
+  [[6, 13, 20, 26], 'သည်းခံ ခွင့်လွှတ်ခြင်းဆိုတဲ့ ခန္တီကို နှစ်သက်ပါတယ်။'],
+  [[7, 14, 21, 27], 'မာန်မာန မထား၊ နှိမ့်ချတတ်ခြင်းကို နှစ်သက်ပါတယ်။'],
+];
+const yatra8Descriptions = yatraNames.map((_, index) =>
+  yatra8Groups.find(([numbers]) => numbers.includes(index + 1))[1]
+);
+
 function renderYatraCards(containerId, descriptions) {
   const yatraCards = document.createDocumentFragment();
   yatraNames.forEach((name, index) => {
@@ -453,11 +499,22 @@ renderYatraCards('yatra3-entries', yatra3Descriptions);
 renderYatraCards('yatra4-entries', yatra4Descriptions);
 renderYatraCards('yatra5-entries', yatra5Descriptions);
 renderYatraCards('yatra6-entries', yatra6Descriptions);
+renderYatraCards('yatra7-entries', yatra7Descriptions);
+byId('yatra7-title').textContent = yatra7Title;
+renderYatraCards('yatra8-entries', yatra8Descriptions);
+byId('yatra8-title').textContent = yatra8Title;
 byId('yatra6-title').textContent = yatra6Title;
 const abhijit = document.createElement('article');
 abhijit.className = 'entry';
 abhijit.innerHTML = '<h3>အဘိဇိနက္ခတ်</h3><p>နို့ထမင်း လှူခြင်း။</p>';
 byId('yatra3-entries').children[20].after(abhijit);
+const yatra7Abhijit = abhijit.cloneNode(true);
+yatra7Abhijit.querySelector('p').textContent = 'ထောပတ်ထမင်း။';
+byId('yatra7-entries').children[20].after(yatra7Abhijit);
+
+const yatra8Abhijit = abhijit.cloneNode(true);
+yatra8Abhijit.querySelector('p').textContent = yatra8Groups[0][1];
+byId('yatra8-entries').children[20].after(yatra8Abhijit);
 
 updateResult();
 
@@ -471,8 +528,8 @@ function renderNakshatraDetail([name], source) {
     list.textContent = 'ဒီနက္ခတ်အတွက် ကျမ်းပါ ယတြာ မရှိပါ။';
     return;
   }
-  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု", yatra6Title];
+  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions];
+  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်ရဲ့ ထူးခြားတဲ့ စနစ် တစ်ခု", yatra6Title, yatra7Title, yatra8Title];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
@@ -483,14 +540,15 @@ function renderNakshatraDetail([name], source) {
 }
 
 function showPage() {
-  const hash = window.location.hash.slice(1);
+  const rawHash = window.location.hash.slice(1);
+  const hash = rawHash === 'yatra8' ? 'practice' : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
   const yatraLinks = [...yatraTabs.querySelectorAll('[data-yatra-tab]')];
   const isYatraPage = yatraLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : hash === 'catalog' || isYatraPage ? hash : 'calculator';
+    : hash === 'catalog' || hash === 'practice' || isYatraPage ? hash : 'calculator';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -505,6 +563,7 @@ function showPage() {
   }
   byId('calculator').hidden = page !== 'calculator';
   byId('calculator-intro').hidden = page !== 'calculator';
+  byId('practice').hidden = page !== 'practice';
   byId('catalog').hidden = page !== 'catalog';
   for (const link of document.querySelectorAll('[data-page]')) {
     if (link.dataset.page === page || (link.dataset.page === 'yatras' && !yatraTabs.hidden)) link.setAttribute('aria-current', 'page');
