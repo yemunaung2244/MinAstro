@@ -51,9 +51,12 @@
       <p id="suriya-calculation"></p>
       <p id="suriya-result" aria-live="polite"></p>
       <div class="suriya-chart">
-      <svg class="suriya-figure" viewBox="0 0 240 360" role="img" aria-label="ရှေ့မျက်နှာမူ လူပုံတွင် ကိုယ်ခန္ဓာအပိုင်း ဆယ်မျိုး ပြထားသည်">
+      <svg class="suriya-figure" viewBox="-90 0 420 360" aria-label="ရှေ့မျက်နှာမူ လူပုံတွင် ကိုယ်ခန္ဓာအပိုင်း ဆယ်မျိုး ပြထားသည်">
         <image href="assets/suriya-person.jpg" width="240" height="360"/>
         <defs>
+          <marker id="suriya-neutral-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+            <path d="M0 0 10 5 0 10z" fill="#647889"/>
+          </marker>
           <marker id="suriya-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
             <path d="M0 0 10 5 0 10z" fill="#15547b"/>
           </marker>
@@ -61,12 +64,14 @@
             <path d="M0 0 10 5 0 10z" fill="#854078"/>
           </marker>
         </defs>
-        <line id="suriya-arrow" stroke="#15547b" stroke-width="3" marker-end="url(#suriya-arrowhead)" hidden/>
-        <text id="suriya-arrow-label" class="suriya-marker-label" hidden></text>
-        <line id="goza-arrow" stroke="#854078" stroke-width="2.5" stroke-dasharray="4 2" marker-end="url(#goza-arrowhead)" hidden/>
-        <text id="goza-arrow-label" class="suriya-marker-label" hidden></text>
+        <g id="suriya-all-markers"></g>
       </svg>
       </div>
+      <dialog id="suriya-star-dialog" aria-labelledby="suriya-star-title">
+        <h2 id="suriya-star-title"></h2>
+        <p id="suriya-star-reading"></p>
+        <form method="dialog"><button autofocus>ပိတ်ရန်</button></form>
+      </dialog>
       <nav class="suriya-reading-tabs" aria-label="အဟောအမျိုးအစား">
         <button type="button" data-reading="current" aria-pressed="true">အဟောပိုင်း</button>
         <button type="button" data-reading="natal" aria-pressed="false">မူလ</button>

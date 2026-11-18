@@ -567,24 +567,49 @@ const suriyaReadings = [
 ];
 const suriyaRegionForStar = suriyaRegions.flatMap(([, count], index) => Array(count).fill(index));
 
-function updateChartMarker(prefix, region, name, isGoza = false) {
-  const arrow = byId(prefix + '-arrow');
-  const label = byId(prefix + '-arrow-label');
-  arrow.toggleAttribute('hidden', !region);
-  label.toggleAttribute('hidden', !region);
-  if (!region) return;
+function renderSuriyaStars(sunIndex) {
+  const markers = byId('suriya-all-markers');
+  markers.replaceChildren();
+  const svg = 'http://www.w3.org/2000/svg';
+  suriyaRegionForStar.forEach((regionIndex, slot) => {
+    const left = slot % 2 === 0;
+    const rowY = 13 + Math.floor(slot / 2) * 25;
+    const [x, y] = suriyaRegions[regionIndex][2][0];
+    const arrow = document.createElementNS(svg, 'path');
+    arrow.setAttribute('d', `M ${left ? -4 : 244} ${rowY} L ${x} ${y}`);
+    arrow.setAttribute('class', 'suriya-star-line');
+    arrow.setAttribute('marker-end', 'url(#suriya-neutral-arrowhead)');
+    const label = document.createElementNS(svg, 'text');
+    label.setAttribute('x', left ? -84 : 324);
+    label.setAttribute('y', rowY + 3);
+    label.setAttribute('text-anchor', left ? 'start' : 'end');
+    label.setAttribute('class', 'suriya-marker-label');
+    label.textContent = yatraNames[(sunIndex + slot) % yatraNames.length];
+    const group = document.createElementNS(svg, 'g');
+    group.setAttribute('role', 'button');
+    group.setAttribute('tabindex', '0');
+    group.setAttribute('aria-label', label.textContent + ' အဟော');
+    const showReading = () => {
+      byId('suriya-star-title').textContent = label.textContent + ' — ' + suriyaRegions[regionIndex][0];
+      byId('suriya-star-reading').textContent = suriyaReadings[regionIndex];
+      byId('suriya-star-dialog').showModal();
+    };
+    group.addEventListener('click', showReading);
+    group.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showReading();
+      }
+    });
+    group.dataset.slot = slot;
+    group.append(arrow, label);
+    markers.append(group);
+  });
+}
 
-  const [[x, y]] = region[2];
-  const edge = isGoza ? 8 : 232;
-  const labelY = Math.max(12, Math.min(355, y + (isGoza ? 15 : -8)));
-  arrow.setAttribute('x1', edge);
-  arrow.setAttribute('y1', labelY + 3);
-  arrow.setAttribute('x2', x);
-  arrow.setAttribute('y2', y);
-  label.setAttribute('x', edge);
-  label.setAttribute('y', labelY);
-  label.setAttribute('text-anchor', isGoza ? 'start' : 'end');
-  label.textContent = name + (isGoza ? ' (ကောဇာ)' : ' (မူလ)');
+function highlightSuriyaSlot(slot, kind) {
+  const group = byId('suriya-all-markers').children[slot];
+  if (group) group.classList.add(kind);
 }
 
 function updateSuriya(starIndex, sunIndex) {
@@ -594,16 +619,9 @@ function updateSuriya(starIndex, sunIndex) {
   byId('suriya-result').textContent = starName + ' — ' + region[0];
   byId('suriya-reading').hidden = false;
   byId('suriya-reading-text').textContent = suriyaReadings[regionIndex];
-  updateChartMarker('suriya', region, starName);
+  renderSuriyaStars(sunIndex);
+  highlightSuriyaSlot(suriyaSlot(starIndex, sunIndex), 'natal-marker');
 }
-// Page 168 gives examples for these positions.
-const gozaReadings = {
-  0: 'ကုန်ကြမ်းတွေ ဝယ်ယူစုဆောင်းစေပါတယ်။ စီးပွားတက်စေသော၊ ချမ်းသာကြွယ်ဝစေသော ယတြာ အစီအရင်တွေ လုပ်စေပါတယ်။',
-  3: 'ရတနာလုပ်ငန်း ဥပမာမှာ ဇနမနက္ခတ် လက်မောင်းပေါ် ရောက်ချိန်၌ ကျောက်များကို ယိုးဒယားသို့ သွားရောင်းစေပါတယ်။',
-  4: 'ရတနာလုပ်ငန်း ဥပမာမှာ ဇနမနက္ခတ် လက်ဖျံကို ရောက်နေရမယ်။ ပြီးတော့ ပါပဂြိုဟ် ဘာညာတွေကနေ ကင်းလွတ်ရမယ်။ အချိန်တန်တော့ ကျောက်တွေ စိတ်ကြိုက် ဈေးဖြတ် ဝယ်ယူစေပါတယ်။',
-  7: 'ဆန့်ကျင်ဘက် လိင်နဲ့ ပတ်သက်တဲ့ ပီယ အစီအရင် လုပ်စေပါတယ်။ ဘာမှ မလုပ်တတ်ရင်တောင် အဲဒီအချိန်မှာ ရေမွှေး တစ်ပုလင်းလောက် ဝယ်လာခဲ့ရင် .... အဲဒီရေမွှေး ဆွတ်ထားချိန်မှာ .... သမင်လည်ပြန်တွေ ဖြစ်ကုန်တတ်ပါတယ်။',
-};
-
 const readingButtons = [...document.querySelectorAll('[data-reading]')];
 
 function showReadingTab(tab) {
@@ -618,7 +636,7 @@ for (const button of readingButtons) {
   button.addEventListener('click', () => showReadingTab(button.dataset.reading));
 }
 
-for (const [tab, readings] of [['natal', suriyaReadings], ['transit', gozaReadings]]) {
+for (const [tab, readings] of [['natal', suriyaReadings], ['transit', suriyaReadings]]) {
   for (const [index, reading] of Object.entries(readings)) {
     const card = document.createElement('article');
     card.className = 'entry';
@@ -633,7 +651,7 @@ for (const [tab, readings] of [['natal', suriyaReadings], ['transit', gozaReadin
 
 let birthStarIndex;
 const gozaResult = byId('goza-result');
-function updateGoza() {
+function updateGoza(natalSunIndex) {
   const instant = new Date();
   byId('goza-time').textContent = new Intl.DateTimeFormat('my-MM', {
     timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'short',
@@ -641,16 +659,16 @@ function updateGoza() {
   byId('goza-panel').hidden = false;
   try {
     const sun = solarNakshatraAt(instant);
-    const regionIndex = suriyaRegionForStar[suriyaSlot(birthStarIndex, sun.index)];
-    updateChartMarker('goza', suriyaRegions[regionIndex], yatraNames[birthStarIndex], true);
+    const slot = suriyaSlot(birthStarIndex, sun.index);
+    const regionIndex = suriyaRegionForStar[slot];
+    highlightSuriyaSlot(slot, 'goza-marker');
     const position = document.createElement('p');
-    position.textContent = 'ကောဇာနေစီးနက္ခတ် — ' + yatraNames[sun.index]
-      + '။ ဇနမနက္ခတ်ကျရာ — ' + suriyaRegions[regionIndex][0] + '။';
+    const starName = yatraNames[(natalSunIndex + slot) % yatraNames.length];
+    position.textContent = 'ကောဇာအရ ဇနမနက္ခတ် — ' + starName + '။';
     const reading = document.createElement('p');
-    reading.textContent = gozaReadings[regionIndex] ?? 'ပေးထားသော စာမျက်နှာတွင် ဤအပိုင်းအတွက် ကောဇာအဟော မပါရှိပါ။';
+    reading.textContent = suriyaReadings[regionIndex];
     gozaResult.replaceChildren(position, reading);
   } catch {
-    updateChartMarker('goza');
     gozaResult.textContent = 'ကောဇာအဟောကို တွက်မရပါ။';
   }
 }
@@ -704,16 +722,15 @@ byId('janma-form').addEventListener('submit', event => {
     const sun = solarNakshatraAt(instant);
     birthStarIndex = index;
     showReadingTab('current');
-    updateGoza();
     updateSuriya(index, sun.index);
+    updateGoza(sun.index);
     const degree = mm(longitude.toFixed(4));
     result.textContent = '';
     byId('suriya-calculation').textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
     window.location.hash = 'suriya-result';
   } catch {
     birthStarIndex = undefined;
-    updateChartMarker('suriya');
-    updateChartMarker('goza');
+    byId('suriya-all-markers').replaceChildren();
     byId('suriya-result').textContent = '';
     byId('suriya-reading').hidden = true;
     byId('goza-panel').hidden = true;

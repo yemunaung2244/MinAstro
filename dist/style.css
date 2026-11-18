@@ -362,3 +362,35 @@ html { touch-action: pan-x pan-y; }
 }
 
 #reading-natal .entry, #reading-transit .entry { margin-block: 10px; }
+
+.suriya-figure { width: min(100%, 640px); }
+.suriya-star-line {
+  fill: none;
+  stroke: #647889;
+  stroke-width: .85;
+  opacity: .55;
+}
+#suriya-arrow-label { fill: #15547b; }
+#suriya-arrow-label, #goza-arrow-label { font-weight: 700; }
+
+.natal-marker .suriya-star-line,
+.goza-marker .suriya-star-line { stroke-width: 2.4; opacity: 1; }
+
+.natal-marker .suriya-star-line { stroke: #15547b; marker-end: url(#suriya-arrowhead); }
+.goza-marker .suriya-star-line { stroke: #854078; marker-end: url(#goza-arrowhead); }
+.natal-marker text { fill: #15547b; font-weight: 700; }
+.goza-marker text { fill: #854078; font-weight: 700; }
+.natal-marker.goza-marker .suriya-star-line { stroke: #15547b; stroke-dasharray: 4 2; }
+
+#suriya-all-markers g { cursor: pointer; }
+#suriya-all-markers .suriya-star-line { pointer-events: stroke; }
+#suriya-star-dialog {
+  width: min(90vw, 36rem);
+  max-height: 85vh;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--ink);
+}
+#suriya-star-dialog::backdrop { background: #142e4577; }
