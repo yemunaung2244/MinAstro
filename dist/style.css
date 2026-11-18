@@ -343,7 +343,7 @@ html { touch-action: pan-x pan-y; }
 
 .suriya-reading-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   margin-block: 16px;
 }
@@ -361,7 +361,7 @@ html { touch-action: pan-x pan-y; }
   color: white;
 }
 
-#reading-natal .entry, #reading-transit .entry { margin-block: 10px; }
+#reading-natal .entry { margin-block: 10px; }
 
 .suriya-figure { width: min(100%, 640px); }
 .suriya-star-line {
@@ -394,3 +394,15 @@ html { touch-action: pan-x pan-y; }
   color: var(--ink);
 }
 #suriya-star-dialog::backdrop { background: #142e4577; }
+
+#suriya-all-markers g:not(.natal-marker):not(.goza-marker) { display: none; }
+#suriya-all-markers .natal-marker.goza-marker .suriya-star-line {
+  stroke: #15547b;
+  marker-end: url(#goza-arrowhead);
+}
+
+#goza-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--sky-accent);
+}

@@ -602,7 +602,7 @@ function renderSuriyaStars(sunIndex) {
       }
     });
     group.dataset.slot = slot;
-    group.append(arrow, label);
+    group.append(arrow);
     markers.append(group);
   });
 }
@@ -636,25 +636,26 @@ for (const button of readingButtons) {
   button.addEventListener('click', () => showReadingTab(button.dataset.reading));
 }
 
-for (const [tab, readings] of [['natal', suriyaReadings], ['transit', suriyaReadings]]) {
-  for (const [index, reading] of Object.entries(readings)) {
-    const card = document.createElement('article');
-    card.className = 'entry';
-    const heading = document.createElement('h3');
-    heading.textContent = suriyaRegions[index][0];
-    const paragraph = document.createElement('p');
-    paragraph.textContent = reading;
-    card.append(heading, paragraph);
-    byId('reading-' + tab).append(card);
-  }
+for (const [index, reading] of suriyaReadings.entries()) {
+  const card = document.createElement('article');
+  card.className = 'entry';
+  const heading = document.createElement('h3');
+  heading.textContent = suriyaRegions[index][0];
+  const paragraph = document.createElement('p');
+  paragraph.textContent = reading;
+  card.append(heading, paragraph);
+  byId('reading-natal').append(card);
 }
 
 let birthStarIndex;
 const gozaResult = byId('goza-result');
-function updateGoza(natalSunIndex) {
-  const instant = new Date();
+let gozaNatalSunIndex;
+
+function updateGoza(natalSunIndex, instant = new Date()) {
+  gozaNatalSunIndex = natalSunIndex;
+  byId('suriya-all-markers').querySelector('.goza-marker')?.classList.remove('goza-marker');
   byId('goza-time').textContent = new Intl.DateTimeFormat('my-MM', {
-    timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'short',
+    timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'medium',
   }).format(instant) + ' (မြန်မာစံတော်ချိန်)';
   byId('goza-panel').hidden = false;
   try {
@@ -667,11 +668,33 @@ function updateGoza(natalSunIndex) {
     position.textContent = 'ကောဇာအရ ဇနမနက္ခတ် — ' + starName + '။';
     const reading = document.createElement('p');
     reading.textContent = suriyaReadings[regionIndex];
+    byId('goza-solar-star').textContent = 'ကောဇာနေစီးနက္ခတ် — ' + yatraNames[sun.index] + '၊ ပါဒ ' + mm(sun.pada);
+    byId('goza-longitude').textContent = 'နေလောင်ဂျီတွဒ် — ' + mm(sun.longitude.toFixed(4)) + '°';
     gozaResult.replaceChildren(position, reading);
   } catch {
     gozaResult.textContent = 'ကောဇာအဟောကို တွက်မရပါ။';
   }
 }
+
+byId('goza-custom-form').addEventListener('submit', event => {
+  event.preventDefault();
+  if (birthStarIndex === undefined) return;
+  const [date, time] = byId('goza-custom-time').value.split('T');
+  const error = byId('goza-custom-error');
+  try {
+    updateGoza(gozaNatalSunIndex, myanmarBirthInstant(date, time));
+    error.textContent = '';
+  } catch {
+    error.textContent = 'ရွေးထားတဲ့ ရက်နဲ့ အချိန်ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('goza-now').addEventListener('click', () => {
+  if (birthStarIndex === undefined) return;
+  byId('goza-custom-time').value = '';
+  byId('goza-custom-error').textContent = '';
+  updateGoza(gozaNatalSunIndex);
+});
 
 const janmaCity = byId('janma-city');
 const janmaCitySearch = byId('janma-city-search');
