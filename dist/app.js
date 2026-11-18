@@ -1,4 +1,4 @@
-import { janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
+import { guruNakshatraAt, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
@@ -565,16 +565,115 @@ const suriyaReadings = [
   "ခြေထောက်တွေမှာ ရှိရင် – ခရီးသွားနေမယ်။ လိင်မှုကို အလွန်အကဲ လိုက်စားသူ ဖြစ်မယ်။ ဖြောင့်မတ် မှန်ကန်မှု နည်းမယ်။",
   "ခြေဖမိုး နှစ်ဖက်မှာ ရှိရင် – အသက်တိုတတ်တယ်။ ဘာသာ သာသနာ သိပ်စိတ်မဝင်စားတတ်ပါ။ စိုက်ပျိုးရေး ဝါသနာပါမယ်။ မိမိရဲ့ တာဝန်များကို ရှောင်ပယ်လေ့ ရှိပါတယ်။"
 ];
-const suriyaRegionForStar = suriyaRegions.flatMap(([, count], index) => Array(count).fill(index));
+const guruRegions = [
+  ['ဦးခေါင်း', 4, [[120, 23]]],
+  ['ညာဘက်လက်', 4, [[79, 139]]],
+  ['လည်ပင်း', 1, [[120, 62]]],
+  ['ရင်ဘတ်', 5, [[120, 89]]],
+  ['ညာဘက်ခြေ', 3, [[100, 280]]],
+  ['လိင်အင်္ဂါ', 1, [[120, 170]]],
+  ['ဘယ်ဘက်ခြေ', 3, [[140, 280]]],
+  ['ဘယ်ဘက်လက်', 4, [[161, 139]]],
+  ['မျက်လုံး', 3, [[120, 40]]],
+];
+const guruReadings = [
+  `မူလ/ကောဇာ ဇာတာမှာ ကိုယ့်ရဲ့ ဇနမနက္ခတ်ဟာ ဦးခေါင်းမှာ ရှိတိုင်း ဘုရင်ဖြစ်နေတာ မဟုတ်ပါဘူး။ ဘုန်းတန်ခိုး ဩဇာအာဏာ ကြီးမယ်။ စိတ်က ကြံစည်ထားတာထက် ပိုပြီး ထမြောက်အောင်မြင်မယ်လို့ နားလည်ရပါတယ်။ ဒါကြောင့် ကောဇာမှာ ဒီနက္ခတ် စန်းစီးနေချိန်မှာ မိမိ စိတ်က ဖြစ်ချင်/ရချင်တာတွေကို စပြီး အကောင်အထည် ဖော်ပါ။
+
+ကောဇာမှာ ဒီနက္ခတ်လေးလုံးထဲက တစ်လုံးကို အစင်အကြယ် ရွေးယူပြီး အဲဒီကာလမှာ စီးပွားရေးလုပ်ငန်း စပြီး ထူထောင်ရင် အဲဒီ လုပ်ငန်းဟာ အင်မတန် အောင်မြင် ကျယ်ပြန့်ပါလိမ့်မယ်။ သူ လုပ်နေတဲ့ စီးပွားရေးနယ်ပယ်မှာ သူဆုံးဖြတ်ချက်နောက်ကို သူနဲ့ လုပ်ငန်းတူ သူများက လိုက်နာ လုပ်ဆောင်ရပါတယ်။ တစ်နည်းအားဖြင့် ပြောရရင် သူ့ကို ကျော်နိုင်ဖို့ ခက်ပါတယ်။`,
+  `ခု ပြောမှာက ညာဘက်လက်အကြောင်းပါ။ အထာ သိပြီဆိုတော့ အကျဉ်းချုပ်ပဲ ရေးပါတော့မယ်။ မူလ/ကောဇာ ဘယ်မှာမဆို ဒီနက္ခတ်တွေမှာ မိမိ ရလို ဖြစ်လိုသမျှကို စပြီး လုပ်ယူပါ။ အနှောင့်အယှက်ကင်းကင်းနဲ့ အောင်လွယ်ပါတယ်။
+
+ဒီနက္ခတ်တွေနဲ့ ဆက်စပ်ပတ်သက်လာတိုင်း နယ်တော်ရှင်၊ မြို့တော်ရှင်အစရှိသော နတ်များရဲ့ မေတ္တာဓာတ်ကို အမြဲ ခံယူရပါတယ်။ သူတို့ မေတ္တာရှိအောင် နေတတ်ရင် ဘဝမှာ ဘာမဆို အရာရာ အောင်လွယ်စေတတ်ပါတယ်။
+
+ဇနမနက္ခတ်ဟာ (မူလ/ကောဇာ) ဒီညာဘက်လက်မှာ ရှိနေရင် ဂါထာမန္တန်တစ်ခုခုကို အောင်ထား/သိဒ္ဓိမြောက်ထားဖို့ လုပ်ထားပါ။ ဘယ်ဂါထာကို လုပ်ထားတယ်ဆိုတာတော့ လူမသိလေ ကောင်းလေပါပဲ။ အဲဒီဂါထာကို အသုံးပြုပြီး ဘဝမှာ မိမိ ဖြစ်လိုရာကို လုပ်ယူနိုင်ပါတယ်။ ဒီလို လုပ်ယူနေလို့ အောင်နေတာကိုလဲ လူမသိပါစေနဲ့။ အတတ်နိုင်ဆုံး လျှို့ဝှက်ထားပါ။ ဘာကြောင့် ဒီစကား ပြောနေရသလဲဆိုရင် ဒီလူတွေဟာ သူတစ်ပါး မနာလို ခံရတာ များလို့ပါ။ ဒါကြောင့် ဒီလူတွေဟာ သိုသိုသိပ်သိပ်၊ နှိမ့်နှိမ့်ချချ နေတတ်ဖို့ သိပ် အရေးကြီးပါတယ်။
+
+ဒီနက္ခတ်တွေမှာ ရောဂါဖြစ်ရင် ပျောက်ကင်းလွယ်ပါတယ်။ အဲဒီလိုပဲ ဒီနက္ခတ်တွေမှာ ဆေးလှူခဲ့ရင် ဆေးလှူကျိုးအပြင် ကျန်းမာသက်ရှည်စေတတ်သော အကျိုးပေးကိုလဲ ရပါတယ်။ ဒီနက္ခတ်တွေမှာ မိမိကိုယ်မိမိ ယဉ်ကျေးအောင် ဆုံးမခြင်း၊ သူတစ်ပါးကို ယဉ်ကျေးအောင် ဆုံးမခြင်းဟာ သိပ်ကောင်းပါတယ်။
+
+ဒီနက္ခတ်ရဲ့ ထူးခြားချက်ဟာ ငွေသတ္တုကို ပလ္လင် ထုလုပ်ပြီး ဘုရား လှူထားပါ။ တစ်သက်လုံး ဘယ်တော့မှ ဘာအတွက်နဲ့မှ မျက်နှာ မငယ်တော့ပါဘူး။ ကျမ်းအလိုအရ ပြောရရင် ဒီဘဝ ပြီးသွားလို့ နောက်ထပ်ဘဝပေါင်း ရှစ်ဆယ်အနည်းဆုံး ထားပြီး အဲဒီ အကျိုးပေးပါလိမ့်မယ်။ ပလ္လင် လုပ်ဖို့ ကုန်ကျစရိတ် မတတ်နိုင်ရင် အပြားခတ်ပြီး ဘုရားရှင် ရုပ်ပွားတော်အောက်မှာ ခင်းလှူလို့ ရပါတယ်။
+
+ဒီနက္ခတ်တွေမှာ သတိကပ်ရတာက ကိုယ်နဲ့ မတန်မရာ/မအပ်မစပ်ဖြစ်တာတွေကို ရချင်စိတ်ကြောင့် ဒုက္ခရောက်ရတတ်တဲ့ ပြဿနာပါ။ အခန့်မသင့်ရင် လူအဖွဲ့အစည်းကိုပါ တော်လှန်ပစ်တတ်တဲ့ သူပုန်ကြီးတွေ ဖြစ်သွားတတ်ပါတယ်။ ဒါလေး တစ်ချက် သတိကပ် ရပါတယ်။`,
+  `လည်ပင်းဟာ ချမ်းသာမယ်လို့ ပြောထားတယ်။ အသေးစိတ်တွေ ဆက်ပြောကြတာပေါ့လေ။
+
+– အလွန် အင်မတန် ကံကောင်းခြင်း။
+– အရည်အချင်း၊ အစွမ်းအစ အထူး ကြီးမားခြင်း။
+– ဂုဏ်သိက္ခာ အလွန် ကြီးမားခြင်း။
+
+ဒီသုံးခုကို ဒီနက္ခတ်က ပေးစွမ်းပါတယ်။ မူလ/ကောဇာ နှစ်မျိုးလုံးကို သိပါ။ အခါရွေးတာတွေကိုလဲ သိပါ။ ဒီနက္ခတ်စန်းယှဉ်ချိန်ကို အစင်အကြယ် ရွေးပြီး စီးပွားတက်စေတတ်သော အစီအရင်များ လုပ်ပါ။ စီးပွားဥစ္စာ ဆတိုးတက်ပါတယ်။
+
+ဒီနက္ခတ်မှာ အဗြဟ္မစရိယာသီလနဲ့ တွဲဖက်ပြီး စရဏ ကျင့်နိုင်ခဲ့ရင် သဘာဝလွန် တန်ခိုးသိဒ္ဓိ တစ်မျိုးမျိုးကို ထင်ထင်ရှားရှား ရရှိစေတတ်ပါတယ်။ မိမိ အလိုရှိသော တန်ခိုးအတွက်လဲ အဓိဋ္ဌာန် တင်နိုင်ပါတယ်။ ဒါမှမဟုတ် ကိုယ့်ဟာကိုယ် နိုင်တဲ့ စရဏလေး ဆောင်ရွက်နေလဲ ဒီနက္ခတ် မိမိ ဇာတာခွင်မှာ ရပ်တည်ရာ ဘာဝအလိုက် သင့်လျော်သော/အတိတ်ကပါသော တန်ခိုးသိဒ္ဓိကို ရမယ်လို့ ပြောနိုင်ပါတယ်။
+
+ဘယ်သူမဆို ဒီနက္ခတ် စန်းယှဉ်ချိန်မှာ မိမိ ရရှိထားပြီးသော/စံစားနေဆဲဖြစ်သော စည်းစိမ်ချမ်းသာကို စွန့်လှူတတ်ခဲ့ရင် – အင်မတန် ချမ်းသာကြွယ်ဝစေတတ်ပါတယ်။ သိပ်အကြီးအကျယ် မစဉ်းစားပါနဲ့။ နမူနာ ရိုးရိုးလေး ပြပါမယ်။ ကိုယ့်အိမ်ထဲမှာ ကိုယ်ထိုင်နေချိန်၊ အိမ်ထဲကို မိမိထက် သက်ကြီးဝါကြီး တစ်ဦးတစ်ယောက် ရောက်လာရင် ကိုယ့်ထိုင်ခုံလေး သူ့အတွက် ဖယ်ပေးလိုက်တာပါပဲ။ ကိုယ်က စားသောက်ဆိုင်မှာ စားစရာ မှာပြီးလို့ ရောက်လာချိန် ဆွမ်းခံကြွလာတဲ့ ရဟန်းကို တွေ့ရင် ကိုယ်မစားတော့ဘဲနဲ့ ဆွမ်းလောင်းလိုက်ပါတယ်။
+
+ဘယ်သူမဆို ဒီနက္ခတ် စန်းယှဉ်ချိန်မှာ မိမိကို လာကန်တော့တဲ့ ပစ္စည်းဥစ္စာများကို မိမိထက် သက်ကြီးဝါကြီးများ၊ နောက်တစ်နည်း ပြောရရင် မိမိကိုယ်တိုင် ရိုသေ ကန်တော့ထိုက်သူများကို လှူရပါတယ်။ ဒါဆိုရင် ဘုန်းတန်ခိုး ဩဇာအာဏာ အင်မတန် ကြီးမားစေပါတယ်။ ပြီးတော့ ကျန်းမာသက်ရှည်စေပါတယ်။ ဒီစနစ်ကို ဆောင်ရွက်ခဲ့ရင် ဇနမနက္ခတ် ဦးခေါင်းရောက်ချိန်မှာ ဘုန်းတန်ခိုး ဩဇာ အာဏာ ဆတိုး တက်စေပါတယ်။
+
+မူလဇာတာအရ ကိုယ့်ရဲ့ ဇနမနက္ခတ် ဒီဌာနမှာ ရှိနေရင် အပေါ်က စနစ်နှစ်မျိုးကို တစ်သက်တာလုံးအတွက် လုပ်နိုင်ပါတယ်။ ကောဇာအရ ဒီဌာနကို ကိုယ့်ရဲ့ ဇနမနက္ခတ် ရောက်လာရင် အဲဒီဌာနမှာ ရှိနေသမျှကာလပတ်လုံး လုပ်နိုင်ပါတယ်။`,
+
+  `ကောဇာမှာ ဇနမနက္ခတ် ညာဘက်လက်မှာ ရှိချိန် လုပ်ထားသမျှ၊ စရဏ၊ သီလ၊ ဒါန အစရှိတာတွေအားလုံးရဲ့ အကျိုးပေးကို ရင်ဘတ်မှာ အကျိုးပေး အပြည့်ခံစားရပါတယ်။
+
+ရင်ဘတ်နက္ခတ်တွေမှာ ပါတိမောက်သီလကို အထူးစင်ကြယ်အောင် စောင့်ထိန်းခဲ့ရင် ဦးခေါင်းနက္ခတ်မှာ ဘုန်းတန်ခိုး ဩဇာအာဏာကို အထူး ကြီးမားစေပါတယ်။
+
+ရင်ဘတ်နက္ခတ်တွေမှာ မေတ္တာနဲ့ ကရုဏာကို ကျင့်ဆောင်တတ်ခဲ့ရင် လည်ပင်းနက္ခတ်မှာ အင်မတန် ချမ်းသာကြွယ်ဝစေတတ်ပါတယ်။
+
+ရင်ဘတ်နက္ခတ်တွေမှာ အစာရေစာ လှူခဲ့ရင် ခြေနှစ်ဖက်မှာ ပြောထားတဲ့ ဆိုးကျိုးတွေကနေ ကင်းစင်ပါလိမ့်မယ်။`,
+  `ဒီနက္ခတ်တွေမှာ ဇနမနက္ခတ် ရှိနေတာဟာ စိုးရိမ်စရာ မရှိပါဘူး။ အပေါ်မှာလဲ ပြောခဲ့ပြီးပါပြီ။ သီးခြား ခွဲပြီး ပြောစရာကတော့ ဒီလူတွေဟာ ရန်သဘော ရှိတယ်လို့ သိရသော နေရာတွေကို မသွားဘဲ ရှောင်ရပါတယ်။ ဥပမာ – အရက်ဆိုင်/ကလပ်/ဘားလို နေရာမျိုးပေါ့။ ရန်ပွဲတွေမှာလဲ ဝင်မပါသင့်ပါဘူး။ အခန့်မသင့်ရင် အသက်ပါ ဆုံးတတ်ပါတယ်။ စစ်သားတွေ ရှေ့တန်းထွက်တာမှာတော့ အလုပ်သဘောဖြစ်လို့ ထည့်စဉ်းစားစရာ မလိုပါဘူး။
+
+ဒီနက္ခတ်တွေမှာ ကာယဒါန ပြုရင် ရင်ဘတ်နက္ခတ်မှာ သေချာပေါက် ချမ်းသာကြွယ်ဝပါတယ်။ ကိုယ့်ဇနမနက္ခတ် ဘယ်မှာပဲ ရှိနေ ရှိနေ၊ ဒီခြေထောက်နက္ခတ်တွေမှာ ကောဇာစန်းစီးချိန် ရောက်လာရင် ကာယဒါန လုပ်ရုံနဲ့ ရင်ဘတ်နက္ခတ်တွေမှာ ကောဇာစန်းရောက်ချိန် ငွေဝင်လာမှာ သေချာပါတယ်။ စဉ်းစားနည်းတွေကို အကျဉ်းပဲ ပြောပြနေတာပါ။ ချိန်ဆပြီး သုံးတတ်စေချင်ပါတယ်။`,
+  `ဒီနက္ခတ်မှာ အဗြဟ္မစရိယာသီလနဲ့ တွဲဖက်ပြီး စရဏ ကျင့်နိုင်ခဲ့ရင် ဦးခေါင်းနက္ခတ်မှာ ဘုန်းတန်ခိုး ဩဇာအာဏာ အင်မတန် ကြီးမားပါလိမ့်မယ်။ ဘယ်လောက်ထိ ကြီးမားတတ်သလဲဆိုတာကို မြင်သာအောင် ဥပမာ အလွယ်ပေးရရင် မြန်မာရာဇဝင်မှာ နာမည်ကျော်တဲ့ ဒွတ္တဘောင်မင်းကို ဥပမာ ပေးရပါလိမ့်မယ်။
+
+အဲဒီတော့ ဇနမနက္ခတ် ဦးခေါင်းမှာ ရှိနေသူဟာလဲ ဒီလိင်အင်္ဂါနက္ခတ်ကို ကောဇာစန်းစီးချိန်မှာ အဗြဟ္မစရိယာသီလလေး စောင့်ထိန်းရင် မူလက ရှိပြီးဖြစ်သော ဘုန်းတန်ခိုးကို ပိုတက်စေပါတယ်။
+
+မူလဇာတာမှာကိုက ဇနမနက္ခတ် ဒီနေရာမှာ ရှိနေတယ်။ အိမ်ထောင်ကလဲ ပြုမယ်/ပြုတယ်ဆိုရင်လဲ ဒီနက္ခတ် စန်းယှဉ်ချိန်မှာ အဗြဟ္မစရိယာသီလလေး ကျင့်ကြည့်ပေါ့။ အင်မတန် ထူးခြားတာတွေ တွေ့ရပါလိမ့်မယ်။
+
+မူလ/ကောဇာ နှစ်ခုလုံးပေါ့လေ ... ဒီဌာနမှာ ဇနမနက္ခတ် ရှိရင် လိင်ပိုင်းဆိုင်ရာ ကျူးကျော် စော်ကား နှောင့်ယှက်မှုကို ခံရတတ်ပါတယ်။ ဒါမှမဟုတ် ကိုယ်က သူတစ်ပါးကို ကျူးကျော် စော်ကားမိတတ်ပါတယ်။ ဒါတွေကို ဇာတာပါ အခြားနက္ခတ်များနဲ့ ချိန်ပါ။
+
+ခု နမူနာ တွက်ပြထားတဲ့ စက်မှာ မူလနက္ခတ်ဟာ လိင်အင်္ဂါမှာ ရှိနေတယ်။ ဒီနက္ခတ်ဟာ
+– အတိတ်နက္ခတ် ဖြစ်တယ် (ပထမတွဲ – အခန်း ၇)
+– ဒလိဒ္ဒနက္ခတ် ဖြစ်တယ် (ပထမတွဲ – အခန်း ၁၀)
+– ဘီလူးနက္ခတ် ဖြစ်တယ် (ပထမတွဲ – အခန်း ၁၁)
+– ကာမနက္ခတ် ဖြစ်တယ် (ပထမတွဲ – အခန်း ၁၃)
+
+လောလောဆယ် စိတ်ကူးပေါက်တဲ့ ပရိယာယ်လေး လေးမျိုး ဆွဲထုတ် ပြလိုက်ပါတယ်။ ဇနမနက္ခတ်ကနေ ကြည့်လိုက်ရင် – အဿဝဏီနက္ခတ် စန်းယှဉ်မွေးသူအတွက်က ဒီမူလနက္ခတ်ဟာ အာခါနက္ခတ်ပါဗျာ။ အဲဒီမယ် မူလ/ကောဇာ ဂြိုဟ်တွေပါ ထည့်လိုက်ဦး။ ပျော်စရာကြီးပေါ့လေ။
+
+အဲသလိုတွေ အဖက်ဖက်က စဉ်းစားတွေးခေါ် ဝေဖန်ချိန်ဆကြရတာပါ။ စာအုပ်ထဲက အလွတ်ကျက် အဟောတွေနဲ့ကတော့ ဈေးထဲက သရောဒယဆရာတွေဆီ သွားပေါ့ဗျာ။`,
+  '',
+  `သေမယ်ပြောထားပေမယ့် စိုးရိမ်စရာ မရှိပါဘူး။ ခု ဒီစာရေးနေတဲ့ ကျွန်တော်တောင် မူလဇာတာမှာ ဒီနက္ခတ်နဲ့ မွေးတာပါ။ ငယ်စဉ်က ကျန်းမာရေး ညံ့တာတို့၊ သေဘေးတွေ တာတို့ ဘာတို့တွေ ဟောချင် ဟောကြပေါ့။ ကောဇာအရ ဒီကာလမှာ ကျန်းမာရေး ဂရုစိုက်ရတယ်တို့ ဘာတို့ ဒီလိုတွေလဲ ပြောချင် ပြောကြပေါ့။ ဒါတွေက ဗေဒင်ဆရာတွေ ဉာဏ်ကောင်းကြပါတယ်။ အထူး ပြောစရာ မရှိပါဘူး။
+
+ဒီလို စက်တွေဆိုတာက ကျမ်းမှာ ပါတဲ့ အလွတ်ကျက် အဟောတွေ ဟောချင်လဲ ဟော၊ မဟောရင်လဲ ခု ဒီစာအုပ်မှာ ရေးပြနေသလို အစီအရင်တွေအတွက် ဒီစက်တွေကို သုံးချင်သုံးပေါ့။ အနိမိတ် ဟောချင်ရင်တော့ ဒီစက်တွေကို အခြားသော နက္ခတ်များနဲ့ ညှိပြီး ကိုင်ပေါ့။ ဥပမာ မူလဇာတာမှာ ဇနမနက္ခတ်က ခေါင်းကို ရောက်နေပြီး အာခါနက္ခတ်က ဘယ်မှာ၊ သံယောဂနက္ခတ်က ဘယ်မှာ စသည်ဖြင့်တွေ ညှိတတ်ရမယ်လေ။ ဘယ်ဂြိုဟ်က ဘယ်နက္ခတ်မှာ စီးနေပြီး အဲဒီနက္ခတ်က လိင်အင်္ဂါကို ရောက်နေချိန် ဘယ်လို လိင်စိတ်မျိုး ဖြစ်တတ်ပါတယ်တို့ ဘာတို့။ အဲလိုမဟုတ်ဘဲ ငါက သရောဒယတတ်တယ်ကွဆိုပြီး စာအုပ်ထဲ ပါသလောက်နဲ့ အလွတ်ကျက် ဟောတွေ လာဟောလို့ကတော့ မောင်မင်းနိုင်က အရင် ပြုံးစိစိ လုပ်ပြမှာပါပဲ။
+
+ကဲပါလေ ... ထားပါတော့ .... ဒီဘက် ဘယ်ဘက်လက်မှာ ကျွန်တော် ပြောချင်တာက ဒီနက္ခတ်တွေဟာ စရဏနဲ့ ဒါနကို တွဲဖက်ရပါတယ်။ နောက်တစ်နည်းက သက်ကြီးဝါကြီးများရဲ့ မေတ္တာရိပ် ခိုလို့ရပါတယ်။ ဒါဆိုရင် ကျန်းမာရေး ညံ့တဲ့ဘေးတို့၊ အသက်ဘေးတို့က ကင်းပါတယ်။`,
+  `တကယ်တော့ ဒီစက်ကို ရေးရခြင်း အကြောင်းက ခုမှ စမှာပါ။ ဒီဌာနမှာ နက္ခတ် သုံးလုံး ရှိပါတယ်။ ပထမဦးဆုံးသော နက္ခတ်ဟာ – ခု ဒီမှာ နမူနာ တွက်ပြထားတာနဲ့ ပြောရမယ်ဆိုရင် ဥတ္တရာဘဒြပုဒ်နက္ခတ်ဟာ ‘တတိယမျက်လုံး’ နက္ခတ် ဖြစ်ပါကြောင်း။ ဖွင့်ချင်ကြရင်ဖြင့် ဖွင့်နိုင်ကြပါကြောင်း။ အခြားသော နက္ခတ်များနဲ့ အနိမိတ် မချိန်ဆခဲ့ရင်၊ ဆရာကောင်း မရှိရင်၊ လောဘတွေကြီးပြီး ထင်ရာစိုင်းခဲ့ရင် ကိုယ့်ထိုက်နဲ့ ကိုယ့်ကံပေါ့လေ။
+
+နောက်တစ်နည်း ပြောရရင် ဒီနက္ခတ်ဟာ ‘အမြင်နက္ခတ်’ ဖြစ်ပါကြောင်း။ ထူးခြားသော အမြင်အာရုံတစ်ခုခု ရှိတတ်တယ်လို့ ပြောချင်တာပါ။ ဒီလို ဇာတာရှင် နှစ်ဦး ကျွန်တော့်ဘဝမှာ တွေ့ဖူးပါတယ်။ တစ်ယောက်က တစ္ဆေ၊ သရဲများကို ရုပ်ရှင်ကြည့်ချိန် မြင်နေရသလိုကို မြင်တတ်သူပါ။ နောက်တစ်ယောက်ကတော့ နတ်လို၊ ရုက္ခစိုးလိုဟာတွေကို မြင်ရသူပါ။ သူကတော့ အစပိုင်းမှာ အလင်းတွေပဲ တွေ့ရတာပါ။ နောက်မှ စရဏတွေ ကျင့်လာပြီးတော့မှ ဒီအလင်းဟာ ရုက္ခစိုး၊ ဒီအလင်းဟာ ဘာ ... အဲလို ခွဲခြား သိမြင်လာတာပါ။ ကောဇာရဲ့ အမြင်သဘောကိုတော့ ပြောမနေတော့ပါဘူးလေ။ ကိုယ်တိုင် သတိထားကြည့်ရင် သိသွားတာပါပဲ။
+
+ကျန်နက္ခတ် နှစ်လုံးကို ကျွန်တော် မသိပါ။ ပြီးတော့ ဒီနက္ခတ် သုံးလုံးမှာ ချမ်းသာမယ်လို့ ပြောခဲ့တာဟာ ဘယ်လိုချမ်းသာမှုမျိုးလဲဆိုတာ ကျွန်တော် မသိပါ။ မူလ/ကောဇာ နှစ်မျိုးလုံးမှာ ဒီလူတွေဟာ ငွေကြေး အပူသောက မရှိသလောက် နည်းတာကိုတော့ သတိထားမိပါတယ်။
+
+လည်ပင်းနက္ခတ်ဟာ ဇနမစန်းရှိသူဟာ ဘဝမှာ တစ်ကြိမ်တစ်ခါတော့ စီးပွား အကြီးအကျယ် ပျက်ရလိမ့်မယ်လို့ ကျမ်းတစ်စောင်မှာ တွေ့ပါတယ်။ ဒီအချက်ကို ကျွန်တော် လက်တွေ့ ဇာတာများနဲ့ မလေ့လာဖူးလို့ ဘာမှ မပြောနိုင်ပါ။ ဒီလည်ပင်းနက္ခတ် စန်းယှဉ်ချိန်မှာ လုပ်ငန်း စတင်ခဲ့ရင် အဲဒီလုပ်ငန်းဟာ တစ်ကြိမ်တစ်ခါပဲဖြစ်ဖြစ် ပြိုကျပျက်စီးမလား .... ဒါလဲ ကျွန်တော် မသိသေးပါဘူး။ ဒါတွေဟာ ဆက်ပြီး လေ့လာရမယ့် အကြောင်းအရာများ ဖြစ်ပါတယ်။
+
+ဒီဂုရုစက်ကို စပြီး တွေ့ခဲ့တာ ဇောတိတတ္ထကျမ်းမှာပါ။ တွေ့တုန်းက အမှတ်တမဲ့ပါပဲ။ ဒီလို ပုံသေဆန်တဲ့ အဟောတွေ မကြိုက်လို့လဲ သရောဒယကျမ်းထဲက ပုံသေ အဟောနဲ့ သွားနေတဲ့ စက်တွေကိုပါ မလေ့လာဘဲ ထားခဲ့တာပါ။ (၂၀၀၉) လောက်ကျမှ တန်တြကျမ်းတစ်စောင်မှာ ဒီဂုရုစက်ကို ပုံသေမဆန်တဲ့ စနစ်နဲ့ တွေ့မိလို့ မှတ်စု ယူထားပြီး သုံးဖြစ်တာပါ။ ရလိုက်တဲ့ မှတ်စုလေးက ပြည့်စုံပြီဆိုတဲ့ အထင်နဲ့ပေါ့လေ။ နောက်တော့မှ ကျမ်းတွေထဲက ဟိုတစ်စ ဒီတစ်စဆိုသလို အချက်အသစ်လေးတွေ တွေ့လာရတာပါ။ (၂၀၂၁) မှာ ဗေဒင်ကို ရသေ့စိတ်ဖြေ လုပ်တော့ချိန်မှာ ဒီဂုရုစက်နဲ့ ပတ်သက်ပြီးတော့ နောက်ထပ် အစအန ရလာတာလေးတွေ ရှိပါတယ်။ ဒါတွေကိုတော့ ကျွန်တော် လက်တွေ့ဇာတာများနဲ့ စနစ်တကျ လေ့လာ မှတ်တမ်းတင်ဖို့ မလွယ်ကူတော့ပါဘူး။
+
+ဟုတ်ကဲ့ ... ဂုရုစက်နဲ့ ပတ်သက်ပြီး ကျွန်တော် လေ့လာ မှတ်သား စုဆောင်းထားမိသမျှ ကုန်ပါပြီ ခင်ဗျာ။`,
+
+];
+guruReadings[6] = guruReadings[4] + `
+
+ဘယ်ခြေအတွက် သီးခြား ခွဲပြီး ပြောစရာကတော့ ဒီနက္ခတ်တွေမှာ အကုသိုလ် ထူပြောသော နေရာကို အတတ်နိုင်ဆုံး မသွားရပါဘူး။ ဥပမာ – ပြည့်တန်ဆာခန်း/သားသတ်ရုံဆိုတာတွေပေါ့။ ကိုယ်တိုင်က ဒါကို စီးပွားဖြစ် လုပ်နေတယ်/ရှောင်မရဘူးဆိုရင်လဲ အန္တရာယ်ကင်း အဆောင် ဘာညာလေးတွေ လိုအပ်ပါတယ်။ မမေ့ပါနဲ့။`;
+const guruNames = [...yatraNames.slice(0, 21), 'အဘိဇိ', ...yatraNames.slice(21)];
+let chartNames = yatraNames;
+let chartRegions = suriyaRegions;
+let chartReadings = suriyaReadings;
+let chartPlanetAt = solarNakshatraAt;
+let chartMode = 'suriya';
+let resultMode;
+const regionSlots = () => chartRegions.flatMap(([, count], index) => Array(count).fill(index));
+const chartSlot = (star, start) => chartMode === 'guru' ? (star - start + 28) % 28 : suriyaSlot(star, start);
 
 function renderSuriyaStars(sunIndex) {
   const markers = byId('suriya-all-markers');
   markers.replaceChildren();
   const svg = 'http://www.w3.org/2000/svg';
-  suriyaRegionForStar.forEach((regionIndex, slot) => {
+  regionSlots().forEach((regionIndex, slot) => {
     const left = slot % 2 === 0;
     const rowY = 13 + Math.floor(slot / 2) * 25;
-    const [x, y] = suriyaRegions[regionIndex][2][0];
+    const [x, y] = chartRegions[regionIndex][2][0];
     const arrow = document.createElementNS(svg, 'path');
     arrow.setAttribute('d', `M ${left ? -4 : 244} ${rowY} L ${x} ${y}`);
     arrow.setAttribute('class', 'suriya-star-line');
@@ -584,14 +683,14 @@ function renderSuriyaStars(sunIndex) {
     label.setAttribute('y', rowY + 3);
     label.setAttribute('text-anchor', left ? 'start' : 'end');
     label.setAttribute('class', 'suriya-marker-label');
-    label.textContent = yatraNames[(sunIndex + slot) % yatraNames.length];
+    label.textContent = chartNames[(sunIndex + slot) % chartNames.length];
     const group = document.createElementNS(svg, 'g');
     group.setAttribute('role', 'button');
     group.setAttribute('tabindex', '0');
     group.setAttribute('aria-label', label.textContent + ' အဟော');
     const showReading = () => {
-      byId('suriya-star-title').textContent = (group.dataset.gozaName || label.textContent) + ' — ' + suriyaRegions[regionIndex][0];
-      byId('suriya-star-reading').textContent = suriyaReadings[regionIndex];
+      byId('suriya-star-title').textContent = (group.dataset.gozaName || label.textContent) + ' — ' + chartRegions[regionIndex][0];
+      byId('suriya-star-reading').textContent = chartReadings[regionIndex];
       byId('suriya-star-dialog').showModal();
     };
     group.addEventListener('click', showReading);
@@ -613,14 +712,14 @@ function highlightSuriyaSlot(slot, kind) {
 }
 
 function updateSuriya(starIndex, sunIndex) {
-  const regionIndex = suriyaRegionForStar[suriyaSlot(starIndex, sunIndex)];
-  const region = suriyaRegions[regionIndex];
-  const starName = yatraNames[starIndex];
+  const regionIndex = regionSlots()[chartSlot(starIndex, sunIndex)];
+  const region = chartRegions[regionIndex];
+  const starName = chartNames[starIndex];
   byId('suriya-result').textContent = starName + ' — ' + region[0];
   byId('suriya-reading').hidden = false;
-  byId('suriya-reading-text').textContent = suriyaReadings[regionIndex];
+  byId('suriya-reading-text').textContent = chartReadings[regionIndex];
   renderSuriyaStars(sunIndex);
-  highlightSuriyaSlot(suriyaSlot(starIndex, sunIndex), 'natal-marker');
+  highlightSuriyaSlot(chartSlot(starIndex, sunIndex), 'natal-marker');
 }
 const readingButtons = [...document.querySelectorAll('[data-reading]')];
 
@@ -636,15 +735,18 @@ for (const button of readingButtons) {
   button.addEventListener('click', () => showReadingTab(button.dataset.reading));
 }
 
-for (const [index, reading] of suriyaReadings.entries()) {
+function renderChartReadings() {
+byId('reading-natal').querySelectorAll('.entry').forEach(card => card.remove());
+for (const [index, reading] of chartReadings.entries()) {
   const card = document.createElement('article');
   card.className = 'entry';
   const heading = document.createElement('h3');
-  heading.textContent = suriyaRegions[index][0];
+  heading.textContent = chartRegions[index][0];
   const paragraph = document.createElement('p');
   paragraph.textContent = reading;
   card.append(heading, paragraph);
   byId('reading-natal').append(card);
+}
 }
 
 let birthStarIndex;
@@ -662,22 +764,22 @@ function updateGoza(instant = new Date()) {
   }).format(instant) + ' (မြန်မာစံတော်ချိန်)';
   byId('goza-panel').hidden = false;
   try {
-    const sun = solarNakshatraAt(instant);
-    const slot = suriyaSlot(birthStarIndex, sun.index);
-    const regionIndex = suriyaRegionForStar[slot];
+    const sun = chartPlanetAt(instant);
+    const slot = chartSlot(birthStarIndex, sun.index);
+    const regionIndex = regionSlots()[slot];
     highlightSuriyaSlot(slot, 'goza-marker');
     const position = document.createElement('p');
-    const starName = yatraNames[(sun.index + slot) % yatraNames.length];
+    const starName = chartNames[(sun.index + slot) % chartNames.length];
     const marker = markers.children[slot];
     marker.dataset.gozaName = starName;
     marker.dataset.originalLabel = marker.getAttribute('aria-label');
     marker.setAttribute('aria-label', starName + ' အဟော');
     position.textContent = 'ကောဇာအရ ဇနမနက္ခတ် — ' + starName + '။';
     const reading = document.createElement('p');
-    reading.textContent = suriyaReadings[regionIndex];
-    byId('goza-solar-star').textContent = 'ကောဇာနေစီးနက္ခတ် — ' + yatraNames[sun.index] + '၊ ပါဒ ' + mm(sun.pada);
-    byId('goza-longitude').textContent = 'နေလောင်ဂျီတွဒ် — ' + mm(sun.longitude.toFixed(4)) + '°';
-    const { entry, exit } = solarNakshatraWindow(instant);
+    reading.textContent = chartReadings[regionIndex];
+    byId('goza-solar-star').textContent = 'ကောဇာ' + chartPlanetLabel() + ' — ' + chartNames[sun.index] + '၊ ပါဒ ' + mm(sun.pada);
+    byId('goza-longitude').textContent = chartPlanetName() + ' လောင်ဂျီတွဒ် — ' + mm(sun.longitude.toFixed(4)) + '°';
+    const { entry, exit } = solarNakshatraWindow(instant, chartPlanetAt);
     const boundaryFormat = new Intl.DateTimeFormat('my-MM', {
       timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'short',
     });
@@ -756,16 +858,17 @@ byId('janma-form').addEventListener('submit', event => {
     const birthDate = [year, pad(month), pad(day)].join('-');
     const birthTime = [hour24, minute, second].map(pad).join(':');
     const instant = myanmarBirthInstant(birthDate, birthTime);
-    const { index, pada, longitude } = janmaAt(instant);
-    const sun = solarNakshatraAt(instant);
+    const { index, pada, longitude } = chartMode === 'guru' ? guruNakshatraAt(instant, true) : janmaAt(instant);
+    const sun = chartPlanetAt(instant);
     birthStarIndex = index;
     showReadingTab('current');
     updateSuriya(index, sun.index);
     updateGoza();
     const degree = mm(longitude.toFixed(4));
     result.textContent = '';
-    byId('suriya-calculation').textContent = yatraNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · နေစီးနက္ခတ် ' + yatraNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · နေ ' + mm(sun.longitude.toFixed(4)) + '°';
-    window.location.hash = 'suriya-result';
+    byId('suriya-calculation').textContent = chartNames[index] + 'နက္ခတ် · ပါဒ ' + mm(pada) + ' · လ ' + degree + '° · ' + chartPlanetLabel() + ' ' + chartNames[sun.index] + ' · ပါဒ ' + mm(sun.pada) + ' · ' + chartPlanetName() + ' ' + mm(sun.longitude.toFixed(4)) + '°';
+    resultMode = chartMode;
+    window.location.hash = chartMode + '-result';
   } catch {
     birthStarIndex = undefined;
     byId('suriya-all-markers').replaceChildren();
@@ -777,10 +880,29 @@ byId('janma-form').addEventListener('submit', event => {
   }
 });
 
+const chartPlanetName = () => chartMode === 'guru' ? 'ကြာသပတေးဂြိုဟ်' : 'တနင်္ဂနွေဂြိုဟ်';
+const chartPlanetLabel = () => chartMode === 'guru' ? 'ကြာသပတေးစီးနက္ခတ်' : 'နေစီးနက္ခတ်';
+
+function selectChart(mode) {
+  chartMode = mode;
+  const guru = mode === 'guru';
+  chartNames = guru ? guruNames : yatraNames;
+  chartRegions = guru ? guruRegions : suriyaRegions;
+  chartReadings = guru ? guruReadings : suriyaReadings;
+  chartPlanetAt = guru ? guruNakshatraAt : solarNakshatraAt;
+  const title = guru ? 'ဂုရုစက်' : 'သူရိယစက်';
+  byId('chart-title').textContent = title;
+  byId('suriya-output-title').textContent = title + ' ရလဒ်';
+  byId('chart-edit').href = '#' + mode;
+  byId('chart-entry-label').textContent = chartPlanetName() + ' နက္ခတ်ထဲ ဝင်ချိန်';
+  byId('chart-exit-label').textContent = chartPlanetName() + ' နက္ခတ်မှ ထွက်ချိန်';
+  renderChartReadings();
+}
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = rawHash === 'yatra8' ? 'practice'
-    : rawHash === 'suriya-result' ? 'suriya' : rawHash;
+    : ['suriya-result', 'guru-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -790,17 +912,18 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   const isHome = page === 'home';
   byId('home').hidden = !isHome;
   byId('back-home').hidden = isHome;
-  const isSuriya = page === 'suriya';
+  const isSuriya = page === 'suriya' || page === 'guru';
+  if (isSuriya) selectChart(page);
   byId('suriya').hidden = !isSuriya;
-  const showSuriyaResult = isSuriya && rawHash === 'suriya-result' && birthStarIndex !== undefined;
+  const showSuriyaResult = isSuriya && rawHash === page + '-result' && resultMode === page && birthStarIndex !== undefined;
   byId('janma-form').hidden = showSuriyaResult;
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
-  else if (rawHash === 'suriya-result') window.history.replaceState(null, '', '#suriya');
+  else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
   byId('nadika-hero').hidden = isHome || isSuriya;
   byId('nadika-tabs').hidden = isHome || isSuriya;
   byId('nakshatra-detail').hidden = !entry;

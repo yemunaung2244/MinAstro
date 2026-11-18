@@ -22,10 +22,11 @@
     <nav id="home" class="home-menu" aria-label="ပင်မစာမျက်နှာ">
       <a class="home-choice" href="#calculator">နာဒီကာ</a>
       <a class="home-choice" href="#suriya">သူရိယစက်</a>
+      <a class="home-choice" href="#guru">ဂုရုစက်</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
     <section id="suriya" class="catalog" hidden>
-      <h1>သူရိယစက်</h1>
+      <h1 id="chart-title">သူရိယစက်</h1>
       <form id="janma-form" class="controls">
         <fieldset class="janma-parts">
           <legend>မွေးသက္ကရာဇ်</legend>
@@ -46,7 +47,7 @@
         <p id="janma-result" role="status"></p>
       </form>
       <section id="suriya-output" hidden>
-      <a href="#suriya" class="back-home">← မွေးဖွားမှုအချက်အလက် ပြန်ပြင်ရန်</a>
+      <a id="chart-edit" href="#suriya" class="back-home">← မွေးဖွားမှုအချက်အလက် ပြန်ပြင်ရန်</a>
       <h2 id="suriya-output-title" tabindex="-1">သူရိယစက် ရလဒ်</h2>
       <p id="suriya-calculation"></p>
       <p id="suriya-result" aria-live="polite"></p>
@@ -89,9 +90,9 @@
           <summary id="goza-solar-star">ကောဇာနေစီးနက္ခတ် အသေးစိတ်</summary>
           <p id="goza-longitude"></p>
           <dl id="goza-solar-window">
-            <dt>တနင်္ဂနွေဂြိုဟ် နက္ခတ်ထဲ ဝင်ချိန်</dt>
+            <dt id="chart-entry-label">တနင်္ဂနွေဂြိုဟ် နက္ခတ်ထဲ ဝင်ချိန်</dt>
             <dd id="goza-solar-entry"></dd>
-            <dt>တနင်္ဂနွေဂြိုဟ် နက္ခတ်မှ ထွက်ချိန်</dt>
+            <dt id="chart-exit-label">တနင်္ဂနွေဂြိုဟ် နက္ခတ်မှ ထွက်ချိန်</dt>
             <dd id="goza-solar-exit"></dd>
           </dl>
           <small>မြန်မာစံတော်ချိန် · Lahiri ခန့်မှန်းတွက်ချက်မှု</small>

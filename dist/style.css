@@ -413,3 +413,7 @@ html { touch-action: pan-x pan-y; }
   font-weight: 700;
 }
 #goza-solar-window dd { margin-inline-start: 0; }
+
+#suriya-reading-text, #suriya-star-reading, #reading-natal .entry p, #goza-result p {
+  white-space: pre-line;
+}

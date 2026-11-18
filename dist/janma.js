@@ -1,4 +1,4 @@
-import { EclipticGeoMoon, SunPosition } from './astronomy-engine.js';
+import { Body, Ecliptic, EclipticGeoMoon, GeoVector, SunPosition } from './astronomy-engine.js';
 
 // Mean Lahiri ayanamsa approximation anchored at J2000.
 function nakshatraAt(instant, tropicalLongitude) {
@@ -37,21 +37,30 @@ export function myanmarBirthInstant(date, time) {
   return new Date(civil.getTime() - (offset[1] === '-' ? -seconds : seconds) * 1000);
 }
 
-export function solarNakshatraWindow(instant) {
-  const { index } = solarNakshatraAt(instant);
+export function guruNakshatraAt(instant, moon = false) {
+  const tropical = moon ? EclipticGeoMoon(instant).lon : Ecliptic(GeoVector(Body.Jupiter, instant, true)).elon;
+  const result = nakshatraAt(instant, tropical);
+  if (result.longitude >= 276 + 40 / 60 && result.longitude < 280 + 53 / 60 + 20 / 3600) {
+    return { ...result, index: 21, pada: Math.floor((result.longitude - (276 + 40 / 60)) * 4 / (4 + 13 / 60 + 20 / 3600)) + 1 };
+  }
+  return { ...result, index: result.index + Number(result.index >= 21) };
+}
+
+export function solarNakshatraWindow(instant, nakshatra = solarNakshatraAt) {
+  const { index } = nakshatra(instant);
   const center = instant.getTime();
   const day = 86400000;
 
   function boundary(direction) {
     let inside = center;
     let outside = center + direction * day;
-    while (solarNakshatraAt(new Date(outside)).index === index) {
+    while (nakshatra(new Date(outside)).index === index) {
       inside = outside;
       outside += direction * day;
     }
     while (Math.abs(outside - inside) > 1000) {
       const midpoint = Math.round((inside + outside) / 2);
-      if (solarNakshatraAt(new Date(midpoint)).index === index) inside = midpoint;
+      if (nakshatra(new Date(midpoint)).index === index) inside = midpoint;
       else outside = midpoint;
     }
     return new Date(Math.max(inside, outside));
