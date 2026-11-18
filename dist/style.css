@@ -417,3 +417,21 @@ html { touch-action: pan-x pan-y; }
 #suriya-reading-text, #suriya-star-reading, #reading-natal .entry p, #goza-result p {
   white-space: pre-line;
 }
+
+#suriya.guru-chart #suriya-all-markers g:not(.natal-marker):not(.goza-marker) {
+  display: inline;
+}
+#suriya.guru-chart #suriya-all-markers g:not(.natal-marker):not(.goza-marker) .suriya-star-line {
+  stroke: #647889;
+  stroke-width: .85;
+  opacity: .55;
+}
+
+#guru-goza-label {
+  fill: #854078;
+  font-size: 11px;
+  font-weight: 700;
+  stroke: #f5fbff;
+  stroke-width: 3px;
+  paint-order: stroke;
+}

@@ -656,6 +656,20 @@ const guruReadings = [
 guruReadings[6] = guruReadings[4] + `
 
 ဘယ်ခြေအတွက် သီးခြား ခွဲပြီး ပြောစရာကတော့ ဒီနက္ခတ်တွေမှာ အကုသိုလ် ထူပြောသော နေရာကို အတတ်နိုင်ဆုံး မသွားရပါဘူး။ ဥပမာ – ပြည့်တန်ဆာခန်း/သားသတ်ရုံဆိုတာတွေပေါ့။ ကိုယ်တိုင်က ဒါကို စီးပွားဖြစ် လုပ်နေတယ်/ရှောင်မရဘူးဆိုရင်လဲ အန္တရာယ်ကင်း အဆောင် ဘာညာလေးတွေ လိုအပ်ပါတယ်။ မမေ့ပါနဲ့။`;
+const guruShortReadings = [
+  'မင်းအဖြစ်ကို ရစေတတ်တယ်။',
+  'ချမ်းသာမယ်။',
+  'ချမ်းသာမယ်။',
+  'ဇနီးရခြင်းကအစ၊ မိမိ နှစ်လိုသော အရာများ/ မိမိအတွက် နှစ်လိုဖွယ် ဖြစ်စေမယ့် အရာများကို ရမယ်။',
+  'ဆင်းရဲမယ်။',
+  'ဆင်းရဲမယ်။',
+  'ဆင်းရဲမယ်။',
+  'သေမယ်။',
+  'ချမ်းသာမယ်။',
+];
+guruReadings.forEach((reading, index) => {
+  guruReadings[index] = guruShortReadings[index] + '\n\n' + reading;
+});
 const guruNames = [...yatraNames.slice(0, 21), 'အဘိဇိ', ...yatraNames.slice(21)];
 let chartNames = yatraNames;
 let chartRegions = suriyaRegions;
@@ -702,6 +716,7 @@ function renderSuriyaStars(sunIndex) {
     });
     group.dataset.slot = slot;
     group.append(arrow);
+    if (chartMode === 'guru') group.append(label);
     markers.append(group);
   });
 }
@@ -767,9 +782,22 @@ function updateGoza(instant = new Date()) {
     const sun = chartPlanetAt(instant);
     const slot = chartSlot(birthStarIndex, sun.index);
     const regionIndex = regionSlots()[slot];
-    highlightSuriyaSlot(slot, 'goza-marker');
+    if (chartMode !== 'guru') highlightSuriyaSlot(slot, 'goza-marker');
     const position = document.createElement('p');
     const starName = chartNames[(sun.index + slot) % chartNames.length];
+    const separateMarker = byId('guru-goza-marker');
+    separateMarker.hidden = chartMode !== 'guru';
+    separateMarker.toggleAttribute('hidden', chartMode !== 'guru');
+    if (chartMode === 'guru') {
+      const [[x, y]] = chartRegions[regionIndex][2];
+      const labelY = 382;
+      byId('guru-goza-arrow').setAttribute('d', `M 120 369 L 244 357 L 244 ${y} L ${x} ${y}`);
+      const label = byId('guru-goza-label');
+      label.setAttribute('x', 120);
+      label.setAttribute('y', labelY);
+      label.setAttribute('text-anchor', 'middle');
+      label.textContent = starName + ' (ကောဇာ)';
+    }
     const marker = markers.children[slot];
     marker.dataset.gozaName = starName;
     marker.dataset.originalLabel = marker.getAttribute('aria-label');
@@ -884,7 +912,10 @@ const chartPlanetName = () => chartMode === 'guru' ? 'ကြာသပတေး�
 const chartPlanetLabel = () => chartMode === 'guru' ? 'ကြာသပတေးစီးနက္ခတ်' : 'နေစီးနက္ခတ်';
 
 function selectChart(mode) {
+  if (chartMode !== mode) byId('guru-goza-marker').setAttribute('hidden', '');
   chartMode = mode;
+  byId('suriya').classList.toggle('guru-chart', mode === 'guru');
+  byId('suriya').querySelector('.suriya-figure').setAttribute('viewBox', mode === 'guru' ? '-90 0 420 400' : '-12 0 264 360');
   const guru = mode === 'guru';
   chartNames = guru ? guruNames : yatraNames;
   chartRegions = guru ? guruRegions : suriyaRegions;
