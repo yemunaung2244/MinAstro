@@ -1211,6 +1211,25 @@ function renderAllUpaReadings() {
   });
 }
 let upaHasResult = false;
+let upaTransitInstant;
+byId('upa-transit-form').addEventListener('submit', event => {
+  event.preventDefault();
+  try {
+    const [date, time] = byId('upa-transit-time').value.split('T');
+    upaTransitInstant = myanmarBirthInstant(date, time);
+    byId('upa-transit-error').textContent = '';
+    byId('upagraha-form').requestSubmit();
+  } catch {
+    byId('upa-transit-error').textContent = 'ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
+  }
+});
+byId('upa-transit-now').addEventListener('click', () => {
+  upaTransitInstant = undefined;
+  byId('upa-transit-time').value = '';
+  byId('upa-transit-error').textContent = '';
+  byId('upagraha-form').requestSubmit();
+});
+
 byId('upagraha-form').addEventListener('submit', event => {
   event.preventDefault();
   const output = byId('upa-result');
@@ -1232,11 +1251,19 @@ byId('upagraha-form').addEventListener('submit', event => {
     const hour24 = hour % 12 + (byId('upa-period').value === 'PM' ? 12 : 0);
     const birth = myanmarBirthInstant([year, pad(month), pad(day)].join('-'), [hour24, minute, second].map(pad).join(':'));
     const star = upaPosition(birth, true).index;
-    const transit = new Date();
+    const transit = upaTransitInstant || new Date();
     const formatter = new Intl.DateTimeFormat('my-MM', {timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'short'});
     const birthSun = upaPosition(birth);
     const transitSun = upaPosition(transit);
     const transitMoon = upaPosition(transit, true);
+    const solarPosition = upaMode === 'upagraha28' ? upagraha28At : solarNakshatraAt;
+    const { entry, exit } = solarNakshatraWindow(transit, solarPosition);
+    byId('upa-solar-name').textContent = 'ကောဇာနေစီးနက္ခတ် - ' + upaNames()[transitSun.index] + ' (နက္ခတ်ပြောင်းချိန်)';
+    byId('upa-solar-at').textContent = 'ကြည့်ရှုချိန် - ' + formatter.format(transit);
+    byId('upa-solar-degree').textContent = 'နေလောင်ဂျီတွဒ် - ' + mm(transitSun.longitude.toFixed(4)) + '°';
+    byId('upa-solar-entry').textContent = formatter.format(entry);
+    byId('upa-solar-exit').textContent = formatter.format(exit);
+
     byId('upa-table').replaceChildren(upaTable([birthSun.index, transitSun.index]));
     const rows = byId('upa-table').querySelectorAll('tbody tr');
     rows.forEach((row, rowIndex) => {
@@ -1377,6 +1404,11 @@ function showPage() {
   const page = entry ? 'nakshatra-detail'
     : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   const isUpa = page === 'upagraha' || page === 'upagraha28';
+  if (isUpa && upaMode !== page) {
+    upaTransitInstant = undefined;
+    byId('upa-transit-time').value = '';
+    byId('upa-transit-error').textContent = '';
+  }
   if (isUpa) upaMode = page;
   byId('upa-title').textContent = upaMode === 'upagraha28' ? 'ဥပဂြဟ (၂၈) လုံးမူ' : 'ဥပဂြဟ (၂၇) လုံးမူ';
   byId('upa-edit').href = '#' + upaMode;

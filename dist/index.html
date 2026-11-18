@@ -56,6 +56,22 @@
       <section id="upa-output" hidden>
         <a id="upa-edit" class="back-home" href="#upagraha">← မွေးဖွားမှုအချက်အလက် ပြန်ပြင်ရန်</a>
         <h2 id="upa-output-title" tabindex="-1">ဥပဂြဟ အဟော</h2>
+        <details id="upa-solar-details">
+          <summary id="upa-solar-name">တနင်္ဂနွေ နက္ခတ်ပြောင်းချိန်</summary>
+          <p id="upa-solar-at"></p>
+          <p id="upa-solar-degree"></p>
+          <dl>
+            <dt>နက္ခတ်ထဲ ဝင်ချိန်</dt><dd id="upa-solar-entry"></dd>
+            <dt>နက္ခတ်မှ ထွက်ချိန်</dt><dd id="upa-solar-exit"></dd>
+          </dl>
+          <small>မြန်မာစံတော်ချိန် · Lahiri ခန့်မှန်းတွက်ချက်မှု</small>
+          <form id="upa-transit-form" class="controls">
+            <label>ကြည့်လိုသည့် ရက်နှင့် အချိန် <input id="upa-transit-time" type="datetime-local" step="1" required></label>
+            <button type="submit">ရွေးထားသည့်အချိန် တွက်မည်</button>
+            <button id="upa-transit-now" type="button">လက်ရှိအချိန် ပြန်ကြည့်မည်</button>
+            <p id="upa-transit-error" role="status"></p>
+          </form>
+        </details>
         <section id="upa-table-panel">
           <div class="upa-table-heading"><h3>မူလနှင့် ကောဇာနေစီးနက္ခတ် ဥပဂြဟဇယား</h3><button id="upa-fullscreen" type="button">မျက်နှာပြင်အပြည့်</button></div>
           <div class="upa-table-scroll" id="upa-table"></div>
