@@ -1683,7 +1683,7 @@ function linkStarNames(root) {
   const nodes = [];
   while (walker.nextNode()) {
     const node = walker.currentNode;
-    if (!node.parentElement.closest('a, button, select, input, textarea, script, style, svg, #star-information')) nodes.push(node);
+    if (!node.parentElement.closest('a, button, select, input, textarea, script, style, svg, #star-information, #akha')) nodes.push(node);
   }
   for (const node of nodes) {
     const text = node.textContent;
