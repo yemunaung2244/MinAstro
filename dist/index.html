@@ -20,6 +20,7 @@
 
   <main class="shell">
     <nav id="home" class="home-menu" aria-label="ပင်မစာမျက်နှာ">
+      <a class="home-choice" href="#panchang">တိထီကြည့်တာ</a>
       <a class="home-choice" href="#calculator">နာဒီကာ</a>
       <a class="home-choice" href="#suriya">သူရိယစက်</a>
       <a class="home-choice" href="#guru">ဂုရုစက်</a>
@@ -27,6 +28,23 @@
       <a class="home-choice" href="#upagraha28">ဥပဂြဟ (၂၈) လုံးမူ</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
+    <section id="panchang" class="catalog" hidden>
+      <h1>နေ့စဉ် ပဉ္စာင်္ဂ</h1>
+      <form id="panchang-form" class="controls">
+        <label>ရက်စွဲ<input id="panchang-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
+        <label>မြို့ရှာရန်<input id="panchang-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label>မြို့<select id="panchang-city" required></select></label>
+        <label>အချိန်ပြပုံ<select id="panchang-clock"><option value="24">၂၄ နာရီ</option><option value="12">၁၂ နာရီ AM/PM</option><option value="plus">၂၄ နာရီကျော် (+)</option></select></label>
+        <button class="janma-submit">တွက်မည်</button>
+      </form>
+      <p id="panchang-error" role="status"></p>
+      <section id="panchang-output" hidden>
+        <a class="back-home" href="#panchang">← အချက်အလက် ပြန်ပြင်ရန်</a>
+        <h2 id="panchang-output-title" tabindex="-1">ပဉ္စာင်္ဂ ရလဒ်</h2>
+      <div id="panchang-result" aria-live="polite"></div>
+      <p class="hint">နေထွက်ချိန်မှ နောက်နေ့နေထွက်ချိန်အထိ။ မြန်မာစံတော်ချိန်၊ Lahiri ခန့်မှန်း အယနာံသကို အသုံးပြုထားသည်။</p>
+      </section>
+    </section>
     <section id="upagraha" class="catalog" hidden>
       <h1 id="upa-title">ဥပဂြဟ</h1>
       <dialog id="upa-reading-dialog" aria-labelledby="upa-reading-dialog-title">

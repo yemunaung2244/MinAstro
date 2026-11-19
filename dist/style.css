@@ -545,3 +545,8 @@ html { touch-action: pan-x pan-y; }
 }
 #upa-reading-dialog-text { white-space: pre-line; }
 #upa-reading-dialog::backdrop { background: #142e4577; }
+
+.panchang-table { width: 100%; border-collapse: collapse; background: #eef8ff; }
+.panchang-table th, .panchang-table td { border: 1px solid var(--line); padding: 12px 8px; text-align: left; vertical-align: top; }
+.panchang-table th { width: 30%; color: var(--sky-accent); }
+.panchang-table tr:nth-child(even) { background: #dff3ff; }

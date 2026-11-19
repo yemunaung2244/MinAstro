@@ -1,3 +1,4 @@
+import { dailyPanchang, karanaName, tithiName, yogaNames } from './panchang.js';
 import { upagraha28At, guruNakshatraAt, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
@@ -1389,10 +1390,83 @@ byId('upagraha-form').addEventListener('submit', event => {
   }
 });
 
+const panchangCity = byId('panchang-city');
+function panchangCities() {
+  const current = panchangCity.value;
+  const query = byId('panchang-search').value.trim().toLowerCase();
+  panchangCity.replaceChildren();
+  towns.forEach(([name, english, region], index) => {
+    const label = [name, english, region].join(' · ');
+    if (label.toLowerCase().includes(query)) panchangCity.add(new Option(label, String(index)));
+  });
+  if ([...panchangCity.options].some(option => option.value === current)) panchangCity.value = current;
+}
+panchangCities();
+const mandalay = towns.findIndex(town => town[1] === 'Mandalay');
+if (mandalay >= 0) panchangCity.value = String(mandalay);
+byId('panchang-date').value = myanmarNow().slice(0, 10);
+byId('panchang-search').addEventListener('input', panchangCities);
+let panchangHasResult = false;
+byId('panchang-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const container = byId('panchang-result');
+  container.replaceChildren();
+  try {
+    const town = towns[Number(panchangCity.value)];
+    if (!town || panchangCity.value === '') throw new RangeError('Select city');
+    const date = byId('panchang-date').value;
+    const data = dailyPanchang(date, town[3], town[4]);
+    const clock = byId('panchang-clock').value;
+    const format = instant => {
+      if (!instant) return 'ဤပြက္ခဒိန်ရက်အတွင်း မရှိ';
+      const days = Math.floor((instant - data.midnight) / 86400000);
+      if (clock === 'plus') {
+        const minutes = Math.floor((instant - data.midnight) / 60000);
+        return mm(String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0')) + (days ? '+' : '');
+      }
+      return new Intl.DateTimeFormat('my-MM', {timeZone:'Asia/Yangon', hour:'2-digit', minute:'2-digit', hour12:clock === '12'}).format(instant)
+        + (days > 0 ? ' (နောက်နေ့)' : '');
+    };
+    const heading = document.createElement('h2');
+    heading.textContent = new Intl.DateTimeFormat('my-MM', {timeZone:'Asia/Yangon', dateStyle:'full'}).format(data.midnight) + ' · ' + town[0];
+    container.append(heading);
+    const phase = document.createElement('p');
+    phase.textContent = tithiName(data.periods.tithi[0].index) + ' · လအလင်း ' + mm(Math.round(data.illumination * 100)) + '%';
+    container.append(phase);
+    const table = document.createElement('table');
+    table.className = 'panchang-table';
+    const row = (label, value) => {
+      const line = table.insertRow();
+      const title = document.createElement('th');
+      title.scope = 'row';
+      title.textContent = label;
+      const text = document.createElement('td');
+      text.textContent = value;
+      line.append(title, text);
+    };
+    for (const [label, key] of [['နေထွက်ချိန်','sunrise'],['နေဝင်ချိန်','sunset'],['လထွက်ချိန်','moonrise'],['လဝင်ချိန်','moonset']]) row(label, format(data[key]));
+    for (const [label, key, name] of [
+      ['တိထီ','tithi',tithiName],
+      ['နက္ခတ်','nakshatra', index => yatraNames[index] + 'နက္ခတ်'],
+      ['ယောဂ','yoga', index => yogaNames[index]],
+      ['ကရဏ','karana',karanaName],
+    ]) data.periods[key].forEach((period, index) => row(label + (key === 'karana' ? ' ' + mm(index + 1) : ''), name(period.index) + ' — ' + format(period.end) + ' အထိ'));
+    row('နေ့အမည်', weekdays[new Date(date + 'T12:00:00Z').getUTCDay()]);
+    const nak = data.periods.nakshatra[0].index;
+    row('ပဉ္စက', nak >= 23 || (nak === 22 && janmaAt(data.sunrise).pada >= 3) ? 'ရှိ' : 'မရှိ');
+    container.append(table);
+    byId('panchang-error').textContent = '';
+    panchangHasResult = true;
+    window.location.hash = 'panchang-result';
+  } catch {
+    byId('panchang-error').textContent = 'ရက်စွဲနဲ့ မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = rawHash === 'yatra8' ? 'practice'
-    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
+    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'panchang-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -1402,7 +1476,14 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+  byId('panchang').hidden = page !== 'panchang';
+  const showPanchangResult = page === 'panchang' && rawHash === 'panchang-result' && panchangHasResult;
+  byId('panchang-form').hidden = showPanchangResult;
+  byId('panchang-error').hidden = showPanchangResult;
+  byId('panchang-output').hidden = !showPanchangResult;
+  if (showPanchangResult) byId('panchang-output-title').focus();
+  else if (rawHash === 'panchang-result') window.history.replaceState(null, '', '#panchang');
   const isUpa = page === 'upagraha' || page === 'upagraha28';
   if (isUpa && upaMode !== page) {
     upaTransitInstant = undefined;
@@ -1430,8 +1511,8 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa;
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || page === 'panchang';
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || page === 'panchang';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
