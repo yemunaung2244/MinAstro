@@ -1511,8 +1511,8 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || page === 'panchang';
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || page === 'panchang';
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang';
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -1535,35 +1535,15 @@ function showPage() {
   }
 }
 
-const groupedYatras = [
-  ['ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', yatraDescriptions],
-  ['နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', yatra2Descriptions],
-  ['နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', yatra3Descriptions],
-  ['နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', yatra4Descriptions],
-  ['နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra5Descriptions],
-  [yatra6Title, yatra6Descriptions],
-  [yatra7Title, yatra7Descriptions],
-  [yatra8Title, yatra8Descriptions],
-  [foodTitle, foodDescriptions],
-];
-byId('yatra-entries').replaceChildren();
-yatraNames.forEach((name, index) => {
-  const card = document.createElement('article');
-  card.className = 'entry';
-  const heading = document.createElement('h3');
-  heading.textContent = name + 'နက္ခတ်';
-  card.append(heading);
-  for (const [title, descriptions] of groupedYatras) {
-    if (!descriptions[index]) continue;
-    const subtitle = document.createElement('h4');
-    subtitle.textContent = title;
-    const text = document.createElement('p');
-    text.textContent = descriptions[index];
-    card.append(subtitle, text);
-  }
-  byId('yatra-entries').append(card);
-});
-byId('yatra-entries').children[20].after(abhijit.cloneNode(true), yatra7Abhijit.cloneNode(true), yatra8Abhijit.cloneNode(true));
+byId('yatra-entries').replaceChildren(...guruNames.map(name => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'entry star-list-button';
+  button.dataset.starInformation = name;
+  button.setAttribute('aria-haspopup', 'dialog');
+  button.textContent = name + 'နက္ခတ်';
+  return button;
+}));
 const starDialog = document.createElement('dialog');
 starDialog.id = 'star-information';
 const starDialogTitle = document.createElement('h2');
@@ -1581,7 +1561,7 @@ function openStarInformation(name) {
   const titles = ['ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', 'နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', 'နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', 'နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', 'နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra6Title, yatra7Title, yatra8Title, foodTitle];
   titles.forEach((title, position) => {
     const value = index >= 0 ? sets[position][index]
-      : position === 6 ? 'ထောပတ်ထမင်း။' : position === 7 ? yatra8Groups[0][1] : '';
+      : position === 2 ? abhijit.querySelector('p').textContent : position === 6 ? 'ထောပတ်ထမင်း။' : position === 7 ? yatra8Groups[0][1] : '';
     if (!value) return;
     const heading = document.createElement('h3');
     heading.textContent = title;
