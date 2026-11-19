@@ -1465,7 +1465,7 @@ byId('panchang-form').addEventListener('submit', event => {
 
 function showPage() {
   const rawHash = window.location.hash.slice(1);
-  const hash = rawHash === 'yatra8' ? 'practice'
+  const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
     : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'panchang-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
@@ -1542,6 +1542,9 @@ const groupedYatras = [
   ['နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', yatra4Descriptions],
   ['နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra5Descriptions],
   [yatra6Title, yatra6Descriptions],
+  [yatra7Title, yatra7Descriptions],
+  [yatra8Title, yatra8Descriptions],
+  [foodTitle, foodDescriptions],
 ];
 byId('yatra-entries').replaceChildren();
 yatraNames.forEach((name, index) => {
@@ -1560,6 +1563,7 @@ yatraNames.forEach((name, index) => {
   }
   byId('yatra-entries').append(card);
 });
+byId('yatra-entries').children[20].after(abhijit.cloneNode(true), yatra7Abhijit.cloneNode(true), yatra8Abhijit.cloneNode(true));
 const starDialog = document.createElement('dialog');
 starDialog.id = 'star-information';
 const starDialogTitle = document.createElement('h2');
