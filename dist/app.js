@@ -1518,10 +1518,10 @@ function showPage() {
     renderNakshatraDetail(entry, route[3]);
     byId('nakshatra-title').focus();
   }
-  yatraTabs.hidden = !isYatraPage;
+  yatraTabs.hidden = true;
   generalTabs.hidden = !isGeneralPage;
   for (const link of [...yatraLinks, ...generalLinks]) {
-    const active = link.dataset.yatraTab === page;
+    const active = yatraLinks.includes(link) ? isYatraPage && link.dataset.yatraTab === 'yatra' : link.dataset.yatraTab === page;
     byId(link.dataset.yatraTab).hidden = !active;
     if (active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
@@ -1534,6 +1534,107 @@ function showPage() {
     else link.removeAttribute('aria-current');
   }
 }
+
+const groupedYatras = [
+  ['ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', yatraDescriptions],
+  ['နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', yatra2Descriptions],
+  ['နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', yatra3Descriptions],
+  ['နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', yatra4Descriptions],
+  ['နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra5Descriptions],
+  [yatra6Title, yatra6Descriptions],
+];
+byId('yatra-entries').replaceChildren();
+yatraNames.forEach((name, index) => {
+  const card = document.createElement('article');
+  card.className = 'entry';
+  const heading = document.createElement('h3');
+  heading.textContent = name + 'နက္ခတ်';
+  card.append(heading);
+  for (const [title, descriptions] of groupedYatras) {
+    if (!descriptions[index]) continue;
+    const subtitle = document.createElement('h4');
+    subtitle.textContent = title;
+    const text = document.createElement('p');
+    text.textContent = descriptions[index];
+    card.append(subtitle, text);
+  }
+  byId('yatra-entries').append(card);
+});
+const starDialog = document.createElement('dialog');
+starDialog.id = 'star-information';
+const starDialogTitle = document.createElement('h2');
+const starDialogBody = document.createElement('div');
+const starClose = document.createElement('button');
+starClose.textContent = 'ပိတ်ရန်';
+starClose.addEventListener('click', () => starDialog.close());
+starDialog.append(starDialogTitle, starDialogBody, starClose);
+document.body.append(starDialog);
+function openStarInformation(name) {
+  const index = yatraNames.indexOf(name);
+  starDialogTitle.textContent = name + 'နက္ခတ်';
+  starDialogBody.replaceChildren();
+  const sets = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
+  const titles = ['ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', 'နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', 'နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', 'နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', 'နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra6Title, yatra7Title, yatra8Title, foodTitle];
+  titles.forEach((title, position) => {
+    const value = index >= 0 ? sets[position][index]
+      : position === 6 ? 'ထောပတ်ထမင်း။' : position === 7 ? yatra8Groups[0][1] : '';
+    if (!value) return;
+    const heading = document.createElement('h3');
+    heading.textContent = title;
+    const text = document.createElement('p');
+    text.textContent = value;
+    starDialogBody.append(heading, text);
+  });
+  if (!starDialogBody.childElementCount) starDialogBody.textContent = 'ဤနက္ခတ်အတွက် ထည့်သွင်းထားသော အချက်အလက် မရှိသေးပါ။';
+  if (!starDialog.open) starDialog.showModal();
+}
+document.addEventListener('click', event => {
+  const link = event.target.closest('[data-star-information]');
+  if (!link) return;
+  event.preventDefault();
+  openStarInformation(link.dataset.starInformation);
+});
+const starNames = [...yatraNames, 'အဘိဇိ'].sort((a, b) => b.length - a.length);
+const starPattern = new RegExp('(' + starNames.join('|') + ')(နက္ခတ်)?', 'gu');
+function linkStarNames(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.parentElement.closest('a, button, select, input, textarea, script, style, svg, #star-information')) nodes.push(node);
+  }
+  for (const node of nodes) {
+    const text = node.textContent;
+    const matches = [...text.matchAll(starPattern)];
+    if (!matches.length) continue;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    for (const match of matches) {
+      fragment.append(text.slice(cursor, match.index));
+      const link = document.createElement('a');
+      link.href = '#';
+      link.dataset.starInformation = match[1];
+      link.textContent = match[0];
+      fragment.append(link);
+      cursor = match.index + match[0].length;
+    }
+    fragment.append(text.slice(cursor));
+    node.replaceWith(fragment);
+  }
+}
+linkStarNames(document.querySelector('main'));
+const starObserver = new MutationObserver(records => {
+  starObserver.disconnect();
+  for (const record of records) {
+    if (record.type === 'characterData') linkStarNames(record.target.parentElement);
+    else for (const node of record.addedNodes) {
+      if (node.nodeType === Node.ELEMENT_NODE) linkStarNames(node);
+      else if (node.nodeType === Node.TEXT_NODE && node.parentElement) linkStarNames(node.parentElement);
+    }
+  }
+  starObserver.observe(document.querySelector('main'), {childList:true, subtree:true, characterData:true});
+});
+starObserver.observe(document.querySelector('main'), {childList:true, subtree:true, characterData:true});
 
 window.addEventListener('hashchange', showPage);
 showPage();
