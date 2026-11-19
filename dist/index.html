@@ -26,6 +26,7 @@
       <a class="home-choice" href="#upagraha">ဥပဂြဟ (၂၇) လုံးမူ</a>
       <a class="home-choice" href="#upagraha28">ဥပဂြဟ (၂၈) လုံးမူ</a>
       <a class="home-choice" href="#yatra">နက္ခတ်များ</a>
+      <a class="home-choice" href="#akha">အခါပေးစနစ်</a>
       <a class="home-choice" href="#panchang">Panchang</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
@@ -44,6 +45,38 @@
         <h2 id="panchang-output-title" tabindex="-1">ပဉ္စာင်္ဂ ရလဒ်</h2>
       <div id="panchang-result" aria-live="polite"></div>
       <p class="hint">နေထွက်ချိန်မှ နောက်နေ့နေထွက်ချိန်အထိ။ မြန်မာစံတော်ချိန်၊ Lahiri ခန့်မှန်း အယနာံသကို အသုံးပြုထားသည်။</p>
+      </section>
+    </section>
+    <section id="akha" class="catalog" hidden>
+      <h1>အခါပေးစနစ်</h1>
+      <form id="akha-form" class="controls">
+        <label>ရက်စွဲ<input id="akha-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
+        <label>အခါရွေးမည့်မြို့ ရှာရန် <input id="akha-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label>အခါရွေးမည့်မြို့<select id="akha-city" required></select></label>
+        <p class="hint">မူလလဂ်နှင့် ဗာဓကကို စစ်ရန် မွေးဖွားမှုအချက်အလက်များ ဖြည့်ပါ။</p>
+        <fieldset class="janma-parts">
+          <legend>မွေးသက္ကရာဇ်</legend>
+          <label>ရက်<input id="akha-birth-day" type="text" inputmode="numeric" maxlength="2"></label>
+          <label>လ<input id="akha-birth-month" type="text" inputmode="numeric" maxlength="2"></label>
+          <label>နှစ်<input id="akha-birth-year" type="text" inputmode="numeric" maxlength="4"></label>
+        </fieldset>
+        <fieldset class="janma-parts">
+          <legend>မွေးချိန်</legend>
+          <label>နာရီ<input id="akha-birth-hour" type="text" inputmode="numeric" maxlength="2"></label>
+          <label>မိနစ်<input id="akha-birth-minute" type="text" inputmode="numeric" maxlength="2"></label>
+          <label>စက္ကန့်<input id="akha-birth-second" type="text" inputmode="numeric" maxlength="2"></label>
+          <label>AM/PM<select id="akha-birth-period"><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+        </fieldset>
+        <label>မွေးဖွားရာမြို့ ရှာရန် <input id="akha-birth-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label>မွေးဖွားရာမြို့ <select id="akha-birth-city"><option value="">မြို့ရွေးပါ</option></select></label>
+        <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+        <p id="akha-error" role="status"></p>
+        <p class="hint">ရွေးထားသောရက်၏ နေထွက်ချိန်မှ နောက်နေ့ နေထွက်ချိန်အထိ မြန်မာစံတော်ချိန်ဖြင့် တွက်သည်။</p>
+      </form>
+      <section id="akha-output" hidden>
+        <a href="#akha" class="back-home">← အချက်အလက် ပြန်ပြင်ရန်</a>
+        <h2 id="akha-output-title" tabindex="-1">အခါပေးအဟော</h2>
+        <div id="akha-result"></div>
       </section>
     </section>
     <section id="upagraha" class="catalog" hidden>

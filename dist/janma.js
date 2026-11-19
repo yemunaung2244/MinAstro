@@ -1,4 +1,4 @@
-import { Body, Ecliptic, EclipticGeoMoon, GeoVector, SunPosition } from './astronomy-engine.js';
+import { SiderealTime, MakeTime, e_tilt, Body, Ecliptic, EclipticGeoMoon, GeoVector, SunPosition } from './astronomy-engine.js';
 
 // Mean Lahiri ayanamsa approximation anchored at J2000.
 function nakshatraAt(instant, tropicalLongitude) {
@@ -76,4 +76,13 @@ export function upagraha28At(instant, moon = false) {
     return { ...result, index: 21 };
   }
   return { ...result, index: result.index + Number(result.index >= 21) };
+}
+
+export function natalAscendant(instant, latitude, longitude) {
+  const rad = Math.PI / 180;
+  const sidereal = (SiderealTime(instant) * 15 + longitude) * rad;
+  const tilt = e_tilt(MakeTime(instant)).tobl * rad;
+  const tropical = Math.atan2(Math.cos(sidereal),
+    -Math.sin(sidereal) * Math.cos(tilt) - Math.tan(latitude * rad) * Math.sin(tilt)) / rad;
+  return Math.floor(nakshatraAt(instant, tropical).longitude / 30);
 }

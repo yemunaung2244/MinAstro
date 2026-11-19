@@ -8,6 +8,8 @@ const assets = new Map([
   ['/push-sw.js', ['push-sw.js', 'text/javascript']],
   ['/janma.js', ['janma.js', 'text/javascript']],
   ['/astronomy-engine.js', ['astronomy-engine.js', 'text/javascript']],
+  ['/myanmar-calendar.js', ['myanmar-calendar.js', 'text/javascript']],
+  ['/akha.js', ['akha.js', 'text/javascript']],
   ['/panchang.js', ['panchang.js', 'text/javascript']],
   ['/app.js', ['app.js', 'text/javascript']],
   ['/nadika.js', ['nadika.js', 'text/javascript']],

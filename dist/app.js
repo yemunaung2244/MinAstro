@@ -1,5 +1,7 @@
+import { myanmarMonth } from './myanmar-calendar.js';
+import { akhaIntervals, akhaMonths, akhaRashis, akhaSourceReading } from './akha.js';
 import { dailyPanchang, karanaName, tithiName, yogaNames } from './panchang.js';
-import { upagraha28At, guruNakshatraAt, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
+import { upagraha28At, guruNakshatraAt, natalAscendant, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
@@ -845,51 +847,60 @@ byId('goza-now').addEventListener('click', () => {
   updateGoza();
 });
 
-const janmaCity = byId('janma-city');
-const janmaCitySearch = byId('janma-city-search');
-
-function renderJanmaCities() {
-  const selected = janmaCity.value;
-  const query = janmaCitySearch.value.trim().normalize().toLowerCase();
-  janmaCity.replaceChildren(new Option('မြို့ရွေးပါ', ''));
-  for (const [index, [name, english, region]] of towns.entries()) {
-    const label = [name, english, region].filter(Boolean).join(' · ');
-    if (label.normalize().toLowerCase().includes(query)) {
-      janmaCity.add(new Option(label, String(index)));
+function connectTownSearch(prefix) {
+  const city = byId(prefix + '-city');
+  const search = byId(prefix + '-city-search');
+  function renderCities() {
+    const selected = city.value;
+    const query = search.value.trim().normalize().toLowerCase();
+    city.replaceChildren(new Option('မြို့ရွေးပါ', ''));
+    for (const [index, [name, english, region]] of towns.entries()) {
+      const label = [name, english, region].filter(Boolean).join(' · ');
+      if (label.normalize().toLowerCase().includes(query)) {
+        city.add(new Option(label, String(index)));
+      }
     }
+    if (city.options.length === 1) {
+      city.options[0].text = 'ကိုက်ညီတဲ့ မြို့ မတွေ့ပါ';
+    }
+    city.value = [...city.options].some(option => option.value === selected) ? selected : '';
   }
-  if (janmaCity.options.length === 1) {
-    janmaCity.options[0].text = 'ကိုက်ညီတဲ့ မြို့ မတွေ့ပါ';
-  }
-  janmaCity.value = [...janmaCity.options].some(option => option.value === selected) ? selected : '';
+  search.addEventListener('input', renderCities);
+  renderCities();
+  return city;
 }
 
-janmaCitySearch.addEventListener('input', renderJanmaCities);
-renderJanmaCities();
+function readBirthInstant(prefix) {
+  const readPart = (name, min, max) => {
+    const value = ascii(byId(prefix + '-' + name).value.trim());
+    const number = Number(value);
+    if (!/^\d+$/.test(value) || number < min || number > max) {
+      throw new RangeError('Invalid birth ' + name);
+    }
+    return number;
+  };
+  const pad = number => String(number).padStart(2, '0');
+  const day = readPart('day', 1, 31);
+  const month = readPart('month', 1, 12);
+  const year = readPart('year', 1900, 2100);
+  const hour = readPart('hour', 1, 12);
+  const minute = readPart('minute', 0, 59);
+  const second = readPart('second', 0, 59);
+  const period = byId(prefix + '-period').value;
+  if (!['AM', 'PM'].includes(period)) throw new RangeError('Invalid birth period');
+  const hour24 = hour % 12 + (period === 'PM' ? 12 : 0);
+  const birthDate = [year, pad(month), pad(day)].join('-');
+  const birthTime = [hour24, minute, second].map(pad).join(':');
+  return myanmarBirthInstant(birthDate, birthTime);
+}
+
+connectTownSearch('janma');
 
 byId('janma-form').addEventListener('submit', event => {
   event.preventDefault();
   const result = byId('janma-result');
   try {
-    const readPart = (name, min, max) => {
-      const value = ascii(byId('janma-' + name).value.trim());
-      const number = Number(value);
-      if (!/^\d+$/.test(value) || number < min || number > max) {
-        throw new RangeError('Invalid birth ' + name);
-      }
-      return number;
-    };
-    const pad = number => String(number).padStart(2, '0');
-    const day = readPart('day', 1, 31);
-    const month = readPart('month', 1, 12);
-    const year = readPart('year', 1900, 2100);
-    const hour = readPart('hour', 1, 12);
-    const minute = readPart('minute', 0, 59);
-    const second = readPart('second', 0, 59);
-    const hour24 = hour % 12 + (byId('janma-period').value === 'PM' ? 12 : 0);
-    const birthDate = [year, pad(month), pad(day)].join('-');
-    const birthTime = [hour24, minute, second].map(pad).join(':');
-    const instant = myanmarBirthInstant(birthDate, birthTime);
+    const instant = readBirthInstant('janma');
     const { index, pada, longitude } = chartMode === 'guru' ? guruNakshatraAt(instant, true) : janmaAt(instant);
     const sun = chartPlanetAt(instant);
     birthStarIndex = index;
@@ -1463,10 +1474,91 @@ byId('panchang-form').addEventListener('submit', event => {
   }
 });
 
+const akhaCity = connectTownSearch('akha');
+if (mandalay >= 0) akhaCity.value = String(mandalay);
+byId('akha-date').value = myanmarNow().slice(0, 10);
+const akhaBirthCity = connectTownSearch('akha-birth');
+let akhaHasResult = false;
+
+byId('akha-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const output = byId('akha-result');
+  const error = byId('akha-error');
+  akhaHasResult = false;
+  error.textContent = '';
+  output.replaceChildren();
+  try {
+    const date = byId('akha-date').value;
+    const [name,,, latitude, longitude] = towns[Number(akhaCity.value)];
+    const weekday = new Date(date + 'T12:00:00Z').getUTCDay();
+    const data = dailyPanchang(date, latitude, longitude);
+    const format = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', dateStyle: 'short', timeStyle: 'medium',
+    });
+    const heading = document.createElement('h2');
+    heading.textContent = name + ' · ' + weekdays[weekday];
+    output.append(heading);
+    const lunar = myanmarMonth(date);
+    const month = lunar.mm === 0 ? 3 : (lunar.mm - 1) % 12;
+    const monthName = lunar.mm === 0 ? 'ပထမဝါဆို' : lunar.mm === 4 && lunar.myt
+      ? 'ဒုတိယဝါဆို' : (lunar.mm > 12 ? 'နှောင်း' : '') + akhaMonths[month];
+    const hasBirthDetails = ['day', 'month', 'year', 'hour', 'minute', 'second', 'period', 'city']
+      .some(part => byId('akha-birth-' + part).value.trim());
+    const filters = {month};
+    const notice = document.createElement('p');
+    notice.textContent = 'မြန်မာလ — ' + monthName;
+    if (hasBirthDetails) {
+      try {
+        if (!akhaBirthCity.value) throw new RangeError('Missing birth city');
+        const [, , , lat, lon] = towns[Number(akhaBirthCity.value)];
+        filters.ascendant = natalAscendant(readBirthInstant('akha-birth'), lat, lon);
+      } catch {
+        error.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ပြည့်စုံမှန်ကန်အောင် ဖြည့်ပါ။';
+        return;
+      }
+      notice.textContent += ' · မူလလဂ် — ' + akhaRashis[filters.ascendant] + 'ရာသီ';
+    } else {
+      notice.textContent += '။ ဗာဓက စစ်ရန် မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ဖြည့်ပါ။';
+    }
+    output.append(notice);
+    for (const interval of akhaIntervals(data, weekday, filters)) {
+      const card = document.createElement('article');
+      card.className = 'entry';
+      const time = document.createElement('h3');
+      time.textContent = format.format(interval.from) + ' – ' + format.format(interval.to);
+      const basis = document.createElement('p');
+      basis.textContent = tithiName(interval.tithi) + ' · တိထီ ' + mm(interval.tithi % 15 + 1)
+        + ' · ' + yatraNames[interval.nakshatra] + 'နက္ခတ် · ပါဒ ' + mm(interval.pada);
+      card.append(time, basis);
+      for (const match of [...interval.matches, ...interval.events]) {
+        const item = document.createElement('p');
+        item.textContent = (match.type === 'caution' ? 'သတိပြု — ' : match.type === 'good' ? 'ကောင်း — ' : '') + match.name + (match.time ? ' · ' + format.format(match.time) : '');
+        card.append(item);
+        const original = akhaSourceReading(match.name);
+        if (original) {
+          const reading = document.createElement('blockquote');
+          reading.textContent = original;
+          card.append(reading);
+        }
+      }
+      if (!interval.matches.length && !interval.events.length) {
+        const note = document.createElement('p');
+        note.textContent = 'ပုံပါ စည်းမျဉ်းများနှင့် ကိုက်ညီသော ယုဂ် မရှိပါ။';
+        card.append(note);
+      }
+      output.append(card);
+    }
+    akhaHasResult = true;
+    window.location.hash = 'akha-result';
+  } catch {
+    error.textContent = 'ရက်စွဲနှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
-    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'panchang-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
+    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'panchang-result', 'akha-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -1476,7 +1568,13 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang', 'akha'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+  byId('akha').hidden = page !== 'akha';
+  const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
+  byId('akha-form').hidden = showAkhaResult;
+  byId('akha-output').hidden = !showAkhaResult;
+  if (showAkhaResult) byId('akha-output-title').focus();
+  else if (rawHash === 'akha-result') window.history.replaceState(null, '', '#akha');
   byId('panchang').hidden = page !== 'panchang';
   const showPanchangResult = page === 'panchang' && rawHash === 'panchang-result' && panchangHasResult;
   byId('panchang-form').hidden = showPanchangResult;
@@ -1511,8 +1609,8 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang';
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang';
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha';
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha';
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);

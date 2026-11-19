@@ -316,7 +316,7 @@ html { touch-action: pan-x pan-y; }
   outline-offset: 3px;
 }
 
-#janma-form .janma-parts {
+:is(#janma-form, #akha-form) .janma-parts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
   gap: 8px;
@@ -333,7 +333,7 @@ html { touch-action: pan-x pan-y; }
   min-width: 0;
 }
 
-#janma-form .janma-parts input {
+:is(#janma-form, #akha-form) .janma-parts input {
   max-width: 6rem;
   min-height: 38px;
   padding: 5px 9px;
