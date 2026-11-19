@@ -26,7 +26,7 @@
       <a class="home-choice" href="#upagraha">ဥပဂြဟ (၂၇) လုံးမူ</a>
       <a class="home-choice" href="#upagraha28">ဥပဂြဟ (၂၈) လုံးမူ</a>
       <a class="home-choice" href="#yatra">နက္ခတ်များ</a>
-      <a class="home-choice" href="#akha">အခါပေးစနစ်</a>
+      <a class="home-choice" href="#akha">အခါပဒေသာ</a>
       <a class="home-choice" href="#panchang">Panchang</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
@@ -48,7 +48,7 @@
       </section>
     </section>
     <section id="akha" class="catalog" hidden>
-      <h1>အခါပေးစနစ်</h1>
+      <h1 id="akha-form-title">အခါပဒေသာ</h1>
       <form id="akha-form" class="controls">
         <label>ရက်စွဲ<input id="akha-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
         <label>အခါရွေးမည့်မြို့ ရှာရန် <input id="akha-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
@@ -74,8 +74,10 @@
         <p class="hint">ရွေးထားသောရက်၏ နေထွက်ချိန်မှ နောက်နေ့ နေထွက်ချိန်အထိ မြန်မာစံတော်ချိန်ဖြင့် တွက်သည်။</p>
       </form>
       <section id="akha-output" hidden>
-        <a href="#akha" class="back-home">← အချက်အလက် ပြန်ပြင်ရန်</a>
-        <h2 id="akha-output-title" tabindex="-1">အခါပေးအဟော</h2>
+        <header class="akha-output-header">
+          <h2 id="akha-output-title" tabindex="-1">အခါပဒေသာ အဟော</h2>
+          <a href="#akha" class="akha-edit">အချက်အလက် ပြင်ရန်</a>
+        </header>
         <div id="akha-result"></div>
       </section>
     </section>

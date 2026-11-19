@@ -1,5 +1,5 @@
 import { myanmarMonth } from './myanmar-calendar.js';
-import { akhaIntervals, akhaMonths, akhaRashis, akhaSourceReading } from './akha.js';
+import { akhaIntervals, akhaMonths, akhaRashis, akhaSourceReading, akhaTimeDivisions } from './akha.js';
 import { dailyPanchang, karanaName, tithiName, yogaNames } from './panchang.js';
 import { upagraha28At, guruNakshatraAt, natalAscendant, janmaAt, myanmarBirthInstant, solarNakshatraAt, solarNakshatraWindow, suriyaSlot } from './janma.js';
 import { foodTitle, foodDescriptions } from './yatra-food.js';
@@ -1354,7 +1354,7 @@ byId('upagraha-form').addEventListener('submit', event => {
     const overview = document.createElement('p');
     overview.textContent = 'မူလဇနမနက္ခတ် - ' + upaNames()[star] + '။ လက်ရှိစန်းယှဉ်နက္ခတ် - '
       + upaNames()[transitMoon.index] + '၊ ပါဒ ' + mm(transitMoon.pada) + '။';
-    output.append(overview);
+    output.append(overview, renderAkhaTimeDivisions(data, format));
     const checks = [
       ['မူလနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', birthSun, star, birth],
       ['ကောဇာနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', transitSun, star, transit],
@@ -1480,6 +1480,52 @@ byId('akha-date').value = myanmarNow().slice(0, 10);
 const akhaBirthCity = connectTownSearch('akha-birth');
 let akhaHasResult = false;
 
+function renderAkhaTimeDivisions(data, format) {
+  const section = document.createElement('details');
+  section.className = 'akha-time-divisions';
+  const summary = document.createElement('summary');
+  summary.textContent = 'နက္ခတ်အခါပိုင်း တွက်နည်း ၃ မျိုး';
+  section.append(summary);
+  section.addEventListener('toggle', () => {
+    if (!section.open || section.children.length > 1) return;
+    for (const method of akhaTimeDivisions(data)) {
+      const detail = document.createElement('details');
+      const label = document.createElement('summary');
+      label.textContent = method.title;
+      const description = document.createElement('p');
+      description.className = 'akha-reading-text';
+      description.textContent = method.description;
+      const table = document.createElement('table');
+      table.setAttribute('aria-label', method.title);
+      const header = table.createTHead().insertRow();
+      for (const text of ['လွှမ်းမိုးနက္ခတ်', 'စချိန် – ဆုံးချိန်', 'ကြာချိန်']) {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        cell.textContent = text;
+        header.append(cell);
+      }
+      const body = table.createTBody();
+      for (const slot of method.slots) {
+        const row = body.insertRow();
+        row.insertCell().textContent = yatraNames[slot.star] + 'နက္ခတ်';
+        if (slot.sourceStar !== undefined) {
+          const source = document.createElement('small');
+          source.textContent = 'မူလ ' + yatraNames[slot.sourceStar] + 'နက္ခတ်'
+            + (slot.pada ? ' · ပါဒ ' + mm(slot.pada) : '');
+          row.cells[0].append(source);
+        }
+        row.insertCell().textContent = format.format(slot.from) + ' – ' + format.format(slot.to);
+        const seconds = Math.round((slot.to - slot.from) / 1000);
+        row.insertCell().textContent = mm(Math.floor(seconds / 60)) + ' မိနစ်'
+          + (seconds % 60 ? ' ' + mm(seconds % 60) + ' စက္ကန့်' : '');
+      }
+      detail.append(label, description, table);
+      section.append(detail);
+    }
+  });
+  return section;
+}
+
 byId('akha-form').addEventListener('submit', event => {
   event.preventDefault();
   const output = byId('akha-result');
@@ -1495,9 +1541,16 @@ byId('akha-form').addEventListener('submit', event => {
     const format = new Intl.DateTimeFormat('my-MM', {
       timeZone: 'Asia/Yangon', dateStyle: 'short', timeStyle: 'medium',
     });
-    const heading = document.createElement('h2');
-    heading.textContent = name + ' · ' + weekdays[weekday];
-    output.append(heading);
+    const overview = document.createElement('header');
+    overview.className = 'akha-overview';
+    const heading = document.createElement('h3');
+    heading.textContent = name;
+    const calendar = document.createElement('p');
+    const dateFormat = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', dateStyle: 'full',
+    });
+    calendar.textContent = dateFormat.format(data.sunrise);
+    overview.append(calendar, heading);
     const lunar = myanmarMonth(date);
     const month = lunar.mm === 0 ? 3 : (lunar.mm - 1) % 12;
     const monthName = lunar.mm === 0 ? 'ပထမဝါဆို' : lunar.mm === 4 && lunar.myt
@@ -1511,43 +1564,91 @@ byId('akha-form').addEventListener('submit', event => {
       try {
         if (!akhaBirthCity.value) throw new RangeError('Missing birth city');
         const [, , , lat, lon] = towns[Number(akhaBirthCity.value)];
-        filters.ascendant = natalAscendant(readBirthInstant('akha-birth'), lat, lon);
+        const birthInstant = readBirthInstant('akha-birth');
+        filters.ascendant = natalAscendant(birthInstant, lat, lon);
+        filters.birthStar = janmaAt(birthInstant).index + 1;
       } catch {
         error.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ပြည့်စုံမှန်ကန်အောင် ဖြည့်ပါ။';
         return;
       }
-      notice.textContent += ' · မူလလဂ် — ' + akhaRashis[filters.ascendant] + 'ရာသီ';
+      notice.textContent += ' · မူလလဂ် — ' + akhaRashis[filters.ascendant] + 'ရာသီ'
+        + ' · မွေးနက္ခတ် — ' + yatraNames[filters.birthStar - 1] + 'နက္ခတ်';
     } else {
-      notice.textContent += '။ ဗာဓက စစ်ရန် မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ဖြည့်ပါ။';
+      notice.textContent += '။ မူလလဂ်၊ မွေးနက္ခတ်နှင့် ဆိုင်သော အဟောအတွက် မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ဖြည့်ပါ။';
     }
-    output.append(notice);
+    overview.append(notice);
+    output.append(overview, renderAkhaTimeDivisions(data, format));
+    const timeline = document.createElement('section');
+    timeline.className = 'akha-timeline';
+    const timelineTitle = document.createElement('h3');
+    timelineTitle.textContent = 'အချိန်ပိုင်းအလိုက် အဟော';
+    timeline.append(timelineTitle);
     for (const interval of akhaIntervals(data, weekday, filters)) {
       const card = document.createElement('article');
-      card.className = 'entry';
-      const time = document.createElement('h3');
+      card.className = 'akha-interval';
+      const header = document.createElement('header');
+      const time = document.createElement('h4');
       time.textContent = format.format(interval.from) + ' – ' + format.format(interval.to);
       const basis = document.createElement('p');
-      basis.textContent = tithiName(interval.tithi) + ' · တိထီ ' + mm(interval.tithi % 15 + 1)
-        + ' · ' + yatraNames[interval.nakshatra] + 'နက္ခတ် · ပါဒ ' + mm(interval.pada);
-      card.append(time, basis);
-      for (const match of [...interval.matches, ...interval.events]) {
-        const item = document.createElement('p');
-        item.textContent = (match.type === 'caution' ? 'သတိပြု — ' : match.type === 'good' ? 'ကောင်း — ' : '') + match.name + (match.time ? ' · ' + format.format(match.time) : '');
-        card.append(item);
-        const original = akhaSourceReading(match.name);
-        if (original) {
-          const reading = document.createElement('blockquote');
-          reading.textContent = original;
-          card.append(reading);
+      basis.className = 'akha-basis';
+      for (const value of [
+        tithiName(interval.tithi) + ' · တိထီ ' + mm(interval.tithi % 15 + 1),
+        yatraNames[interval.nakshatra] + 'နက္ခတ် · ပါဒ ' + mm(interval.pada),
+      ]) {
+        const chip = document.createElement('span');
+        chip.textContent = value;
+        basis.append(chip);
+      }
+      header.append(time, basis);
+      card.append(header);
+      const readings = document.createElement('ul');
+      readings.className = 'akha-readings';
+      const yuga = interval.yuga;
+      const yugaMatch = {
+        name: 'ယုဂ် ၂၈ မျိုး · ' + mm(yuga.number) + '။ ' + yuga.name,
+        type: yuga.avoid ? 'caution' : yuga.type,
+        reading: yuga.reading,
+        note: guruNames[yuga.starIndex] + 'နက္ခတ်',
+      };
+      if (yuga.avoidMinutes) {
+        yugaMatch.note += ' · ' + (yuga.avoid
+          ? 'ပထမ ' + mm(yuga.avoidMinutes / 24) + ' ယာမ (' + mm(yuga.avoidMinutes) + ' မိနစ်) ရှောင်ရန် · ' + format.format(yuga.avoidUntil) + ' အထိ'
+          : 'ပထမ ' + mm(yuga.avoidMinutes / 24) + ' ယာမ ရှောင်ရမည့်အချိန် ကျော်လွန်ပြီး။');
+      }
+      for (const match of [yugaMatch, ...interval.matches, ...interval.events]) {
+        const item = document.createElement('li');
+        const title = document.createElement('p');
+        title.className = 'akha-reading-title';
+        if (match.type === 'caution' || match.type === 'good') {
+          const badge = document.createElement('span');
+          badge.className = 'akha-status';
+          badge.dataset.type = match.type;
+          badge.textContent = match.type === 'caution' ? 'သတိပြု' : 'ကောင်း';
+          title.append(badge);
         }
+        const name = document.createElement('strong');
+        name.textContent = match.name + (match.time ? ' · ' + format.format(match.time) : '');
+        title.append(name);
+        item.append(title);
+        if (match.note) {
+          const note = document.createElement('p');
+          note.className = 'akha-match-note';
+          note.textContent = match.note;
+          item.append(note);
+        }
+        const original = match.reading ?? akhaSourceReading(match.name);
+        if (original) {
+          const reading = document.createElement('p');
+          reading.className = 'akha-reading-text';
+          reading.textContent = original;
+          item.append(reading);
+        }
+        readings.append(item);
       }
-      if (!interval.matches.length && !interval.events.length) {
-        const note = document.createElement('p');
-        note.textContent = 'ပုံပါ စည်းမျဉ်းများနှင့် ကိုက်ညီသော ယုဂ် မရှိပါ။';
-        card.append(note);
-      }
-      output.append(card);
+      card.append(readings);
+      timeline.append(card);
     }
+    output.append(timeline);
     akhaHasResult = true;
     window.location.hash = 'akha-result';
   } catch {
@@ -1571,6 +1672,7 @@ function showPage() {
     : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang', 'akha'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
+  byId('akha-form-title').hidden = showAkhaResult;
   byId('akha-form').hidden = showAkhaResult;
   byId('akha-output').hidden = !showAkhaResult;
   if (showAkhaResult) byId('akha-output-title').focus();
