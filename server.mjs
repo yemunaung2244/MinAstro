@@ -25,7 +25,10 @@ const assets = new Map([
 
 createServer(async (request, response) => {
   const path = request.url.split('?')[0];
-  const asset = assets.get(path);
+  const book = /^\/assets\/books\/nakshatra-[1-9]\.pdf$/.test(path);
+  const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
+  const asset = book ? [path.slice(1), 'application/pdf']
+    : cover ? [path.slice(1), 'image/jpeg'] : assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;

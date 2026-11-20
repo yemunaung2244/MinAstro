@@ -21,9 +21,10 @@ export function karanaName(index) {
 }
 export const yogaNames = ['ဝိရှကမ္ဘ','ပ்ரீတိ','အာယုရှ္မန်','သောဘာန','အတိဂဏ္ဍ','သုကရ္မ','ဓြိတိ','သူလ','ဂဏ္ဍ','ဝြိဒ္ဓိ','ဓြုဝ','ဗျာဃာတ','ဟရ်ရှဏ','ဝဇြ','သိဒ္ဓိ','ဗျတီပါတ','ဝရီယန်','ပရိဃ','သိဝ','သိဒ္ဓ','သာဓျ','သုဘ','သုက္လ','ဗြဟ္မ','အိန္ဒြ','ဝဲဓြိတိ'];
 yogaNames.splice(3, 0, 'သောဘာဂျ');
-export const tithiNames = ['ပဋိပဒါ','ဒွိတီယာ','တတိယာ','စတုတ္ထီ','ပဉ္စမီ','ဆဋ္ဌီ','သတ္တမီ','အဋ္ဌမီ','နဝမီ','ဒသမီ','ဧကာဒသီ','ဒွါဒသီ','တြယောဒသီ','စတုဒ္ဒသီ','ပုဏ္ဏမီ'];
 export function tithiName(index) {
-  return (index < 15 ? 'လဆန်း ' : 'လဆုတ် ') + (index === 29 ? 'အမဝါသီ' : tithiNames[index % 15]);
+  const phase = index < 15 ? 'လဆန်း' : 'လပြည့်ကျော်';
+  const number = String(index % 15 + 1).replace(/[0-9]/g, digit => '၀၁၂၃၄၅၆၇၈၉'[Number(digit)]);
+  return phase + 'တီထိ ' + number + ' လုံး';
 }
 export function dailyPanchang(date, latitude, longitude) {
   const midnight = myanmarBirthInstant(date, '00:00:00');

@@ -13,28 +13,6 @@ const effectText = (name, effect) => {
 };
 const weekdays = ['တနင်္ဂနွေ', 'တနင်္လာ', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ'];
 const planetName = (number) => weekdays[number - 1] + 'ဂြိုဟ်';
-// ချိုးရေ စီရင်နည်း၊ အခန်း ၁၂
-const planetMaterials = [
-  ['ကုံကုမံ', 'ကြာပွင့်', 'နွယ်ချို', 'ဖလာ', 'အနီရောင်ရှိသည့် မည်သည့်ပန်းမဆို'],
-  ['ဟိန္ဒူဘာသာရေး အခမ်းအနားတွေမှာသုံးတဲ့ ခရုသင်းထဲ ထည့်ထားတဲ့ရေ', 'ကျောက်ချဉ်', 'ဥသျှစ်ရွက်', 'ကြာပွင့်'],
-  ['ခရမ်းပင်၏ အမြစ်', 'ဥသျှစ်ရွက်', 'ဆီးဖြူသီး', 'ဆီးဖြူရွက်', 'ကုံကုမံ'],
-  ['ကြာစေ့', 'ကုံကုမံ', 'ဆန်', 'ပျားရည်'],
-  ['မုန်ညင်းစေ့ အဝါ', 'နွယ်ချို', 'ပျားရည်', 'ဆီးဖြူသီး'],
-  ['စမုန်စပါး', 'ဖလာ', 'ကုံကုမံ'],
-  ['ဒန်းပင်၏ ရရာ အစိတ်အပိုင်း။ ဆေးဆိုးသော ဒန်းမှုန့်အသန့်ရလျှင် အကောင်းဆုံး။ ဒန်းမြစ်သည် ဒုတိယ အကောင်းဆုံး။'],
-];
-
-function materialList(number) {
-  const list = document.createElement('ol');
-  list.className = 'planet-materials';
-  for (const [index, material] of planetMaterials[number - 1].entries()) {
-    const item = document.createElement('li');
-    item.textContent = `${mm(index + 1)}။ ${material}`;
-    list.append(item);
-  }
-  return list;
-}
-
 const digits = '၀၁၂၃၄၅၆၇၈၉';
 const mm = (value) => String(value).replace(/[0-9]/g, (digit) => digits[Number(digit)]);
 const ascii = (value) => value.replace(/[၀-၉]/g, (digit) => String(digits.indexOf(digit)));
@@ -107,6 +85,128 @@ function selectedCoordinates() {
 function tag(element, type) {
   element.className = `pill ${type}`;
   element.textContent = type === 'good' ? 'သင့်တော်' : 'သတိပြု';
+}
+
+const savedChartTypes = {
+  calculator: ['နာဒီကာ', 'inputs'],
+  suriya: ['သူရိယစက်', 'janma-form'],
+  guru: ['ဂုရုစက်', 'janma-form'],
+  upagraha: ['ဥပဂြဟ (၂၇) လုံးမူ', 'upagraha-form'],
+  upagraha28: ['ဥပဂြဟ (၂၈) လုံးမူ', 'upagraha-form'],
+  akha: ['အခါပဒေသာ', 'akha-form'],
+  panchang: ['Panchang', 'panchang-form'],
+};
+const savedChartKey = 'nakshatra-saved-calculations-v1';
+let restoringChart = false;
+let savedChartError = '';
+
+function readSavedCharts() {
+  try {
+    const records = JSON.parse(localStorage.getItem(savedChartKey) ?? '[]');
+    return Array.isArray(records) ? records : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveChart(type, extra = {}) {
+  if (restoringChart) return;
+  const fields = [...byId(savedChartTypes[type][1]).elements]
+    .filter(field => field.id && ['INPUT', 'SELECT'].includes(field.tagName) && field.type !== 'search')
+    .map(field => [field.id, field.value]);
+  const record = {type, fields, extra};
+  try {
+    const records = readSavedCharts();
+    if (records.some(saved => JSON.stringify(saved) === JSON.stringify(record))) return;
+    localStorage.setItem(savedChartKey, JSON.stringify([record, ...records]));
+    savedChartError = '';
+  } catch {
+    savedChartError = 'ဘရောက်ဇာသိုလှောင်မှုတွင် ဇာတာ ထပ်သိမ်း၍ မရပါ။';
+  }
+}
+
+function openSavedChart(record) {
+  const [, formId] = savedChartTypes[record.type];
+  restoringChart = true;
+  try {
+    window.history.pushState(null, '', '#' + record.type);
+    showPage();
+    const chartForm = byId(formId);
+    for (const search of chartForm.querySelectorAll('input[type="search"]')) {
+      if (search === townSearch) continue;
+      search.value = '';
+      search.dispatchEvent(new Event('input'));
+    }
+    if (record.type === 'calculator') {
+      townSearch.value = '';
+      renderLocations('');
+    }
+    for (const [id, value] of record.fields) {
+      const field = byId(id);
+      if (field?.form === chartForm) field.value = value;
+    }
+    if (record.type === 'calculator') {
+      timeMode.value = 'manual';
+      catalogSlot = record.extra.slot ?? null;
+      lastUpdate = '';
+      updateResult();
+      byId('result').focus();
+      return;
+    }
+    if (formId === 'upagraha-form') {
+      upaTransitInstant = record.extra.transit ? new Date(record.extra.transit) : undefined;
+      byId('upa-transit-time').value = record.extra.transit ? myanmarDateTimeValue(upaTransitInstant) : '';
+    }
+    chartForm.requestSubmit();
+    if (formId === 'janma-form' && record.extra.transit && birthStarIndex !== undefined) {
+      const instant = new Date(record.extra.transit);
+      byId('goza-custom-time').value = myanmarDateTimeValue(instant);
+      updateGoza(instant);
+    }
+  } finally {
+    restoringChart = false;
+  }
+}
+
+function myanmarDateTimeValue(instant) {
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Yangon', dateStyle: 'short', timeStyle: 'medium',
+  });
+  return formatter.format(instant).replace(' ', 'T');
+}
+
+function renderSavedCharts() {
+  const list = byId('saved-chart-list');
+  list.replaceChildren();
+  const records = readSavedCharts();
+  byId('saved-chart-status').textContent = savedChartError ||
+    (records.length ? '' : 'သိမ်းထားသော တွက်ချက်မှု မရှိသေးပါ။');
+  for (const [type, [label]] of Object.entries(savedChartTypes)) {
+    const group = records.filter(record => record.type === type);
+    if (!group.length) continue;
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    heading.textContent = label + ' · ' + mm(group.length);
+    section.append(heading);
+    for (const record of group) {
+      const fields = Object.fromEntries(record.fields);
+      const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
+        ['janma', 'upa'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value !== '//');
+      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : 'upa';
+      const birthTime = fields[birthPrefix + '-hour']
+        ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
+      const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'home-choice';
+      button.textContent = [mm(date ?? ''), mm(fields.time || birthTime), city === 'custom'
+        ? fields.latitude + '°, ' + fields.longitude + '°' : towns[Number(city)]?.[0],
+        record.extra.transit ? 'ကောဇာ ' + mm(myanmarDateTimeValue(new Date(record.extra.transit)).replace('T', ' ')) : ''].filter(Boolean).join(' · ');
+      button.addEventListener('click', () => openSavedChart(record));
+      section.append(button);
+    }
+    list.append(section);
+  }
 }
 
 function updateResult() {
@@ -185,12 +285,33 @@ function updateResult() {
   byId('result-effect').textContent = effectText(name, effect);
   const ruler = getRuler(weekday, slot.number, night ? 'night' : 'day');
   byId('result-ruler').textContent = `စိုးမိုးဂြိုဟ် - ${planetName(ruler)}`;
-  byId('result-materials').replaceChildren(materialList(ruler));
   tag(byId('result-tag'), type);
   nameLink.textContent = name;
   nameLink.href = route;
+  let nextSlot = windows[slot.number];
+  let nextWeekday = weekday;
+  let nextNight = night;
+  if (!nextSlot || nextSlot.start >= limit) {
+    nextWeekday = night ? (weekday + 1) % 7 : weekday;
+    nextNight = !night;
+    const nextLimit = night
+      ? dayMinutes + solarTimes(offsetDate(cycleDate, 1), lat, lon).sunset
+      : dayMinutes + solarTimes(offsetDate(cycleDate, 1), lat, lon).sunrise;
+    [nextSlot] = windowsFor(limit, nextLimit, slotMode.value);
+  }
+  const [nextName, nextEffect, nextType] = catalogs[nextWeekday][nextSlot.number - 1];
+  const nextLink = byId('result-next-name');
+  nextLink.textContent = nextName;
+  nextLink.href = `#nakshatra/${nextWeekday}/${nextSlot.number}/calculator`;
+  byId('result-next-time').textContent =
+    `${timeLabel(nextSlot.start - dateOffset)} – ${timeLabel(nextSlot.end - dateOffset)}`;
+  byId('result-next-effect').textContent = effectText(nextName, nextEffect);
+  const nextRuler = getRuler(nextWeekday, nextSlot.number, nextNight ? 'night' : 'day');
+  byId('result-next-ruler').textContent = `စိုးမိုးဂြိုဟ် - ${planetName(nextRuler)}`;
+  tag(byId('result-next-tag'), nextType);
   content.hidden = false;
   status.hidden = true;
+  if (window.location.hash === '#calculator') saveChart('calculator', {slot: catalogSlot});
 }
 
 function renderCatalog() {
@@ -216,13 +337,6 @@ function renderCatalog() {
     tag(card.querySelector('.pill'), type);
     card.querySelector('.effect').textContent = reading;
     card.querySelector('small').textContent = `စိုးမိုးဂြိုဟ် - နေ့ ${planetName(getRuler(weekday, id, 'day'))} / ည ${planetName(getRuler(weekday, id, 'night'))}`;
-    const materials = card.querySelector('.entry-materials');
-    for (const [period, label] of [['day', 'နေ့ပိုင်း'], ['night', 'ညပိုင်း']]) {
-      const ruler = getRuler(weekday, id, period);
-      const heading = document.createElement('p');
-      heading.textContent = `${label} - ${planetName(ruler)}`;
-      materials.append(heading, materialList(ruler));
-    }
     const button = card.querySelector('button');
     button.setAttribute('aria-label', `အမှတ် ${mm(id)} ${name} အချိန်ကြည့်`);
     button.addEventListener('click', () => {
@@ -277,6 +391,7 @@ for (const button of effectButtons) {
 catalogDay.addEventListener('change', renderCatalog);
 setInterval(() => {
   if (timeMode.value === 'live') updateResult();
+  if (window.location.hash === '#akha-result') highlightCurrentAkhaSlots();
 }, 1000);
 
 // Chapter 31 begins with catalog slot 13 and wraps after slot 27.
@@ -770,6 +885,7 @@ for (const [index, reading] of chartReadings.entries()) {
 }
 
 let birthStarIndex;
+let chartBirthInstant;
 const gozaResult = byId('goza-result');
 function updateGoza(instant = new Date()) {
   const markers = byId('suriya-all-markers');
@@ -821,9 +937,13 @@ function updateGoza(instant = new Date()) {
     byId('goza-solar-exit').textContent = boundaryFormat.format(exit);
     byId('goza-solar-window').hidden = false;
     gozaResult.replaceChildren(position, reading);
+    byId('suriya-upagraha').hidden = chartMode !== 'suriya';
+    if (chartMode === 'suriya') renderSuriyaUpagraha(chartBirthInstant, instant, boundaryFormat);
+    saveChart(chartMode, {transit: instant.toISOString()});
   } catch {
     byId('goza-solar-window').hidden = true;
     gozaResult.textContent = 'ကောဇာအဟောကို တွက်မရပါ။';
+    byId('suriya-upagraha').hidden = true;
   }
 }
 
@@ -904,6 +1024,7 @@ byId('janma-form').addEventListener('submit', event => {
     const { index, pada, longitude } = chartMode === 'guru' ? guruNakshatraAt(instant, true) : janmaAt(instant);
     const sun = chartPlanetAt(instant);
     birthStarIndex = index;
+    chartBirthInstant = instant;
     showReadingTab('current');
     updateSuriya(index, sun.index);
     updateGoza();
@@ -1134,9 +1255,9 @@ for (const index of nameOnly) {
 
 let upaMode = 'upagraha';
 let upaResultMode;
-const upaNames = () => upaMode === 'upagraha28' ? guruNames : yatraNames;
-const upaRules = () => upaMode === 'upagraha28' ? upa28Definitions : upaDefinitions;
-const upaPosition = (instant, moon = false) => upaMode === 'upagraha28'
+const upaNames = (mode = upaMode) => mode === 'upagraha28' ? guruNames : yatraNames;
+const upaRules = (mode = upaMode) => mode === 'upagraha28' ? upa28Definitions : upaDefinitions;
+const upaPosition = (instant, moon = false, mode = upaMode) => mode === 'upagraha28'
   ? upagraha28At(instant, moon) : moon ? janmaAt(instant) : solarNakshatraAt(instant);
 const upaCity = byId('upa-city');
 function renderUpaCities() {
@@ -1152,7 +1273,111 @@ function renderUpaCities() {
 }
 byId('upa-city-search').addEventListener('input', renderUpaCities);
 renderUpaCities();
-const upaTargets = start => upaRules().map(([name, offset]) => ({ name, index: (start + offset) % upaNames().length }));
+const upaTargets = (start, mode = upaMode) => upaRules(mode).map(([name, offset], ruleIndex) => ({
+  name, ruleIndex, index: (start + offset) % upaNames(mode).length,
+}));
+
+function appendUpaChecks(output, mode, {birth, transit, birthSun, transitSun, star, transitMoon}, formatter) {
+  const names = upaNames(mode);
+  const readings = mode === 'upagraha28' ? upa28Readings : upaReadings;
+  const checks = [
+    ['မူလနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', birthSun, star, birth],
+    ['ကောဇာနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', transitSun, star, transit],
+    ['မူလနေစီးနက္ခတ် → ကောဇာစန်းယှဉ်နက္ခတ်', birthSun, transitMoon.index, transit],
+    ['ကောဇာနေစီးနက္ခတ် → ကောဇာစန်းယှဉ်နက္ခတ်', transitSun, transitMoon.index, transit],
+  ];
+  for (const [title, sun, targetIndex, instant] of checks) {
+    const card = document.createElement('article');
+    card.className = 'entry';
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    const info = document.createElement('p');
+    const distance = (targetIndex - sun.index + names.length) % names.length;
+    info.textContent = formatter.format(instant) + '။ နေစီးနက္ခတ် - ' + names[sun.index]
+      + '။ စစ်ဆေးသောနက္ခတ် - ' + names[targetIndex]
+      + '။ နေစီးနက္ခတ်ကို ၁ အဖြစ် ထည့်ရေတွက်လျှင် ' + mm(distance + 1) + ' လုံးမြောက်။';
+    card.append(heading, info);
+    const match = upaTargets(sun.index, mode).find(target => target.index === targetIndex);
+    if (match) {
+      const result = document.createElement('h3');
+      result.className = 'upa-match';
+      result.textContent = match.name + ' သင့်နေသည်။';
+      const reading = document.createElement('div');
+      reading.className = 'upa-reading';
+      const text = document.createElement('p');
+      text.textContent = readings[match.ruleIndex];
+      reading.append(text);
+      card.append(result, reading);
+    } else {
+      const note = document.createElement('p');
+      note.textContent = 'ဤတိုက်ဆိုင်စစ်ဆေးမှုတွင် ဥပဂြဟသင့်ခြင်း မရှိပါ။';
+      card.append(note);
+    }
+    output.append(card);
+  }
+}
+
+function renderSuriyaUpagraha(birth, transit, formatter) {
+  const output = byId('suriya-upagraha-results');
+  const open = [...output.children].map(panel => panel.open);
+  output.replaceChildren();
+  for (const [index, mode] of ['upagraha', 'upagraha28'].entries()) {
+    const names = upaNames(mode);
+    const panel = document.createElement('details');
+    panel.open = open[index] ?? true;
+    const title = document.createElement('summary');
+    title.textContent = 'ဥပဂြဟ (' + mm(names.length) + ') လုံးမူ';
+    const birthSun = upaPosition(birth, false, mode);
+    const transitSun = upaPosition(transit, false, mode);
+    const star = upaPosition(birth, true, mode).index;
+    const transitMoon = upaPosition(transit, true, mode);
+    const solarPosition = mode === 'upagraha28' ? upagraha28At : solarNakshatraAt;
+    const { entry, exit } = solarNakshatraWindow(transit, solarPosition);
+    const solarWindow = document.createElement('p');
+    solarWindow.textContent = 'ကောဇာနေစီးနက္ခတ် ဝင်ချိန် – ထွက်ချိန် · '
+      + formatter.format(entry) + ' – ' + formatter.format(exit);
+    panel.append(title, solarWindow);
+
+    const table = document.createElement('table');
+    const header = table.createTHead().insertRow();
+    const body = table.createTBody();
+    for (const label of ['ဥပဂြဟ', 'မူလ', 'ကောဇာ']) {
+      const cell = document.createElement('th');
+      cell.scope = 'col';
+      cell.textContent = label;
+      header.append(cell);
+    }
+    const natalTargets = upaTargets(birthSun.index, mode);
+    const transitTargets = upaTargets(transitSun.index, mode);
+    for (const [label, natal, goza] of [
+      ['နေစီးနက္ခတ်', birthSun.index, transitSun.index],
+      ['စန်းယှဉ်နက္ခတ်', star, transitMoon.index],
+      ...natalTargets.map((target, column) => [target.name, target.index, transitTargets[column].index]),
+    ]) {
+      const row = body.insertRow();
+      const heading = document.createElement('th');
+      heading.scope = 'row';
+      heading.textContent = label;
+      row.append(heading);
+      for (const star of [natal, goza]) {
+        const cell = row.insertCell();
+        if (names[star] === 'မူလ') {
+          const link = document.createElement('a');
+          link.href = '#';
+          link.dataset.starInformation = names[star];
+          link.textContent = names[star];
+          cell.append(link);
+        } else {
+          cell.textContent = names[star];
+        }
+      }
+    }
+    panel.append(table);
+    appendUpaChecks(panel, mode, {birth, transit, birthSun, transitSun, star, transitMoon}, formatter);
+    output.append(panel);
+  }
+}
+
 function upaTable(starts) {
   const table = document.createElement('table');
   const header = table.createTHead().insertRow();
@@ -1354,47 +1579,14 @@ byId('upagraha-form').addEventListener('submit', event => {
     const overview = document.createElement('p');
     overview.textContent = 'မူလဇနမနက္ခတ် - ' + upaNames()[star] + '။ လက်ရှိစန်းယှဉ်နက္ခတ် - '
       + upaNames()[transitMoon.index] + '၊ ပါဒ ' + mm(transitMoon.pada) + '။';
-    output.append(overview, renderAkhaTimeDivisions(data, format));
-    const checks = [
-      ['မူလနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', birthSun, star, birth],
-      ['ကောဇာနေစီးနက္ခတ် → မူလဇနမနက္ခတ်', transitSun, star, transit],
-      ['မူလနေစီးနက္ခတ် → ကောဇာစန်းယှဉ်နက္ခတ်', birthSun, transitMoon.index, transit],
-      ['ကောဇာနေစီးနက္ခတ် → ကောဇာစန်းယှဉ်နက္ခတ်', transitSun, transitMoon.index, transit],
-    ];
-    for (const [title, sun, targetIndex, instant] of checks) {
-      const card = document.createElement('article');
-      card.className = 'entry';
-      const heading = document.createElement('h2');
-      heading.textContent = title;
-      const info = document.createElement('p');
-      const distance = (targetIndex - sun.index + upaNames().length) % upaNames().length;
-      info.textContent = formatter.format(instant) + '။ နေစီးနက္ခတ် - ' + upaNames()[sun.index]
-        + '။ စစ်ဆေးသောနက္ခတ် - ' + upaNames()[targetIndex]
-        + '။ နေစီးနက္ခတ်ကို ၁ အဖြစ် ထည့်ရေတွက်လျှင် ' + mm(distance + 1) + ' လုံးမြောက်။';
-      card.append(heading, info);
-      const match = upaTargets(sun.index).find(target => target.index === targetIndex);
-      if (match) {
-        const result = document.createElement('h3');
-        result.className = 'upa-match';
-        result.textContent = match.name + ' သင့်နေသည်။';
-        const reading = document.createElement('div');
-        reading.className = 'upa-reading';
-        const text = document.createElement('p');
-        text.textContent = (upaMode === 'upagraha28' ? upa28Readings : upaReadings)[upaRules().findIndex(([name]) => name === match.name)];
-        reading.append(text);
-        card.append(result, reading);
-      } else {
-        const note = document.createElement('p');
-        note.textContent = 'ဤတိုက်ဆိုင်စစ်ဆေးမှုတွင် ဥပဂြဟ ၈ မျိုး သင့်ခြင်း မရှိပါ။';
-        card.append(note);
-      }
-      output.append(card);
-    }
+    output.append(overview);
+    appendUpaChecks(output, upaMode, {birth, transit, birthSun, transitSun, star, transitMoon}, formatter);
     byId('upa-error').textContent = '';
     renderAllUpaReadings();
     showUpaTab('result');
     upaHasResult = true;
     upaResultMode = upaMode;
+    saveChart(upaMode, {transit: transit.toISOString()});
     window.location.hash = upaMode + '-result';
   } catch {
     byId('upa-error').textContent = 'ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
@@ -1457,7 +1649,7 @@ byId('panchang-form').addEventListener('submit', event => {
     };
     for (const [label, key] of [['နေထွက်ချိန်','sunrise'],['နေဝင်ချိန်','sunset'],['လထွက်ချိန်','moonrise'],['လဝင်ချိန်','moonset']]) row(label, format(data[key]));
     for (const [label, key, name] of [
-      ['တိထီ','tithi',tithiName],
+      ['တီထိ','tithi',tithiName],
       ['နက္ခတ်','nakshatra', index => yatraNames[index] + 'နက္ခတ်'],
       ['ယောဂ','yoga', index => yogaNames[index]],
       ['ကရဏ','karana',karanaName],
@@ -1468,6 +1660,7 @@ byId('panchang-form').addEventListener('submit', event => {
     container.append(table);
     byId('panchang-error').textContent = '';
     panchangHasResult = true;
+    saveChart('panchang');
     window.location.hash = 'panchang-result';
   } catch {
     byId('panchang-error').textContent = 'ရက်စွဲနဲ့ မြို့ကို ပြန်စစ်ပါ။';
@@ -1480,14 +1673,35 @@ byId('akha-date').value = myanmarNow().slice(0, 10);
 const akhaBirthCity = connectTownSearch('akha-birth');
 let akhaHasResult = false;
 
-function renderAkhaTimeDivisions(data, format) {
+function highlightCurrentAkhaSlots() {
+  const now = Date.now();
+  for (const row of byId('akha-result').querySelectorAll('.akha-time-divisions[open] tr[data-slot-start]')) {
+    const current = now >= Number(row.dataset.slotStart) && now < Number(row.dataset.slotEnd);
+    if (current === row.hasAttribute('aria-current')) continue;
+    if (current) row.setAttribute('aria-current', 'time');
+    else row.removeAttribute('aria-current');
+    row.querySelector('.akha-current-label').hidden = !current;
+  }
+}
+
+function renderAkhaTimeDivisions(data) {
+  const dateFormat = new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon', day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+  const timeFormat = new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon', hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
   const section = document.createElement('details');
   section.className = 'akha-time-divisions';
   const summary = document.createElement('summary');
   summary.textContent = 'နက္ခတ်အခါပိုင်း တွက်နည်း ၃ မျိုး';
   section.append(summary);
   section.addEventListener('toggle', () => {
-    if (!section.open || section.children.length > 1) return;
+    if (!section.open) return;
+    if (section.children.length > 1) {
+      highlightCurrentAkhaSlots();
+      return;
+    }
     for (const method of akhaTimeDivisions(data)) {
       const detail = document.createElement('details');
       const label = document.createElement('summary');
@@ -1497,31 +1711,68 @@ function renderAkhaTimeDivisions(data, format) {
       description.textContent = method.description;
       const table = document.createElement('table');
       table.setAttribute('aria-label', method.title);
-      const header = table.createTHead().insertRow();
-      for (const text of ['လွှမ်းမိုးနက္ခတ်', 'စချိန် – ဆုံးချိန်', 'ကြာချိန်']) {
+      const heading = table.createTHead();
+      const groups = heading.insertRow();
+      for (const [text, grouped] of [
+        ['လွှမ်းမိုးနက္ခတ်', false], ['စချိန်', true], ['ဆုံးချိန်', true], ['ကြာချိန်', false],
+      ]) {
+        const cell = document.createElement('th');
+        cell.scope = grouped ? 'colgroup' : 'col';
+        if (grouped) cell.colSpan = 2;
+        else cell.rowSpan = 2;
+        cell.textContent = text;
+        groups.append(cell);
+      }
+      const columns = heading.insertRow();
+      for (const text of ['ရက်စွဲ', 'နာရီ', 'ရက်စွဲ', 'နာရီ']) {
         const cell = document.createElement('th');
         cell.scope = 'col';
         cell.textContent = text;
-        header.append(cell);
+        columns.append(cell);
       }
       const body = table.createTBody();
       for (const slot of method.slots) {
         const row = body.insertRow();
-        row.insertCell().textContent = yatraNames[slot.star] + 'နက္ခတ်';
+        row.dataset.slotStart = String(+slot.from);
+        row.dataset.slotEnd = String(+slot.to);
+        const starCell = row.insertCell();
+        starCell.textContent = yatraNames[slot.star] + 'နက္ခတ်';
+        const currentLabel = document.createElement('span');
+        currentLabel.className = 'akha-current-label';
+        currentLabel.textContent = 'ရောက်ဆဲ';
+        currentLabel.hidden = true;
+        starCell.append(currentLabel);
         if (slot.sourceStar !== undefined) {
           const source = document.createElement('small');
           source.textContent = 'မူလ ' + yatraNames[slot.sourceStar] + 'နက္ခတ်'
             + (slot.pada ? ' · ပါဒ ' + mm(slot.pada) : '');
           row.cells[0].append(source);
         }
-        row.insertCell().textContent = format.format(slot.from) + ' – ' + format.format(slot.to);
+        for (const [period, instant] of [['စချိန်', slot.from], ['ဆုံးချိန်', slot.to]]) {
+          for (const [label, formatter] of [['ရက်စွဲ', dateFormat], ['နာရီ', timeFormat]]) {
+            const cell = row.insertCell();
+            cell.className = 'akha-slot-value';
+            const mobileLabel = document.createElement('span');
+            mobileLabel.className = 'akha-slot-mobile-label';
+            mobileLabel.setAttribute('aria-hidden', 'true');
+            mobileLabel.textContent = period + ' · ' + label;
+            cell.append(mobileLabel, formatter.format(instant));
+          }
+        }
         const seconds = Math.round((slot.to - slot.from) / 1000);
         row.insertCell().textContent = mm(Math.floor(seconds / 60)) + ' မိနစ်'
           + (seconds % 60 ? ' ' + mm(seconds % 60) + ' စက္ကန့်' : '');
       }
-      detail.append(label, description, table);
+      const scroll = document.createElement('div');
+      scroll.className = 'akha-slot-scroll';
+      scroll.tabIndex = 0;
+      scroll.setAttribute('role', 'region');
+      scroll.setAttribute('aria-label', method.title);
+      scroll.append(table);
+      detail.append(label, description, scroll);
       section.append(detail);
     }
+    highlightCurrentAkhaSlots();
   });
   return section;
 }
@@ -1577,7 +1828,7 @@ byId('akha-form').addEventListener('submit', event => {
       notice.textContent += '။ မူလလဂ်၊ မွေးနက္ခတ်နှင့် ဆိုင်သော အဟောအတွက် မွေးရက်၊ မွေးချိန်နှင့် မွေးမြို့ကို ဖြည့်ပါ။';
     }
     overview.append(notice);
-    output.append(overview, renderAkhaTimeDivisions(data, format));
+    output.append(overview, renderAkhaTimeDivisions(data));
     const timeline = document.createElement('section');
     timeline.className = 'akha-timeline';
     const timelineTitle = document.createElement('h3');
@@ -1592,7 +1843,7 @@ byId('akha-form').addEventListener('submit', event => {
       const basis = document.createElement('p');
       basis.className = 'akha-basis';
       for (const value of [
-        tithiName(interval.tithi) + ' · တိထီ ' + mm(interval.tithi % 15 + 1),
+        tithiName(interval.tithi),
         yatraNames[interval.nakshatra] + 'နက္ခတ် · ပါဒ ' + mm(interval.pada),
       ]) {
         const chip = document.createElement('span');
@@ -1613,7 +1864,7 @@ byId('akha-form').addEventListener('submit', event => {
       if (yuga.avoidMinutes) {
         yugaMatch.note += ' · ' + (yuga.avoid
           ? 'ပထမ ' + mm(yuga.avoidMinutes / 24) + ' ယာမ (' + mm(yuga.avoidMinutes) + ' မိနစ်) ရှောင်ရန် · ' + format.format(yuga.avoidUntil) + ' အထိ'
-          : 'ပထမ ' + mm(yuga.avoidMinutes / 24) + ' ယာမ ရှောင်ရမည့်အချိန် ကျော်လွန်ပြီး။');
+          : 'ပထမ ' + mm(yuga.avoidMinutes / 24) + ' ယာမ ရှောင်ရမည့်အချိန် ကျော်လွန်ပြီး · ' + format.format(yuga.avoidUntil) + ' အထိ');
       }
       for (const match of [yugaMatch, ...interval.matches, ...interval.events]) {
         const item = document.createElement('li');
@@ -1643,6 +1894,24 @@ byId('akha-form').addEventListener('submit', event => {
           reading.textContent = original;
           item.append(reading);
         }
+        if (match === yugaMatch && (yuga.remedy || yuga.upagraha || yuga.avoidMinutes)) {
+          const remedy = document.createElement('details');
+          remedy.className = 'upa-reading';
+          const heading = document.createElement('summary');
+          heading.textContent = 'သက်ဆိုင်ရာ ယတြာ';
+          remedy.append(heading);
+          if (yuga.remedy || yuga.upagraha) {
+            const text = document.createElement('p');
+            text.textContent = yuga.remedy ?? upaReadings[upaDefinitions.findIndex(([name]) => name === yuga.upagraha)];
+            remedy.append(text);
+          }
+          if (yuga.avoidMinutes) {
+            const timing = document.createElement('p');
+            timing.textContent = 'ယတြာတွေမှာက ဒီယုဂ်အတွက် ယတြာ လုပ်တာပါဆိုရင်တော့ ဒီယာမတွေကိုပဲ အမိအရဖမ်းပြီး လုပ်ရမှာပေါ့။';
+            remedy.append(timing);
+          }
+          item.append(remedy);
+        }
         readings.append(item);
       }
       card.append(readings);
@@ -1650,6 +1919,7 @@ byId('akha-form').addEventListener('submit', event => {
     }
     output.append(timeline);
     akhaHasResult = true;
+    saveChart('akha');
     window.location.hash = 'akha-result';
   } catch {
     error.textContent = 'ရက်စွဲနှင့် မြို့ကို ပြန်စစ်ပါ။';
@@ -1669,7 +1939,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang', 'akha'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -1702,6 +1972,17 @@ function showPage() {
   else if (isUpa && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
   const isHome = page === 'home';
   byId('home').hidden = !isHome;
+  byId('saved-chart-link').hidden = !isHome;
+  const isBooks = page === 'books';
+  byId('books').hidden = !isBooks;
+  if (isBooks) byId('books-title').focus();
+  const isSaved = page === 'saved';
+  byId('saved-charts').hidden = !isSaved;
+  if (isSaved) renderSavedCharts();
+  if (page === 'calculator' && !restoringChart) {
+    lastUpdate = '';
+    updateResult();
+  }
   byId('back-home').hidden = isHome;
   const isSuriya = page === 'suriya' || page === 'guru';
   if (isSuriya) selectChart(page);
@@ -1711,8 +1992,8 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha';
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha';
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -1778,7 +2059,8 @@ document.addEventListener('click', event => {
   event.preventDefault();
   openStarInformation(link.dataset.starInformation);
 });
-const starNames = [...yatraNames, 'အဘိဇိ'].sort((a, b) => b.length - a.length);
+// မူလ is also a natal label. Link it only where a calculated star is known.
+const starNames = [...yatraNames.filter(name => name !== 'မူလ'), 'အဘိဇိ'].sort((a, b) => b.length - a.length);
 const starPattern = new RegExp('(' + starNames.join('|') + ')(နက္ခတ်)?', 'gu');
 function linkStarNames(root) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
