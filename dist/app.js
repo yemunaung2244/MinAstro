@@ -1926,6 +1926,69 @@ byId('akha-form').addEventListener('submit', event => {
   }
 });
 
+const bookCacheName = 'minastro-book-downloads-v1';
+for (const link of byId('books').querySelectorAll('.book-download')) {
+  if (!('caches' in window)) continue;
+  const label = link.querySelector('span');
+  const source = link.href;
+  const filename = link.download;
+  const status = byId('book-download-status');
+  let downloaded = false;
+  let busy = false;
+  const markDownloaded = value => {
+    downloaded = value;
+    label.textContent = value ? 'Open' : 'Download PDF';
+  };
+  caches.open(bookCacheName).then(cache => cache.match(source)).then(response => {
+    if (!busy) markDownloaded(Boolean(response));
+  }).catch(() => { /* The download link remains available. */ });
+
+  link.addEventListener('click', async event => {
+    event.preventDefault();
+    if (busy) return;
+    const opening = downloaded;
+    const viewer = opening ? window.open('about:blank', '_blank') : null;
+    if (viewer) viewer.opener = null;
+    busy = true;
+    link.setAttribute('aria-busy', 'true');
+    label.textContent = 'Loading…';
+    status.textContent = opening ? 'စာအုပ်ဖွင့်နေပါသည်။' : 'စာအုပ် ဒေါင်းလုဒ်ဆွဲနေပါသည်။';
+    try {
+      const cache = await caches.open(bookCacheName);
+      let response = await cache.match(source);
+      if (!response) {
+        response = await fetch(source);
+        if (!response.ok || !response.headers.get('content-type')?.includes('application/pdf')) {
+          throw new Error('PDF unavailable');
+        }
+        await cache.put(source, response.clone());
+      }
+      const objectURL = URL.createObjectURL(await response.blob());
+      if (opening) {
+        if (viewer) viewer.location.replace(objectURL);
+        else window.location.assign(objectURL);
+      } else {
+        const download = document.createElement('a');
+        download.href = objectURL;
+        download.download = filename;
+        document.body.append(download);
+        download.click();
+        download.remove();
+        window.setTimeout(() => URL.revokeObjectURL(objectURL), 60000);
+      }
+      markDownloaded(true);
+      status.textContent = opening ? '' : 'ဒေါင်းလုဒ်ပြီးပါပြီ။';
+    } catch {
+      viewer?.close();
+      markDownloaded(false);
+      status.textContent = 'စာအုပ်ဖိုင်ကို ရယူ၍ မရပါ။ ထပ်မံကြိုးစားပါ။';
+    } finally {
+      busy = false;
+      link.removeAttribute('aria-busy');
+    }
+  });
+}
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'

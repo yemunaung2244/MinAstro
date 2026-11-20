@@ -822,3 +822,20 @@ html { touch-action: pan-x pan-y; }
   .akha-slot-mobile-label { display: block; color: var(--akha-muted); font-size: .8rem; }
   .akha-time-divisions tbody tr[aria-current="time"] { border-color: #126697; }
 }
+
+.book-download[aria-busy="true"] { cursor: progress; opacity: .75; }
+.book-download[aria-busy="true"] span::before {
+  content: "";
+  display: inline-block;
+  width: .8em;
+  height: .8em;
+  margin-inline-end: .4em;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: book-loading .75s linear infinite;
+}
+@keyframes book-loading { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) {
+  .book-download[aria-busy="true"] span::before { animation: none; }
+}
