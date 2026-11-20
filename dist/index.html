@@ -91,6 +91,7 @@
     <section id="panchang" class="catalog" hidden>
       <h1>နေ့စဉ် ပဉ္စာင်္ဂ</h1>
       <form id="panchang-form" class="controls">
+        <label class="field">အမည်<input id="panchang-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
         <label>ရက်စွဲ<input id="panchang-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
         <label>မြို့ရှာရန်<input id="panchang-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
         <label>မြို့<select id="panchang-city" required></select></label>
@@ -108,6 +109,7 @@
     <section id="akha" class="catalog" hidden>
       <h1 id="akha-form-title">အခါပဒေသာ</h1>
       <form id="akha-form" class="controls">
+        <label class="field">အမည်<input id="akha-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
         <label>ရက်စွဲ<input id="akha-date" type="date" min="1900-01-01" max="2100-12-31" required></label>
         <label>အခါရွေးမည့်မြို့ ရှာရန် <input id="akha-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
         <label>အခါရွေးမည့်မြို့<select id="akha-city" required></select></label>
@@ -147,6 +149,7 @@
         <form method="dialog"><button autofocus>ပိတ်ရန်</button></form>
       </dialog>
       <form id="upagraha-form" class="controls">
+        <label class="field">အမည်<input id="upagraha-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
         <fieldset class="janma-parts">
           <legend>မွေးသက္ကရာဇ်</legend>
           <label>ရက်<input id="upa-day" type="text" inputmode="numeric" maxlength="2" required></label>
@@ -207,6 +210,7 @@
     <section id="suriya" class="catalog" hidden>
       <h1 id="chart-title">သူရိယစက်</h1>
       <form id="janma-form" class="controls">
+        <label class="field">အမည်<input id="janma-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
         <fieldset class="janma-parts">
           <legend>မွေးသက္ကရာဇ်</legend>
           <label>ရက်<input id="janma-day" type="text" inputmode="numeric" maxlength="2" required></label>
@@ -308,6 +312,7 @@
 
     <section id="calculator" class="calculator" hidden aria-label="နာဒီကာတွက်စက်">
       <form id="inputs" class="panel controls">
+        <label class="field">အမည်<input id="inputs-name" type="text" maxlength="100" placeholder="အမည်"></label>
         <h2>အချိန်သတ်မှတ်ရန်</h2>
         <label class="field">နာဒီကာ တွက်နည်း
           <select id="slot-mode">

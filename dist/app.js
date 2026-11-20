@@ -111,9 +111,10 @@ function readSavedCharts() {
 
 function saveChart(type, extra = {}) {
   if (restoringChart) return;
-  const fields = [...byId(savedChartTypes[type][1]).elements]
+  const [, formId] = savedChartTypes[type];
+  const fields = [...byId(formId).elements]
     .filter(field => field.id && ['INPUT', 'SELECT'].includes(field.tagName) && field.type !== 'search')
-    .map(field => [field.id, field.value]);
+    .map(field => [field.id, field.id === formId + '-name' ? field.value.trim() : field.value]);
   const record = {type, fields, extra};
   try {
     const records = readSavedCharts();
@@ -132,6 +133,7 @@ function openSavedChart(record) {
     window.history.pushState(null, '', '#' + record.type);
     showPage();
     const chartForm = byId(formId);
+    byId(formId + '-name').value = '';
     for (const search of chartForm.querySelectorAll('input[type="search"]')) {
       if (search === townSearch) continue;
       search.value = '';
@@ -181,7 +183,7 @@ function renderSavedCharts() {
   const records = readSavedCharts();
   byId('saved-chart-status').textContent = savedChartError ||
     (records.length ? '' : 'သိမ်းထားသော တွက်ချက်မှု မရှိသေးပါ။');
-  for (const [type, [label]] of Object.entries(savedChartTypes)) {
+  for (const [type, [label, formId]] of Object.entries(savedChartTypes)) {
     const group = records.filter(record => record.type === type);
     if (!group.length) continue;
     const section = document.createElement('section');
@@ -199,7 +201,7 @@ function renderSavedCharts() {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'home-choice';
-      button.textContent = [mm(date ?? ''), mm(fields.time || birthTime), city === 'custom'
+      button.textContent = [fields[formId + '-name'], mm(date ?? ''), mm(fields.time || birthTime), city === 'custom'
         ? fields.latitude + '°, ' + fields.longitude + '°' : towns[Number(city)]?.[0],
         record.extra.transit ? 'ကောဇာ ' + mm(myanmarDateTimeValue(new Date(record.extra.transit)).replace('T', ' ')) : ''].filter(Boolean).join(' · ');
       button.addEventListener('click', () => openSavedChart(record));
@@ -370,6 +372,7 @@ for (const day of catalogDays) {
 }
 renderLocations(String(towns.findIndex(([, english]) => english === 'Yangon')));
 form.addEventListener('input', (event) => {
+  if (event.target.id === 'inputs-name') return;
   if (event.target === slotMode) {
     catalogSlotMode.value = slotMode.value;
     localStorage.setItem('nadika-slot-mode', slotMode.value);
@@ -378,7 +381,16 @@ form.addEventListener('input', (event) => {
   catalogSlot = null;
   updateResult();
 });
-form.addEventListener('submit', (event) => event.preventDefault());
+function refreshNamedNadikaResult() {
+  if (window.location.hash !== '#calculator') return;
+  lastUpdate = '';
+  updateResult();
+}
+byId('inputs-name').addEventListener('change', refreshNamedNadikaResult);
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  refreshNamedNadikaResult();
+});
 search.addEventListener('input', renderCatalog);
 for (const button of effectButtons) {
   button.addEventListener('click', () => {
@@ -1684,6 +1696,17 @@ function highlightCurrentAkhaSlots() {
   }
 }
 
+function akhaSlotStarButton(index) {
+  const name = yatraNames[index];
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'akha-slot-star';
+  button.dataset.starInformation = name;
+  button.setAttribute('aria-haspopup', 'dialog');
+  button.textContent = name + 'နက္ခတ်';
+  return button;
+}
+
 function renderAkhaTimeDivisions(data) {
   const dateFormat = new Intl.DateTimeFormat('my-MM', {
     timeZone: 'Asia/Yangon', day: '2-digit', month: '2-digit', year: 'numeric',
@@ -1736,7 +1759,7 @@ function renderAkhaTimeDivisions(data) {
         row.dataset.slotStart = String(+slot.from);
         row.dataset.slotEnd = String(+slot.to);
         const starCell = row.insertCell();
-        starCell.textContent = yatraNames[slot.star] + 'နက္ခတ်';
+        starCell.append(akhaSlotStarButton(slot.star));
         const currentLabel = document.createElement('span');
         currentLabel.className = 'akha-current-label';
         currentLabel.textContent = 'ရောက်ဆဲ';
@@ -1744,8 +1767,8 @@ function renderAkhaTimeDivisions(data) {
         starCell.append(currentLabel);
         if (slot.sourceStar !== undefined) {
           const source = document.createElement('small');
-          source.textContent = 'မူလ ' + yatraNames[slot.sourceStar] + 'နက္ခတ်'
-            + (slot.pada ? ' · ပါဒ ' + mm(slot.pada) : '');
+          source.append('မူလ ', akhaSlotStarButton(slot.sourceStar));
+          if (slot.pada) source.append(' · ပါဒ ' + mm(slot.pada));
           row.cells[0].append(source);
         }
         for (const [period, instant] of [['စချိန်', slot.from], ['ဆုံးချိန်', slot.to]]) {
