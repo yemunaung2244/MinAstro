@@ -2438,7 +2438,7 @@ let wishTransitInstant;
 function buildWishCompassSvg(selfAngle, blessingAngle) {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', '0 0 260 260');
+  svg.setAttribute('viewBox', '-36 -14 332 288');
   svg.setAttribute('class', 'wish-compass-svg');
   svg.setAttribute('aria-label', 'အရပ် ၈ မျက်နှာ သံလိုက်အိမ်မြှောင်');
   const cx = 130, cy = 130, r = 86;
