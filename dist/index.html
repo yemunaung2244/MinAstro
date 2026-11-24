@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#dff3ff">
   <meta name="description" content="မြန်မာဘာသာ နာဒီကာ အချိန်တွက်စက်နှင့် တစ်ပတ်လုံးအတွက် နာဒီကာနက္ခတ်စာရင်း">
   <meta name="application-name" content="Nakshatra (နက္ခတ်)">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" type="image/png" href="/assets/nakshatra-192.png">
-  <link rel="apple-touch-icon" href="/assets/nakshatra-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="assets/nakshatra-192.png">
+  <link rel="apple-touch-icon" href="assets/nakshatra-180.png">
   <title>Nakshatra (နက္ခတ်)</title>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
@@ -29,6 +29,7 @@
       <a class="home-choice" href="#yatra">နက္ခတ်များ</a>
       <a class="home-choice" href="#akha">အခါပဒေသာ</a>
       <a class="home-choice" href="#books">ဆရာမင်းနိုင်ရဲ့ စာအုပ်များ</a>
+      <a class="home-choice" href="#tripataki">တြိပတာကီစက်</a>
       <a class="home-choice" href="#panchang">Panchang</a>
     </nav>
     <a id="back-home" class="back-home" href="#home" hidden>← ပင်မစာမျက်နှာ</a>
@@ -87,6 +88,70 @@
       <h1>သိမ်းထားသော ဇာတာများ</h1>
       <p id="saved-chart-status" role="status"></p>
       <div id="saved-chart-list"></div>
+    </section>
+    <section id="tripataki" class="catalog" hidden>
+      <h1 id="tripataki-title">တြိပတာကီစက်</h1>
+      <nav class="suriya-reading-tabs tri-mode-tabs" aria-label="တြိပတာကီစက် မီနူး">
+        <button type="button" data-tri-tab="birth" aria-pressed="true">မွေးသက္ကရာဇ်ဖြင့်</button>
+        <button type="button" data-tri-tab="quick" aria-pressed="false">နက္ခတ်/အသက်ဖြင့်</button>
+        <button type="button" data-tri-tab="reference" aria-pressed="false">ဇယား (၁-၁၀၀)</button>
+      </nav>
+      <div id="tri-panel-birth">
+        <form id="tripataki-form" class="controls">
+          <label class="field">အမည်<input id="tripataki-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
+          <fieldset class="janma-parts">
+            <legend>မွေးသက္ကရာဇ်</legend>
+            <label>ရက်<input id="tri-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="tri-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="tri-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>မွေးချိန်</legend>
+            <label>နာရီ<input id="tri-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="tri-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="tri-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="tri-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>မွေးဖွားရာမြို့ ရှာရန် <input id="tri-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>မွေးဖွားရာမြို့ <select id="tri-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+          <label>စစ်ဆေးလိုသည့် ရက်စွဲ<input id="tri-target-date" type="date" min="1900-01-01" max="2150-12-31" required></label>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+          <p id="tri-error" role="status"></p>
+        </form>
+      </div>
+      <div id="tri-panel-quick" hidden>
+        <form id="tri-quick-form" class="controls">
+          <label class="field">ဇနမနက္ခတ်
+            <select id="tri-quick-star"></select>
+          </label>
+          <label class="field">ရောက်ဆဲအသက် (၁ – ၁၀၀)
+            <input id="tri-quick-age" type="number" min="1" max="100" value="1" required>
+          </label>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> ကြည့်မည်</button>
+        </form>
+      </div>
+      <div id="tri-panel-reference" hidden>
+        <div id="tri-reference-content"></div>
+      </div>
+      <section id="tripataki-output" hidden>
+        <a id="tri-edit" class="back-home" href="#tripataki">← အချက်အလက် ပြန်ပြင်ရန်</a>
+        <h2 id="tri-output-title" tabindex="-1">တြိပတာကီစက် ရလဒ်</h2>
+        <div id="tri-result" aria-live="polite"></div>
+      </section>
+      <details class="tri-guide">
+        <summary>တွက်နည်းနှင့် အသုံးပြုပုံ (အခန်း ၃ · စာမျက်နှာ ၆၃ – ၇၇)</summary>
+        <h4>တွက်ချက်ပုံ</h4>
+        <p>ကေတုပတာကီစက်ကို ကြည့်ပါ။ နေမနက္ခတ်အလိုက် စိုးမိုးတဲ့ ဂြိုဟ်ကို ကြည့်ပါ။ ဒီဂြိုဟ်ဟာ မိမိ မွေးချိန်ကနေ တစ်နှစ်သား ပြည့်ချိန်အထိ စိုးမိုးပါလိမ့်မယ်။ ပြီးရင် နာရီလက်တံ ပြောင်းပြန် လှည့်သလို လှည့်သွားပါ။ အကွက် ကိုးကွက် ရှိနေတော့ အသက်ကို တည်၊ ကိုးနဲ့စား၊ အကြွင်းကို နာရီလက်တံ ပြောင်းပြန် ယူသွားရင် အမြန် သိရပါတယ်။ ကေတုစက်မှာ ဆယ့်နှစ်ပုံ ပုံထားလို့ ဆယ့်နှစ်နဲ့ စားရမယ် (အဘိဇိနက္ခတ်ပါ ၂၈ လုံးမူ)။ ဂုရုစက်မှာ ကိုးပုံ ပုံထားလို့ ကိုးနဲ့ စားမယ်။</p>
+        <h4>စက်တစ်စက်ချင်း၏ အသုံးပြုနည်း</h4>
+        <p>ကေတုပတာကီစက်၊ ဂုရုစက်၊ ကေတုစက်ဆိုပြီး ခွဲခြားခေါ်ထားကြပေမယ့် ဒီစက်သုံးခုကို ရောပြီး ခေါ်ရင် တြိပတာကီစက်လို့ ခေါ်ကြပါတယ်။ ပတာကီဆိုတာက အလံကိုင်ထားသူ၊ တိုက်တွန်းနှိုးဆော်ပေးသူ ဖြစ်လို့ စိုးမိုးဂြိုဟ်ဟာ အဲဒီစိုးမိုးနှစ်မှာ ထင်ရှားစွာ အလုပ်လုပ်ပါတယ်။ အဲဒီဂြိုဟ်ဆိုင်ရာ ပရိယာယ်အရောင်၊ အဆောင်၊ အလှူဒါနတို့ကို ဉာဏ်နဲ့ယှဉ်ပြီး သုံးနိုင်သလို အဲဒီဂြိုဟ် မကြိုက်တဲ့ အကုသိုလ်၊ အနေအထိုင်၊ အပြုအမူတွေကို ရှောင်ကြဉ်ရပါတယ်။</p>
+        <p><strong>ကေတုပတာကီစက်</strong> — ကေတုဆိုတာ အလင်းကို ဆိုလိုပါတယ် (ကိတ်ဂြိုဟ်ကို ဆိုလိုတာ မဟုတ်ပါ)။ စိုးမိုးဂြိုဟ်အလိုက် အလင်းရောင်၊ အရောင်အဆင်းတို့ကို ချိန်ဆအသုံးပြုနိုင်ပါတယ်။</p>
+        <p><strong>ဂုရုစက်</strong> — မိမိ အားကိုးအားထားပြုရမယ့် ဆရာကောင်း၊ တိုင်ပင်ဖော် တိုင်ပင်ဖက်၊ မိတ်ဆွေကောင်းကို ဆိုလိုပါတယ်။ စိုးမိုးဂြိုဟ် ပရိယာယ်တွေနဲ့ ညှိပြီး အသုံးပြုနိုင်ပါတယ်။</p>
+        <p><strong>ကေတုစက်</strong> — ကေတုဟာ ကိတ်ဂြိုဟ် ဖြစ်ပြီး စရဏကျင့်ခြင်း၊ လွတ်မြောက်မှု ရှာခြင်းနဲ့ ဆိုင်ပါတယ်။ ရောက်ဆဲ စိုးမိုးဂြိုဟ်ရဲ့ ပရိယာယ် သဘောသဘာဝအလိုက် စရဏကျင့်တာဟာ အစစ အရာရာတိုင်း အလွန်ကောင်းပါတယ်။ စရဏမှာ ဘာမှ မတွက်ချင်ရင် မိမိရဲ့ မူလ ဇနမနက္ခတ်ရဲ့ သဘောသဘာဝတွေအလိုက်ပဲ တစ်သက်လုံး ကျင့်နေလို့လဲ ရပါတယ်။</p>
+        <h4>သုံးစက်တွဲ လေးလပိုင်းစနစ်</h4>
+        <p>ဘယ်အသက်မှာမဆို <strong>ပထမလေးလ</strong>ကို ကေတုပတာကီစက်က စိုးမိုးဂြိုဟ်၊ <strong>ဒုတိယလေးလ</strong>ကို ကေတုစက်ရဲ့ စိုးမိုးဂြိုဟ်၊ <strong>တတိယလေးလ</strong>ကိုတော့ ဂုရုစက်ရဲ့ စိုးမိုးဂြိုဟ်က စိုးမိုးပါတယ်။</p>
+        <h4>မူလ/ကောဇာနှင့် ညှိနှိုင်းဟောကြားရန် မှတ်ချက်</h4>
+        <p>ပုံသေအဟောများအပြင် မူလဇာတာနှင့် ကောဇာဇာတာမှာ ဒီစိုးမိုးဂြိုဟ်တွေ ရပ်တည်ပုံကို ကြည့်ပြီး ဟောတာက ပိုမှန်ပါတယ်။ ဥပမာ — မိဂသီနက္ခတ် စန်းယှဉ်မွေးသူ အသက် ၄၄ နှစ်ထဲမှာ ပထမလေးလကို တနင်္ဂနွေက စိုးမိုးပြီး ပုံသေအဟောမှာ ဒုက္ခလို့ ဆိုထားပေမယ့် ကောဇာမှာ တနင်္ဂနွေက ဥစ်ရာသီဖြစ်တဲ့ မိဿရာသီကို ရောက်နေချိန်ဆိုရင် အပြင်ဒုက္ခထက် အလုပ်ပင်ပန်းနွမ်းနယ်မှုမျိုးသာ ကြုံရပြီး ငွေကြေးလာဘ်လာဘပါ ရရှိနိုင်ပါတယ်။ ဒါ့ကြောင့် ပုံသေအဟောနဲ့ မူလ/ကောဇာ ဇာတာကို ညှိနှိုင်းချိန်ဆရပါမယ်။</p>
+      </details>
     </section>
     <section id="panchang" class="catalog" hidden>
       <h1>နေ့စဉ် ပဉ္စာင်္ဂ</h1>

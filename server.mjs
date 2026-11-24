@@ -13,6 +13,7 @@ const assets = new Map([
   ['/panchang.js', ['panchang.js', 'text/javascript']],
   ['/app.js', ['app.js', 'text/javascript']],
   ['/nadika.js', ['nadika.js', 'text/javascript']],
+  ['/tripataki.js', ['tripataki.js', 'text/javascript']],
   ['/manifest.webmanifest', ['manifest.webmanifest', 'application/manifest+json']],
   ['/yatra-food.js', ['yatra-food.js', 'text/javascript; charset=utf-8']],
   ['/yatra6.js', ['yatra6.js', 'text/javascript; charset=utf-8']],

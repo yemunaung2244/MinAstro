@@ -847,3 +847,338 @@ html { touch-action: pan-x pan-y; }
   font: inherit;
   text-align: start;
 }
+
+.tri-mode-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#tripataki-form .janma-parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+#tripataki-form .janma-parts input {
+  max-width: 6rem;
+  min-height: 38px;
+  padding: 5px 9px;
+}
+
+.tri-guide {
+  margin-top: 20px;
+}
+
+.tri-guide summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--sky-accent);
+}
+
+.tri-guide p {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.tri-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-block: 18px;
+}
+
+.tri-planet-card .tri-planet-main {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--sky-accent);
+}
+
+.tri-section-title {
+  margin-top: 24px;
+  margin-bottom: 10px;
+}
+
+.tri-chakras {
+  display: grid;
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.tri-chakra-card {
+  padding: 18px 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.tri-chakra-card h3 {
+  margin-bottom: 14px;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.tri-board-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tri-board {
+  display: grid;
+  gap: 1.5px;
+  background: #1f2937;
+  border: 1.5px solid #1f2937;
+  margin-inline: auto;
+}
+
+.tri-house {
+  padding: 10px 8px;
+  background: #ffffff;
+  font-size: .88rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 4px;
+  min-width: 0;
+  color: #111827;
+}
+
+.tri-house-vcenter {
+  justify-content: center;
+}
+
+.tri-house-planet {
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.45;
+  margin-bottom: 2px;
+}
+
+.tri-house-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.tri-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.tri-badge-natal {
+  background: #15547b;
+  color: #ffffff;
+}
+
+.tri-badge-current {
+  background: #854078;
+  color: #ffffff;
+}
+
+.tri-house-natal {
+  background: #e6f4ff;
+  box-shadow: inset 0 0 0 2px #15547b;
+}
+
+.tri-house-current {
+  background: #f7eaf5;
+  box-shadow: inset 0 0 0 2px #854078;
+}
+
+.tri-house-natal.tri-house-current {
+  background: linear-gradient(135deg, #e6f4ff 50%, #f7eaf5 50%);
+}
+
+.tri-house-stars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  line-height: 1.65;
+}
+
+.tri-chakra-center {
+  background: #ffffff;
+}
+
+.tri-ketupataki-grid {
+  grid-template-columns: repeat(4, minmax(112px, 1fr));
+  max-width: 720px;
+}
+
+.tri-kp-center {
+  grid-area: 2 / 2 / 3 / 4;
+}
+
+.tri-guru-grid {
+  grid-template-columns: repeat(5, minmax(110px, 1fr));
+  max-width: 780px;
+}
+
+.tri-ketu-grid {
+  grid-template-columns: repeat(4, minmax(112px, 1fr));
+  max-width: 720px;
+}
+
+.tri-ketu-center {
+  grid-area: 2 / 2 / 5 / 4;
+}
+
+.tri-table-scroll {
+  overflow-x: auto;
+  margin-block: 10px 18px;
+}
+
+.tri-cycle-table,
+.tri-ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .86rem;
+  background: #fbfdff;
+}
+
+.tri-cycle-table th,
+.tri-cycle-table td,
+.tri-ref-table th,
+.tri-ref-table td {
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tri-cycle-table thead th,
+.tri-ref-table thead th {
+  background: var(--night);
+  color: var(--sky-accent);
+}
+
+.tri-cycle-table tbody th,
+.tri-ref-table tbody th {
+  text-align: left;
+  background: #f0f8ff;
+  white-space: nowrap;
+}
+
+.tri-row-active th,
+.tri-row-active td {
+  background: #c5eaff !important;
+  color: #103553;
+  font-weight: 800;
+}
+
+.tri-ref-table td {
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+  padding: 4px;
+}
+
+.tri-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tri-planet-card-active {
+  border-color: #854078;
+  background: #fdf6fc;
+  box-shadow: 0 0 0 2px #85407826;
+}
+
+.tri-period-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #854078;
+  color: #fff;
+  font-size: .74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tri-period-line {
+  font-size: .84rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tri-reading-box {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #eaf6ff;
+  border-inline-start: 3px solid var(--sky-accent);
+  font-size: .88rem;
+  color: var(--ink);
+}
+
+.tri-planet-card-active .tri-reading-box {
+  background: #f5e6f3;
+  border-inline-start-color: #854078;
+}
+
+.tri-role-note {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.tri-combo-panel {
+  margin-top: 14px;
+  background: #eef8ff;
+  border-color: #9fcce8;
+}
+
+.tri-combo-item {
+  font-size: .95rem;
+  color: var(--ink);
+}
+
+.tri-readings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .86rem;
+  background: #fbfdff;
+}
+
+.tri-readings-table th,
+.tri-readings-table td {
+  border: 1px solid var(--line);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tri-readings-table thead th {
+  background: var(--night);
+  color: var(--sky-accent);
+}
+
+.tri-readings-table tbody th {
+  background: #f0f8ff;
+  white-space: nowrap;
+}
+
+.tri-guide h4 {
+  margin: 12px 0 4px;
+  color: var(--sky-accent);
+}
+
+@media (max-width: 720px) {
+  .tri-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .tri-house {
+    font-size: .74rem;
+    padding: 5px 4px;
+  }
+}

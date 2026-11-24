@@ -5,6 +5,7 @@ import { upagraha28At, guruNakshatraAt, natalAscendant, janmaAt, myanmarBirthIns
 import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
+import { tripatakiPlanetNames, tripatakiSingleReadings, tripatakiDoubleReadings, tripatakiTripleReadings, tripatakiChakraRoles, tripatakiCombinationReadings, ketuPatakiHouses, guruChakraHouses, ketuChakraGridHouses, tripatakiForAge, runningAgeAt } from './tripataki.js';
 
 const byId = (id) => document.getElementById(id);
 const effectText = (name, effect) => {
@@ -93,6 +94,7 @@ const savedChartTypes = {
   guru: ['ဂုရုစက်', 'janma-form'],
   upagraha: ['ဥပဂြဟ (၂၇) လုံးမူ', 'upagraha-form'],
   upagraha28: ['ဥပဂြဟ (၂၈) လုံးမူ', 'upagraha-form'],
+  tripataki: ['တြိပတာကီစက်', 'tripataki-form'],
   akha: ['အခါပဒေသာ', 'akha-form'],
   panchang: ['Panchang', 'panchang-form'],
 };
@@ -193,8 +195,8 @@ function renderSavedCharts() {
     for (const record of group) {
       const fields = Object.fromEntries(record.fields);
       const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
-        ['janma', 'upa'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value !== '//');
-      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : 'upa';
+        ['janma', 'upa', 'tri'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
+      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : 'upa';
       const birthTime = fields[birthPrefix + '-hour']
         ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
       const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
@@ -2012,10 +2014,427 @@ for (const link of byId('books').querySelectorAll('.book-download')) {
   });
 }
 
+connectTownSearch('tri');
+byId('tri-target-date').value = myanmarNow().slice(0, 10);
+const triQuickStar = byId('tri-quick-star');
+yatraNames.forEach((name, idx) => {
+  triQuickStar.add(new Option(`${mm(idx + 1)}။ ${name}နက္ခတ်`, String(idx)));
+});
+triQuickStar.add(new Option('အဘိဇိနက္ခတ် (၂၈ လုံးမူ)', 'abhijit'));
+
+let triHasResult = false;
+let triCurrentTab = 'birth';
+const triTabButtons = [...document.querySelectorAll('[data-tri-tab]')];
+
+function showTriTab(tab) {
+  triCurrentTab = tab;
+  for (const button of triTabButtons) {
+    const active = button.dataset.triTab === tab;
+    button.setAttribute('aria-pressed', String(active));
+  }
+  byId('tri-panel-birth').hidden = tab !== 'birth';
+  byId('tri-panel-quick').hidden = tab !== 'quick';
+  byId('tri-panel-reference').hidden = tab !== 'reference';
+  if (tab === 'reference' && !byId('tri-reference-content').childElementCount) {
+    renderTripatakiReference();
+  }
+}
+
+for (const button of triTabButtons) {
+  button.addEventListener('click', () => showTriTab(button.dataset.triTab));
+}
+
+function buildTriHouseCard(planet, starIndices, names, startMatch, currentMatch, extraClass = '') {
+  const cell = document.createElement('div');
+  cell.className = 'tri-house' + (extraClass ? ' ' + extraClass : '')
+    + (startMatch ? ' tri-house-natal' : '') + (currentMatch ? ' tri-house-current' : '');
+  const header = document.createElement('div');
+  header.className = 'tri-house-planet';
+  header.textContent = tripatakiPlanetNames[planet] + 'ဂြိုဟ်ပိုင်';
+  const badges = document.createElement('div');
+  badges.className = 'tri-house-badges';
+  if (startMatch) {
+    const b = document.createElement('span');
+    b.className = 'tri-badge tri-badge-natal';
+    b.textContent = 'မူလ';
+    badges.append(b);
+  }
+  if (currentMatch) {
+    const b = document.createElement('span');
+    b.className = 'tri-badge tri-badge-current';
+    b.textContent = 'ရောက်ဆဲ';
+    badges.append(b);
+  }
+  const list = document.createElement('ul');
+  list.className = 'tri-house-stars';
+  for (const idx of starIndices) {
+    const li = document.createElement('li');
+    li.textContent = names[idx];
+    list.append(li);
+  }
+  cell.append(header);
+  if (badges.childElementCount) cell.append(badges);
+  cell.append(list);
+  return cell;
+}
+
+function renderTriChakraDiagrams(container, result) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tri-chakras';
+
+  // 1. Ketu Pataki Chakra (Page 63 — 4x3 grid with blank center)
+  const kpSection = document.createElement('section');
+  kpSection.className = 'tri-chakra-card';
+  const kpTitle = document.createElement('h3');
+  kpTitle.textContent = 'ကေတုပတာကီစက်';
+  const kpScroll = document.createElement('div');
+  kpScroll.className = 'tri-board-scroll';
+  const kpGrid = document.createElement('div');
+  kpGrid.className = 'tri-board tri-ketupataki-grid';
+  const kpCenter = document.createElement('div');
+  kpCenter.className = 'tri-chakra-center tri-kp-center';
+  kpCenter.setAttribute('aria-hidden', 'true');
+  kpGrid.append(kpCenter);
+  ketuPatakiHouses.forEach((h, i) => {
+    const cell = buildTriHouseCard(
+      h.planet, h.nakshatras, yatraNames,
+      result && result.ketuPataki.startIndex === i,
+      result && result.ketuPataki.currentIndex === i
+    );
+    cell.style.gridArea = h.area;
+    kpGrid.append(cell);
+  });
+  kpScroll.append(kpGrid);
+  kpSection.append(kpTitle, kpScroll);
+
+  // 2. Guru Chakra (Page 64 — 5x2 horizontal grid)
+  const guruSection = document.createElement('section');
+  guruSection.className = 'tri-chakra-card';
+  const guruTitle = document.createElement('h3');
+  guruTitle.textContent = 'ဂုရုစက်';
+  const guruScroll = document.createElement('div');
+  guruScroll.className = 'tri-board-scroll';
+  const guruGrid = document.createElement('div');
+  guruGrid.className = 'tri-board tri-guru-grid';
+  guruChakraHouses.forEach((h, i) => {
+    const cell = buildTriHouseCard(
+      h.planet, h.nakshatras, yatraNames,
+      result && result.guruChakra.startIndex === i,
+      result && result.guruChakra.currentIndex === i
+    );
+    cell.style.gridArea = h.area;
+    guruGrid.append(cell);
+  });
+  guruScroll.append(guruGrid);
+  guruSection.append(guruTitle, guruScroll);
+
+  // 3. Ketu Chakra (Page 65 — 4x5 perimeter grid with blank center)
+  const ketuSection = document.createElement('section');
+  ketuSection.className = 'tri-chakra-card';
+  const ketuTitle = document.createElement('h3');
+  ketuTitle.textContent = 'ကေတုစက်';
+  const ketuScroll = document.createElement('div');
+  ketuScroll.className = 'tri-board-scroll';
+  const ketuGrid = document.createElement('div');
+  ketuGrid.className = 'tri-board tri-ketu-grid';
+  const ketuCenter = document.createElement('div');
+  ketuCenter.className = 'tri-chakra-center tri-ketu-center';
+  ketuCenter.setAttribute('aria-hidden', 'true');
+  ketuGrid.append(ketuCenter);
+  ketuChakraGridHouses.forEach((h, i) => {
+    const cell = buildTriHouseCard(
+      h.planet, h.nakshatras, guruNames,
+      result && result.ketuChakra.startIndex === i,
+      result && result.ketuChakra.currentIndex === i,
+      h.area === '2 / 4 / 5 / 5' ? 'tri-house-vcenter' : ''
+    );
+    cell.style.gridArea = h.area;
+    ketuGrid.append(cell);
+  });
+  ketuScroll.append(ketuGrid);
+  ketuSection.append(ketuTitle, ketuScroll);
+
+  wrap.append(kpSection, guruSection, ketuSection);
+  container.append(wrap);
+}
+
+function renderTripatakiResult({ star27Index, star28Index, starLabel, birthDateLabel, targetDateLabel, ageInfo, quickMode }) {
+  const output = byId('tri-result');
+  output.replaceChildren();
+  const age = ageInfo.running;
+  const res = tripatakiForAge(star27Index, star28Index, age);
+
+  const overview = document.createElement('header');
+  overview.className = 'akha-overview';
+  const heading = document.createElement('h3');
+  heading.textContent = starLabel;
+  const ageLine = document.createElement('p');
+  ageLine.textContent = quickMode
+    ? `ရောက်ဆဲအသက် — ${mm(age)} နှစ် (${mm(age - 1)} နှစ်ပြည့်ပြီး ${mm(age)} နှစ်ထဲ)`
+    : `ရောက်ဆဲအသက် — ${mm(age)} နှစ် (${mm(ageInfo.completed)} နှစ်ပြည့်ပြီး)`;
+  overview.append(heading, ageLine);
+  if (!quickMode) {
+    const datesLine = document.createElement('p');
+    datesLine.textContent = `မွေးသက္ကရာဇ် ${birthDateLabel} · စစ်ဆေးသည့်ရက် ${targetDateLabel} · အသက် ${mm(age)} နှစ်ကာလ (${mm(ageInfo.periodStart.split('-').reverse().join('/'))} – ${mm(ageInfo.periodEnd.split('-').reverse().join('/'))})`;
+    overview.append(datesLine);
+  }
+  output.append(overview);
+
+  const periodByKey = Object.fromEntries((ageInfo.periods || []).map(p => [p.key, p]));
+  const fmtDate = iso => mm(iso.split('-').reverse().join('/'));
+  const cards = document.createElement('div');
+  cards.className = 'tri-summary-grid';
+  for (const [key, title, periodLabel, cycleText, data] of [
+    ['ketuPataki', 'ကေတုပတာကီစက်', 'ပထမလေးလ', '၉ နှစ်စက် (နာရီလက်တံ ပြောင်းပြန်)', res.ketuPataki],
+    ['ketuChakra', 'ကေတုစက်', 'ဒုတိယလေးလ', '၁၂ နှစ်စက် (နာရီလက်တံ ပြောင်းပြန်)', res.ketuChakra],
+    ['guruChakra', 'ဂုရုစက်', 'တတိယလေးလ', '၉ နှစ်စက် (နာရီလက်တံ ပြောင်းပြန်)', res.guruChakra],
+  ]) {
+    const period = periodByKey[key];
+    const card = document.createElement('article');
+    card.className = 'entry tri-planet-card' + (period?.active ? ' tri-planet-card-active' : '');
+    const head = document.createElement('div');
+    head.className = 'tri-card-head';
+    const h = document.createElement('h3');
+    h.textContent = title;
+    head.append(h);
+    if (period?.active) {
+      const activeBadge = document.createElement('span');
+      activeBadge.className = 'tri-period-badge';
+      activeBadge.textContent = 'ရောက်ဆဲကာလ';
+      head.append(activeBadge);
+    }
+    const periodLine = document.createElement('p');
+    periodLine.className = 'tri-period-line';
+    periodLine.textContent = !quickMode && period
+      ? `${periodLabel} · ${fmtDate(period.start)} – ${fmtDate(period.end)}`
+      : `${periodLabel} စိုးမိုးဂြိုဟ်`;
+    const planet = document.createElement('p');
+    planet.className = 'tri-planet-main';
+    planet.textContent = `${tripatakiPlanetNames[data.planet]}ဂြိုဟ် (${mm(data.planet)})`;
+    const readingBox = document.createElement('p');
+    readingBox.className = 'tri-reading-box';
+    readingBox.textContent = `ပုံသေအဟော — ${tripatakiSingleReadings[data.planet]}`;
+    const roleNote = document.createElement('p');
+    roleNote.className = 'tri-role-note';
+    roleNote.textContent = tripatakiChakraRoles[key];
+    const meta = document.createElement('p');
+    meta.className = 'ruler';
+    meta.textContent = `မူလအစဂြိုဟ် - ${tripatakiPlanetNames[data.startPlanet]}ဂြိုဟ် (${mm(data.startPlanet)}) · ${cycleText}`;
+    card.append(head, periodLine, planet, readingBox, roleNote, meta);
+    cards.append(card);
+  }
+  output.append(cards);
+
+  const combos = tripatakiCombinationReadings(res);
+  const comboPanel = document.createElement('section');
+  comboPanel.className = 'entry tri-combo-panel';
+  const comboTitle = document.createElement('h3');
+  comboTitle.textContent = 'ပုံသေအဟော (တစ်နှစ်တာ ပေါင်းစပ်ချက်)';
+  comboPanel.append(comboTitle);
+  if (combos.length) {
+    for (const item of combos) {
+      const p = document.createElement('p');
+      p.className = 'tri-combo-item';
+      const strong = document.createElement('strong');
+      strong.textContent = `${item.label} (${mm(item.planet)}) — `;
+      p.append(strong, item.reading);
+      comboPanel.append(p);
+    }
+  } else {
+    const p = document.createElement('p');
+    p.textContent = 'ဤအသက်တွင် စက်သုံးခုလုံး၏ စိုးမိုးဂြိုဟ်များ တစ်လုံးစီ ကွဲပြားနေပါသည်။ လေးလပိုင်းအလိုက် သက်ဆိုင်ရာ တစ်လုံးချင်း ပုံသေအဟောများကို တွဲဖက်ကြည့်ရှုပါ။';
+    comboPanel.append(p);
+  }
+  const balanceNote = document.createElement('p');
+  balanceNote.className = 'hint';
+  balanceNote.textContent = 'မှတ်ချက် — ပုံသေအဟောတစ်ခုတည်းသာမက မူလဇာတာနှင့် ကောဇာဇာတာတွင် အဆိုပါ စိုးမိုးဂြိုဟ်များ ရပ်တည်နေပုံ (ဥစ်/နိစ်/ကသစ် စသည်) နှင့် ညှိနှိုင်းဟောကြားမှသာ ပိုမိုမှန်ကန်ပါသည်။';
+  comboPanel.append(balanceNote);
+  output.append(comboPanel);
+
+  renderTriChakraDiagrams(output, res);
+
+  const cycleTitle = document.createElement('h3');
+  cycleTitle.className = 'tri-section-title';
+  cycleTitle.textContent = `${starLabel} · အသက် ၁ မှ ၁၀၀ စိုးမိုးဂြိုဟ်ဇယား (၃၆ နှစ်စက်ဝန်း)`;
+  output.append(cycleTitle);
+
+  const scroll = document.createElement('div');
+  scroll.className = 'tri-table-scroll';
+  const table = document.createElement('table');
+  table.className = 'tri-cycle-table';
+  const thead = table.createTHead().insertRow();
+  for (const label of ['ရောက်ဆဲအသက်', 'ကေတုပတာကီစက်', 'ကေတုစက်', 'ဂုရုစက်']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = label;
+    thead.append(th);
+  }
+  const tbody = table.createTBody();
+  const activeCycleSlot = ((age - 1) % 36) + 1;
+  for (let c = 1; c <= 36; c++) {
+    const row = tbody.insertRow();
+    if (c === activeCycleSlot) row.className = 'tri-row-active';
+    const ages = [c, c + 36, c + 72].filter(a => a <= 100);
+    const ageCell = document.createElement('th');
+    ageCell.scope = 'row';
+    ageCell.textContent = ages.map(a => mm(a)).join(' / ');
+    row.append(ageCell);
+    const r = tripatakiForAge(star27Index, star28Index, c);
+    for (const p of [r.ketuPataki.planet, r.ketuChakra.planet, r.guruChakra.planet]) {
+      row.insertCell().textContent = `${tripatakiPlanetNames[p]} (${mm(p)})`;
+    }
+  }
+  scroll.append(table);
+  output.append(scroll);
+}
+
+function renderTripatakiReference() {
+  const container = byId('tri-reference-content');
+  container.replaceChildren();
+
+  const legend = document.createElement('p');
+  legend.className = 'hint';
+  legend.textContent = 'ဂြိုဟ်အမှတ်အသား — ' + Object.entries(tripatakiPlanetNames).map(([n, name]) => `${mm(n)} = ${name}`).join(' · ') + '။ (အကွက်တစ်ခုစီတွင် အပေါ် = ကေတုပတာကီ၊ အလယ် = ကေတုစက်၊ အောက် = ဂုရုစက်)';
+  container.append(legend);
+
+  renderTriChakraDiagrams(container, null);
+
+  const readingsTitle = document.createElement('h3');
+  readingsTitle.className = 'tri-section-title';
+  readingsTitle.textContent = 'ပုံသေအဟောများ (တစ်လုံး / နှစ်လုံး / သုံးလုံး)';
+  container.append(readingsTitle);
+  const rScroll = document.createElement('div');
+  rScroll.className = 'tri-table-scroll';
+  const rTable = document.createElement('table');
+  rTable.className = 'tri-readings-table';
+  const rHead = rTable.createTHead().insertRow();
+  for (const col of ['ဂြိုဟ်', 'တစ်လုံး', 'နှစ်လုံးတူ', 'သုံးလုံးတူ']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = col;
+    rHead.append(th);
+  }
+  const rBody = rTable.createTBody();
+  for (let p = 1; p <= 9; p++) {
+    const row = rBody.insertRow();
+    const th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = `${tripatakiPlanetNames[p]} (${mm(p)})`;
+    row.append(th);
+    row.insertCell().textContent = tripatakiSingleReadings[p];
+    row.insertCell().textContent = tripatakiDoubleReadings[p];
+    row.insertCell().textContent = tripatakiTripleReadings[p];
+  }
+  rScroll.append(rTable);
+  container.append(rScroll);
+
+  const tableTitle = document.createElement('h3');
+  tableTitle.className = 'tri-section-title';
+  tableTitle.textContent = 'တြိပတာကီစက် ဇယားအပြည့်အစုံ (နက္ခတ် ၂၇ လုံး · အသက် ၁ – ၁၀၀)';
+  container.append(tableTitle);
+
+  for (const [label, startCol, endCol] of [
+    ['အသက် ၁–၁၂ / ၃၇–၄၈ / ၇၃–၈၄', 1, 12],
+    ['အသက် ၁၃–၂၅ / ၄၉–၆၁ / ၈၅–၉၇', 13, 25],
+    ['အသက် ၂၆–၃၆ / ၆၂–၇၂ / ၉၈–၁၀၀', 26, 36],
+  ]) {
+    const sub = document.createElement('h4');
+    sub.textContent = label;
+    container.append(sub);
+    const scroll = document.createElement('div');
+    scroll.className = 'tri-table-scroll';
+    const table = document.createElement('table');
+    table.className = 'tri-ref-table';
+    const thead = table.createTHead().insertRow();
+    const corner = document.createElement('th');
+    corner.scope = 'col';
+    corner.textContent = 'နေမနက္ခတ် \ အသက်';
+    thead.append(corner);
+    for (let c = startCol; c <= endCol; c++) {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      const ages = [c, c + 36, c + 72].filter(a => a <= 100);
+      th.innerHTML = ages.map(a => mm(a)).join('<br>');
+      thead.append(th);
+    }
+    const tbody = table.createTBody();
+    yatraNames.forEach((starName, star27Index) => {
+      const star28Index = star27Index + (star27Index >= 21 ? 1 : 0);
+      const row = tbody.insertRow();
+      const th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = starName;
+      row.append(th);
+      for (let c = startCol; c <= endCol; c++) {
+        const r = tripatakiForAge(star27Index, star28Index, c);
+        const td = row.insertCell();
+        td.innerHTML = `${mm(r.ketuPataki.planet)}<br>${mm(r.ketuChakra.planet)}<br>${mm(r.guruChakra.planet)}`;
+      }
+    });
+    scroll.append(table);
+    container.append(scroll);
+  }
+}
+
+byId('tripataki-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const error = byId('tri-error');
+  try {
+    const birthInstant = readBirthInstant('tri');
+    const pad = n => String(n).padStart(2, '0');
+    const bd = `${ascii(byId('tri-year').value.trim())}-${pad(Number(ascii(byId('tri-month').value.trim())))}-${pad(Number(ascii(byId('tri-day').value.trim())))}`;
+    const targetDate = byId('tri-target-date').value;
+    const ageInfo = runningAgeAt(bd, targetDate);
+    const moon27 = janmaAt(birthInstant);
+    const moon28 = upagraha28At(birthInstant, true);
+    const birthDateLabel = mm(bd.split('-').reverse().join('/'));
+    const targetDateLabel = mm(targetDate.split('-').reverse().join('/'));
+    const starLabel = moon28.index === 21
+      ? `ဥတြာသာန် / အဘိဇိနက္ခတ် · ပါဒ ${mm(moon27.pada)}`
+      : `${yatraNames[moon27.index]}နက္ခတ် · ပါဒ ${mm(moon27.pada)}`;
+    renderTripatakiResult({
+      star27Index: moon27.index,
+      star28Index: moon28.index,
+      starLabel,
+      birthDateLabel,
+      targetDateLabel,
+      ageInfo,
+      quickMode: false,
+    });
+    error.textContent = '';
+    triHasResult = true;
+    saveChart('tripataki');
+    window.location.hash = 'tripataki-result';
+  } catch (err) {
+    error.textContent = err instanceof RangeError && err.message.includes('Target date')
+      ? 'စစ်ဆေးလိုသည့် ရက်စွဲသည် မွေးသက္ကရာဇ်ထက် နောက်ကျရမည်။'
+      : 'မွေးရက်၊ မွေးချိန်နှင့် စစ်ဆေးလိုသည့် ရက်စွဲကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('tri-quick-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const val = triQuickStar.value;
+  const age = Math.max(1, Math.min(100, Number(byId('tri-quick-age').value) || 1));
+  const isAbhijit = val === 'abhijit';
+  const star27Index = isAbhijit ? 20 : Number(val);
+  const star28Index = isAbhijit ? 21 : star27Index + (star27Index >= 21 ? 1 : 0);
+  const starLabel = isAbhijit ? 'အဘိဇိနက္ခတ် (၂၈ လုံးမူ)' : `${yatraNames[star27Index]}နက္ခတ်`;
+  renderTripatakiResult({
+    star27Index,
+    star28Index,
+    starLabel,
+    ageInfo: { running: age, completed: age - 1 },
+    quickMode: true,
+  });
+  triHasResult = true;
+  window.location.hash = 'tripataki-result';
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
-    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'panchang-result', 'akha-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
+    : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'tripataki-result', 'panchang-result', 'akha-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
   const yatraTabs = byId('yatra-tabs');
@@ -2025,7 +2444,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -2078,8 +2497,17 @@ function showPage() {
   byId('suriya-output').hidden = !showSuriyaResult;
   if (showSuriyaResult) byId('suriya-output-title').focus();
   else if (isSuriya && rawHash.endsWith('-result')) window.history.replaceState(null, '', '#' + page);
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha' || isSaved || isBooks;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('tripataki').hidden = page !== 'tripataki';
+  const showTriResult = page === 'tripataki' && rawHash === 'tripataki-result' && triHasResult;
+  byId('tripataki').querySelector('.tri-mode-tabs').hidden = showTriResult;
+  byId('tri-panel-birth').hidden = showTriResult || triCurrentTab !== 'birth';
+  byId('tri-panel-quick').hidden = showTriResult || triCurrentTab !== 'quick';
+  byId('tri-panel-reference').hidden = showTriResult || triCurrentTab !== 'reference';
+  byId('tripataki-output').hidden = !showTriResult;
+  if (showTriResult) byId('tri-output-title').focus();
+  else if (page === 'tripataki' && rawHash === 'tripataki-result') window.history.replaceState(null, '', '#tripataki');
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
