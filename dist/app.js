@@ -6,6 +6,7 @@ import { foodTitle, foodDescriptions } from './yatra-food.js';
 import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMinutes, windowsFor } from './nadika.js';
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
 import { tripatakiPlanetNames, tripatakiSingleReadings, tripatakiDoubleReadings, tripatakiTripleReadings, tripatakiChakraRoles, tripatakiCombinationReadings, ketuPatakiHouses, guruChakraHouses, ketuChakraGridHouses, tripatakiForAge, runningAgeAt } from './tripataki.js';
+import { wishSelfDirections, wishBlessingDirections, wishDirectionForNakshatra } from './wish-direction.js';
 
 const byId = (id) => document.getElementById(id);
 const effectText = (name, effect) => {
@@ -662,8 +663,9 @@ function renderNakshatraDetail([name], source) {
     list.textContent = 'ဒီနက္ခတ်အတွက် ကျမ်းပါ ယတြာ မရှိပါ။';
     return;
   }
-  const descriptions = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
-  const titles = ["ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု", yatra6Title, yatra7Title, yatra8Title, foodTitle];
+  const wishDescriptions = yatraNames.map((_, idx) => `မိမိအတွက် ဆုတောင်းရန် — ${wishSelfDirections[idx]} မျက်နှာမူပါ။\nသူတစ်ပါးကို ဆုပေးရန် (မိမိအတွက်လည်း သုံးနိုင်) — ${wishBlessingDirections[idx]} မျက်နှာမူပါ။`);
+  const descriptions = [wishDescriptions, yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
+  const titles = ["ဆုတောင်းပြည့် အရပ်မျက်နှာ (ကောဇာစန်းယှဉ် · အခန်း ၃၀)", "ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ", "နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ", "နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ။ (မူကွဲ။)", "နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ", "နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု", yatra6Title, yatra7Title, yatra8Title, foodTitle];
   titles.forEach((title, position) => {
     const heading = document.createElement('h4');
     heading.textContent = title;
@@ -2431,6 +2433,155 @@ byId('tri-quick-form').addEventListener('submit', event => {
   window.location.hash = 'tripataki-result';
 });
 
+let wishTransitInstant;
+
+function buildWishCompassSvg(selfAngle, blessingAngle) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 260 260');
+  svg.setAttribute('class', 'wish-compass-svg');
+  svg.setAttribute('aria-label', 'အရပ် ၈ မျက်နှာ သံလိုက်အိမ်မြှောင်');
+  const cx = 130, cy = 130, r = 86;
+  const ring = document.createElementNS(ns, 'circle');
+  ring.setAttribute('cx', cx); ring.setAttribute('cy', cy); ring.setAttribute('r', r);
+  ring.setAttribute('fill', '#ffffff'); ring.setAttribute('stroke', '#9fcce8'); ring.setAttribute('stroke-width', '2');
+  svg.append(ring);
+  const inner = document.createElementNS(ns, 'circle');
+  inner.setAttribute('cx', cx); inner.setAttribute('cy', cy); inner.setAttribute('r', 44);
+  inner.setAttribute('fill', 'none'); inner.setAttribute('stroke', '#d7ebf8'); inner.setAttribute('stroke-dasharray', '3 3');
+  svg.append(inner);
+  const labels = [
+    [0, 'မြောက်'], [45, 'အရှေ့မြောက်'], [90, 'အရှေ့'], [135, 'အရှေ့တောင်'],
+    [180, 'တောင်'], [225, 'အနောက်တောင်'], [270, 'အနောက်'], [315, 'အနောက်မြောက်'],
+  ];
+  for (const [deg, text] of labels) {
+    const rad = (deg - 90) * Math.PI / 180;
+    const tick = document.createElementNS(ns, 'line');
+    tick.setAttribute('x1', cx + Math.cos(rad) * (r - 6));
+    tick.setAttribute('y1', cy + Math.sin(rad) * (r - 6));
+    tick.setAttribute('x2', cx + Math.cos(rad) * r);
+    tick.setAttribute('y2', cy + Math.sin(rad) * r);
+    tick.setAttribute('stroke', '#647889'); tick.setAttribute('stroke-width', '1.5');
+    svg.append(tick);
+    const lbl = document.createElementNS(ns, 'text');
+    lbl.setAttribute('x', cx + Math.cos(rad) * (r + 22));
+    lbl.setAttribute('y', cy + Math.sin(rad) * (r + 22) + 4);
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('class', 'wish-compass-label');
+    lbl.textContent = text;
+    svg.append(lbl);
+  }
+  const drawArrow = (deg, color, len) => {
+    const rad = (deg - 90) * Math.PI / 180;
+    const x2 = cx + Math.cos(rad) * len;
+    const y2 = cy + Math.sin(rad) * len;
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color); line.setAttribute('stroke-width', '4');
+    line.setAttribute('stroke-linecap', 'round');
+    const headLen = 11;
+    const a1 = rad + Math.PI * 0.82;
+    const a2 = rad - Math.PI * 0.82;
+    const poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', `${x2},${y2} ${x2 + Math.cos(a1) * headLen},${y2 + Math.sin(a1) * headLen} ${x2 + Math.cos(a2) * headLen},${y2 + Math.sin(a2) * headLen}`);
+    poly.setAttribute('fill', color);
+    svg.append(line, poly);
+  };
+  drawArrow(selfAngle, '#15547b', r - 12);
+  drawArrow(blessingAngle, '#854078', r - 22);
+  const dot = document.createElementNS(ns, 'circle');
+  dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('r', 5);
+  dot.setAttribute('fill', '#142e45');
+  svg.append(dot);
+  return svg;
+}
+
+function renderWishDirection(instant = wishTransitInstant || new Date()) {
+  const live = byId('wish-live');
+  const tableWrap = byId('wish-table');
+  live.replaceChildren();
+  const moon = janmaAt(instant);
+  const info = wishDirectionForNakshatra(moon.index);
+  const { entry, exit } = solarNakshatraWindow(instant, janmaAt);
+  const fullFmt = new Intl.DateTimeFormat('my-MM', { timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'short' });
+  const timeFmt = new Intl.DateTimeFormat('my-MM', { timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'medium' });
+
+  const overview = document.createElement('header');
+  overview.className = 'akha-overview';
+  const h = document.createElement('h3');
+  h.textContent = `${yatraNames[moon.index]}နက္ခတ် · ပါဒ ${mm(moon.pada)}`;
+  const atLine = document.createElement('p');
+  atLine.textContent = `ကြည့်ရှုချိန် — ${timeFmt.format(instant)} (မြန်မာစံတော်ချိန်) · ကောဇာစန်း လောင်ဂျီတွဒ် ${mm(moon.longitude.toFixed(4))}°`;
+  const winLine = document.createElement('p');
+  winLine.textContent = `ကောဇာစန်း နက္ခတ်ကာလ — ${fullFmt.format(entry)} မှ ${fullFmt.format(exit)} အထိ`;
+  overview.append(h, atLine, winLine);
+  live.append(overview);
+
+  const grid = document.createElement('div');
+  grid.className = 'wish-summary-grid';
+  const selfCard = document.createElement('article');
+  selfCard.className = 'entry wish-card-self';
+  selfCard.innerHTML = `<h3>မိမိအတွက် ဆုတောင်းပြည့် အရပ်မျက်နှာ</h3><p class="wish-dir-main">${info.selfText}</p><p class="hint">မိမိ လိုရာ ဆုတစ်ခုတည်းကိုသာ တောင်းပါ။</p>`;
+  const blessCard = document.createElement('article');
+  blessCard.className = 'entry wish-card-blessing';
+  blessCard.innerHTML = `<h3>သူတစ်ပါးကို ဆုပေးလျှင်လည်း ပြည့်စေသော အရပ်</h3><p class="wish-dir-main">${info.blessingText}</p><p class="hint">သူတစ်ပါးကို ဆုပေးရန်နှင့် မိမိအတွက်ပါ အသုံးပြုနိုင်ပါသည်။</p>`;
+  grid.append(selfCard, blessCard);
+  live.append(grid);
+
+  const compassWrap = document.createElement('div');
+  compassWrap.className = 'wish-compass-wrap';
+  compassWrap.append(buildWishCompassSvg(info.selfAngle, info.blessingAngle));
+  const legend = document.createElement('p');
+  legend.className = 'wish-legend';
+  legend.innerHTML = '<span class="wish-dot-self">●</span> မိမိအတွက် ဆုတောင်းရန် &nbsp;&nbsp; <span class="wish-dot-blessing">●</span> သူတစ်ပါးကို ဆုပေးရန် / မိမိအတွက်';
+  compassWrap.append(legend);
+  live.append(compassWrap);
+
+  const table = document.createElement('table');
+  table.className = 'tri-readings-table wish-table';
+  const thead = table.createTHead().insertRow();
+  for (const col of ['စဉ်', 'ကောဇာ စန်းယှဉ်နက္ခတ်', 'မိမိအတွက် ဆုတောင်းရန်', 'သူတစ်ပါးကို ဆုပေးရန် (မိမိအတွက်လည်းရ)']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = col;
+    thead.append(th);
+  }
+  const tbody = table.createTBody();
+  yatraNames.forEach((name, idx) => {
+    const row = tbody.insertRow();
+    if (idx === moon.index) row.className = 'tri-row-active';
+    row.insertCell().textContent = mm(idx + 1);
+    const th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = name + 'နက္ခတ်' + (idx === moon.index ? ' (ရောက်ဆဲ)' : '');
+    row.append(th);
+    row.insertCell().textContent = wishSelfDirections[idx] + ' မျက်နှာမူပါ။';
+    row.insertCell().textContent = wishBlessingDirections[idx] + ' မျက်နှာမူပါ။';
+  });
+  tableWrap.replaceChildren(table);
+}
+
+byId('wish-time-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const err = byId('wish-time-error');
+  try {
+    const [d, t] = byId('wish-custom-time').value.split('T');
+    wishTransitInstant = myanmarBirthInstant(d, t);
+    err.textContent = '';
+    renderWishDirection(wishTransitInstant);
+  } catch {
+    err.textContent = 'ရွေးထားသည့် ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('wish-now').addEventListener('click', () => {
+  wishTransitInstant = undefined;
+  byId('wish-custom-time').value = '';
+  byId('wish-time-error').textContent = '';
+  renderWishDirection(new Date());
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
@@ -2444,7 +2595,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -2506,8 +2657,13 @@ function showPage() {
   byId('tripataki-output').hidden = !showTriResult;
   if (showTriResult) byId('tri-output-title').focus();
   else if (page === 'tripataki' && rawHash === 'tripataki-result') window.history.replaceState(null, '', '#tripataki');
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('wish').hidden = page !== 'wish';
+  if (page === 'wish') {
+    renderWishDirection();
+    byId('wish-title').focus();
+  }
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -2552,11 +2708,12 @@ function openStarInformation(name) {
   const index = yatraNames.indexOf(name);
   starDialogTitle.textContent = name + 'နက္ခတ်';
   starDialogBody.replaceChildren();
-  const sets = [yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
-  const titles = ['ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', 'နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', 'နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', 'နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', 'နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra6Title, yatra7Title, yatra8Title, foodTitle];
+  const wishDescriptions = yatraNames.map((_, idx) => `မိမိအတွက် ဆုတောင်းရန် — ${wishSelfDirections[idx]} မျက်နှာမူပါ။\nသူတစ်ပါးကို ဆုပေးရန် (မိမိအတွက်လည်း သုံးနိုင်) — ${wishBlessingDirections[idx]} မျက်နှာမူပါ။`);
+  const sets = [wishDescriptions, yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra6Descriptions, yatra7Descriptions, yatra8Descriptions, foodDescriptions];
+  const titles = ['ဆုတောင်းပြည့် အရပ်မျက်နှာ (ကောဇာစန်းယှဉ် · အခန်း ၃၀)', 'ဇောတိတတ္ထ နိဿရည်းကျမ်းမှ နက္ခတ်ယတြာ', 'နက္ခတ်ညံ့လျှင် လုပ်ရသော ယတြာများ', 'နက္ခတ် ညံ့လျှင် လုပ်ရသော ယတြာများ (မူကွဲ)', 'နက္ခတ်ကောင်းကျိုးရစေသော ယတြာများ', 'နက္ခတ်၏ ထူးခြားသော စနစ်တစ်ခု', yatra6Title, yatra7Title, yatra8Title, foodTitle];
   titles.forEach((title, position) => {
     const value = index >= 0 ? sets[position][index]
-      : position === 2 ? abhijit.querySelector('p').textContent : position === 6 ? 'ထောပတ်ထမင်း။' : position === 7 ? yatra8Groups[0][1] : '';
+      : position === 3 ? abhijit.querySelector('p').textContent : position === 7 ? 'ထောပတ်ထမင်း။' : position === 8 ? yatra8Groups[0][1] : '';
     if (!value) return;
     const heading = document.createElement('h3');
     heading.textContent = title;

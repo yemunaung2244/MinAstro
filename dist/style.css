@@ -1182,3 +1182,84 @@ html { touch-action: pan-x pan-y; }
     padding: 5px 4px;
   }
 }
+
+.wish-controls {
+  margin-block: 14px 18px;
+}
+
+.wish-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wish-actions .janma-submit {
+  width: auto;
+  margin-top: 0;
+  flex: 1 1 220px;
+}
+
+.wish-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.wish-card-self {
+  border-color: #82b7d5;
+  background: #edf7ff;
+}
+
+.wish-card-blessing {
+  border-color: #cfa6c8;
+  background: #fbf2fa;
+}
+
+.wish-dir-main {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--sky-accent);
+}
+
+.wish-card-blessing .wish-dir-main {
+  color: #854078;
+}
+
+.wish-compass-wrap {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fbfdff;
+  text-align: center;
+}
+
+.wish-compass-svg {
+  display: block;
+  width: min(100%, 290px);
+  height: auto;
+  margin-inline: auto;
+}
+
+.wish-compass-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.wish-legend {
+  margin-top: 10px;
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+.wish-dot-self { color: #15547b; font-weight: 900; }
+.wish-dot-blessing { color: #854078; font-weight: 900; }
+
+@media (max-width: 670px) {
+  .wish-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
