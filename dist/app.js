@@ -7,6 +7,7 @@ import { catalogs, getRuler, myanmarUtcOffset, nadikaPractices, solarTimes, toMi
 import { yatra6Title, yatra6Descriptions } from './yatra6.js';
 import { tripatakiPlanetNames, tripatakiSingleReadings, tripatakiDoubleReadings, tripatakiTripleReadings, tripatakiChakraRoles, tripatakiCombinationReadings, ketuPatakiHouses, guruChakraHouses, ketuChakraGridHouses, tripatakiForAge, runningAgeAt } from './tripataki.js';
 import { wishSelfDirections, wishBlessingDirections, wishDirectionForNakshatra } from './wish-direction.js';
+import { lattaPlanetDefs, sunLattaOccupantReadings, computeLattaSnapshot, evaluateLattaOnStar } from './latta.js';
 
 const byId = (id) => document.getElementById(id);
 const effectText = (name, effect) => {
@@ -96,6 +97,7 @@ const savedChartTypes = {
   upagraha: ['ဥပဂြဟ (၂၇) လုံးမူ', 'upagraha-form'],
   upagraha28: ['ဥပဂြဟ (၂၈) လုံးမူ', 'upagraha-form'],
   tripataki: ['တြိပတာကီစက်', 'tripataki-form'],
+  latta: ['လတ္တာစက်', 'latta-natal-form'],
   akha: ['အခါပဒေသာ', 'akha-form'],
   panchang: ['Panchang', 'panchang-form'],
 };
@@ -196,8 +198,8 @@ function renderSavedCharts() {
     for (const record of group) {
       const fields = Object.fromEntries(record.fields);
       const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
-        ['janma', 'upa', 'tri'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
-      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : 'upa';
+        ['janma', 'upa', 'tri', 'latta'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
+      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : 'upa';
       const birthTime = fields[birthPrefix + '-hour']
         ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
       const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
@@ -2582,6 +2584,229 @@ byId('wish-now').addEventListener('click', () => {
   renderWishDirection(new Date());
 });
 
+connectTownSearch('latta');
+let lattaTab = 'transit';
+let lattaTransitInstant;
+const lattaTabButtons = [...document.querySelectorAll('[data-latta-tab]')];
+
+function showLattaTab(tab) {
+  lattaTab = tab;
+  for (const btn of lattaTabButtons) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.lattaTab === tab));
+  }
+  byId('latta-panel-transit').hidden = tab !== 'transit';
+  byId('latta-panel-natal').hidden = tab !== 'natal';
+}
+
+for (const btn of lattaTabButtons) {
+  btn.addEventListener('click', () => showLattaTab(btn.dataset.lattaTab));
+}
+
+function buildLattaTable(snapshot, highlightStarIndex) {
+  const scroll = document.createElement('div');
+  scroll.className = 'tri-table-scroll';
+  const table = document.createElement('table');
+  table.className = 'tri-readings-table latta-table';
+  const thead = table.createTHead().insertRow();
+  for (const col of ['ဂြိုဟ်', 'စီးနက္ခတ်', 'တွက်ပုံ', 'လတ္တာသင့် နက္ခတ်']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = col;
+    thead.append(th);
+  }
+  const tbody = table.createTBody();
+  for (const p of snapshot.planets) {
+    const row = tbody.insertRow();
+    const hitTarget = highlightStarIndex !== undefined && p.lattaIndex === highlightStarIndex;
+    if (hitTarget) row.className = 'latta-row-hit';
+    const th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = p.name + (p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' (ဝကြ)' : '');
+    row.append(th);
+    row.insertCell().textContent = `${yatraNames[p.starIndex]} · ပါဒ ${mm(p.pada)}`;
+    row.insertCell().textContent = p.ruleText;
+    const lattaCell = row.insertCell();
+    lattaCell.textContent = yatraNames[p.lattaIndex] + 'နက္ခတ်' + (hitTarget ? ' ⚠' : '');
+  }
+  scroll.append(table);
+  return scroll;
+}
+
+function buildLattaEvaluationCards(container, title, targetStarIndex, snapshot) {
+  const evalRes = evaluateLattaOnStar(targetStarIndex, snapshot);
+  const card = document.createElement('article');
+  card.className = 'entry latta-eval-card' + (evalRes.lattaHits.length ? ' latta-card-alert' : ' latta-card-clear');
+  const h = document.createElement('h3');
+  h.textContent = `${title} — ${yatraNames[targetStarIndex]}နက္ခတ်`;
+  card.append(h);
+  if (evalRes.occupants.length) {
+    const occLine = document.createElement('p');
+    occLine.className = 'hint';
+    occLine.textContent = 'စီးနေသောဂြိုဟ်များ — ' + evalRes.occupants.map(p => p.name + (p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' (ဝကြ)' : '')).join('၊ ');
+    card.append(occLine);
+  }
+  if (!evalRes.lattaHits.length) {
+    const ok = document.createElement('p');
+    ok.textContent = 'ဤနက္ခတ်ကို လတ္တာသင့်နေသော ဂြိုဟ် မရှိပါ။';
+    card.append(ok);
+  } else {
+    const list = document.createElement('ul');
+    list.className = 'latta-hit-list';
+    for (const p of evalRes.lattaHits) {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = `${p.name} လတ္တာသင့် (${yatraNames[p.starIndex]}မှ ${p.ruleText}) — `;
+      li.append(strong, p.janmaReading);
+      list.append(li);
+    }
+    card.append(list);
+  }
+  for (const combo of evalRes.combinations) {
+    const box = document.createElement('p');
+    box.className = 'latta-combo-alert';
+    const strong = document.createElement('strong');
+    strong.textContent = `ပေါင်းစပ်အဟော (${combo.title}) — `;
+    box.append(strong, combo.reading);
+    card.append(box);
+  }
+  container.append(card);
+}
+
+function appendSunLattaAndUpaChecks(container, labelPrefix, snapshot) {
+  const sunCard = document.createElement('article');
+  sunCard.className = 'entry';
+  const h = document.createElement('h3');
+  h.textContent = `${labelPrefix} တနင်္ဂနွေ လတ္တာသင့် နက္ခတ် (${yatraNames[snapshot.sunLattaIndex]}နက္ခတ်) တွင် ဂြိုဟ်စီးမှု`;
+  sunCard.append(h);
+  if (!snapshot.sunLattaOccupants.length) {
+    const p = document.createElement('p');
+    p.textContent = `${yatraNames[snapshot.sunLattaIndex]}နက္ခတ်တွင် အခြားဂြိုဟ် စီးနေခြင်း မရှိပါ။`;
+    sunCard.append(p);
+  } else {
+    const ul = document.createElement('ul');
+    ul.className = 'latta-hit-list';
+    for (const { planet, reading } of snapshot.sunLattaOccupants) {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = `${planet.name} ရှိနေသည် — `;
+      li.append(strong, reading);
+      ul.append(li);
+    }
+    sunCard.append(ul);
+  }
+  container.append(sunCard);
+
+  if (snapshot.upagrahaHits.length) {
+    const upaCard = document.createElement('article');
+    upaCard.className = 'entry latta-card-alert';
+    const uh = document.createElement('h3');
+    uh.textContent = `${labelPrefix} အထူးသတိပြုချက် — ဥပဂြဟ + လတ္တာ + ပါပဂြိုဟ်စီး`;
+    upaCard.append(uh);
+    const ul = document.createElement('ul');
+    ul.className = 'latta-hit-list';
+    for (const hit of snapshot.upagrahaHits) {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = `${yatraNames[hit.starIndex]}နက္ခတ် (${hit.upaName} · လတ္တာ: ${hit.lattaBy.map(p => p.name).join('၊ ')} · စီး: ${hit.maleficsHere.map(p => p.name).join('၊ ')}) — `;
+      li.append(strong, hit.reading);
+      ul.append(li);
+    }
+    upaCard.append(ul);
+    container.append(upaCard);
+  }
+}
+
+function renderLattaTransit(instant = lattaTransitInstant || new Date()) {
+  const out = byId('latta-transit-result');
+  out.replaceChildren();
+  const snap = computeLattaSnapshot(instant);
+  const timeFmt = new Intl.DateTimeFormat('my-MM', { timeZone: 'Asia/Yangon', dateStyle: 'full', timeStyle: 'medium' });
+  const overview = document.createElement('header');
+  overview.className = 'akha-overview';
+  const h = document.createElement('h3');
+  h.textContent = `ကောဇာစန်း — ${yatraNames[snap.byId.moon.starIndex]}နက္ခတ် · ပါဒ ${mm(snap.byId.moon.pada)}`;
+  const p1 = document.createElement('p');
+  p1.textContent = `ကြည့်ရှုချိန် — ${timeFmt.format(instant)} (မြန်မာစံတော်ချိန်)`;
+  const uniqueLattaStars = [...new Set(snap.planets.map(p => p.lattaIndex))].map(i => yatraNames[i]).join('၊ ');
+  const p2 = document.createElement('p');
+  p2.textContent = `အခါရွေးရာတွင် ရှောင်ရန် လတ္တာသင့် နက္ခတ်များ — ${uniqueLattaStars}`;
+  overview.append(h, p1, p2);
+  out.append(overview);
+
+  buildLattaEvaluationCards(out, 'ကောဇာ စန်းယှဉ်နက္ခတ် စစ်ဆေးချက်', snap.byId.moon.starIndex, snap);
+  appendSunLattaAndUpaChecks(out, 'ကောဇာ', snap);
+
+  const tTitle = document.createElement('h3');
+  tTitle.className = 'tri-section-title';
+  tTitle.textContent = 'ကောဇာ ဂြိုဟ် ၉ လုံး လတ္တာဇယား';
+  out.append(tTitle, buildLattaTable(snap, snap.byId.moon.starIndex));
+}
+
+byId('latta-transit-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const err = byId('latta-transit-error');
+  try {
+    const [d, t] = byId('latta-transit-time').value.split('T');
+    lattaTransitInstant = myanmarBirthInstant(d, t);
+    err.textContent = '';
+    renderLattaTransit(lattaTransitInstant);
+  } catch {
+    err.textContent = 'ရွေးထားသည့် ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('latta-transit-now').addEventListener('click', () => {
+  lattaTransitInstant = undefined;
+  byId('latta-transit-time').value = '';
+  byId('latta-transit-error').textContent = '';
+  renderLattaTransit(new Date());
+});
+
+byId('latta-natal-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const err = byId('latta-natal-error');
+  const out = byId('latta-natal-result');
+  out.replaceChildren();
+  try {
+    const birthInstant = readBirthInstant('latta');
+    const customTransitVal = byId('latta-natal-transit').value;
+    const transitInstant = customTransitVal ? myanmarBirthInstant(...customTransitVal.split('T')) : new Date();
+    const natalSnap = computeLattaSnapshot(birthInstant);
+    const transitSnap = computeLattaSnapshot(transitInstant);
+    const janmaIndex = natalSnap.byId.moon.starIndex;
+    const timeFmt = new Intl.DateTimeFormat('my-MM', { timeZone: 'Asia/Yangon', dateStyle: 'medium', timeStyle: 'short' });
+
+    const overview = document.createElement('header');
+    overview.className = 'akha-overview';
+    const h = document.createElement('h3');
+    h.textContent = `မူလ ဇနမနက္ခတ် — ${yatraNames[janmaIndex]}နက္ခတ် · ပါဒ ${mm(natalSnap.byId.moon.pada)}`;
+    const p = document.createElement('p');
+    p.textContent = `မွေးချိန် ${timeFmt.format(birthInstant)} · ကောဇာစစ်ချိန် ${timeFmt.format(transitInstant)}`;
+    overview.append(h, p);
+    out.append(overview);
+
+    buildLattaEvaluationCards(out, 'မူလဇာတာ → မူလဇနမနက္ခတ် လတ္တာစစ်ဆေးချက်', janmaIndex, natalSnap);
+    buildLattaEvaluationCards(out, 'ကောဇာ → မူလဇနမနက္ခတ် လတ္တာစစ်ဆေးချက်', janmaIndex, transitSnap);
+    appendSunLattaAndUpaChecks(out, 'မူလ', natalSnap);
+    appendSunLattaAndUpaChecks(out, 'ကောဇာ', transitSnap);
+
+    const nTitle = document.createElement('h3');
+    nTitle.className = 'tri-section-title';
+    nTitle.textContent = 'မူလ ဂြိုဟ် ၉ လုံး လတ္တာဇယား';
+    out.append(nTitle, buildLattaTable(natalSnap, janmaIndex));
+
+    const tTitle = document.createElement('h3');
+    tTitle.className = 'tri-section-title';
+    tTitle.textContent = 'ကောဇာ ဂြိုဟ် ၉ လုံး လတ္တာဇယား';
+    out.append(tTitle, buildLattaTable(transitSnap, janmaIndex));
+
+    err.textContent = '';
+    saveChart('latta');
+  } catch {
+    err.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
@@ -2595,7 +2820,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'latta', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -2657,13 +2882,18 @@ function showPage() {
   byId('tripataki-output').hidden = !showTriResult;
   if (showTriResult) byId('tri-output-title').focus();
   else if (page === 'tripataki' && rawHash === 'tripataki-result') window.history.replaceState(null, '', '#tripataki');
+  byId('latta').hidden = page !== 'latta';
+  if (page === 'latta') {
+    renderLattaTransit();
+    byId('latta-title').focus();
+  }
   byId('wish').hidden = page !== 'wish';
   if (page === 'wish') {
     renderWishDirection();
     byId('wish-title').focus();
   }
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);

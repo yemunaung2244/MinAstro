@@ -1380,4 +1380,63 @@ html { touch-action: pan-x pan-y; }
     text-align: center;
     width: 28px;
   }
+  .latta-table th,
+  .latta-table td {
+    padding: 6px 4px;
+    font-size: .75rem;
+  }
+}
+
+#latta-natal-form .janma-parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+#latta-natal-form .janma-parts input {
+  max-width: 6rem;
+  min-height: 38px;
+  padding: 5px 9px;
+}
+
+#latta-transit-result .entry,
+#latta-natal-result .entry {
+  margin-top: 14px;
+}
+
+.latta-card-alert {
+  border-color: #d9829d;
+  background: #fff5f8;
+}
+
+.latta-card-clear {
+  border-color: #96c7a8;
+  background: #f2fbf5;
+}
+
+.latta-hit-list {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.latta-combo-alert {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fde8ef;
+  border-inline-start: 3px solid #9d2451;
+  color: #5a122e;
+}
+
+.latta-row-hit th,
+.latta-row-hit td {
+  background: #fde8ef !important;
+  color: #6b1535;
+  font-weight: 800;
 }

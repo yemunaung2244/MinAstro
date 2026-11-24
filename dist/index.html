@@ -30,6 +30,7 @@
       <a class="home-choice" href="#akha">အခါပဒေသာ</a>
       <a class="home-choice" href="#books">ဆရာမင်းနိုင်ရဲ့ စာအုပ်များ</a>
       <a class="home-choice" href="#tripataki">တြိပတာကီစက်</a>
+      <a class="home-choice" href="#latta">လတ္တာစက်</a>
       <a class="home-choice" href="#wish">ဆုတောင်းပြည့် အရပ်မျက်နှာ</a>
       <a class="home-choice" href="#panchang">Panchang</a>
     </nav>
@@ -176,6 +177,61 @@
         <p>ဒုတိယစနစ်ဟာ မိမိက သူတစ်ပါးကို ဆုပေးရင်တောင် ပြည့်စေတတ်သော အရပ်မျက်နှာများ ဖြစ်ပါတယ်။ မိမိအတွက်လဲ အသုံးပြုနိုင်ပါတယ်။ ဒါကိုလဲ ကောဇာစန်းယှဉ်နက္ခတ်တွေနဲ့ပဲ သုံးပါ။</p>
         <p>နက္ခတ်ဟာ ကျက်သရေ မင်္ဂလာ ရှိခြင်းနဲ့ တွဲဖက်ရတာမို့လို့ ကျက်သရေ မင်္ဂလာရှိသော မနောကံ၊ ကျက်သရေ မင်္ဂလာရှိသော ဝစီကံ၊ ကျက်သရေ မင်္ဂလာရှိသော ကာယကံများကို ကောင်းသည်ထက် ကောင်းအောင် တည်ထောင်ယူနေမှသာလျှင် ဒီပညာခွင်ဟာ ကိုယ့်ဆီမှာ မြဲမယ်၊ အကျိုးပေးမယ်။</p>
         <p>နရပတိဇေယျစာရရဲ့ သရောဒယကျမ်းမှာပါတဲ့ နက္ခတ္တကာလဘူမိစက်ကို လူတိုင်း အလွယ်သုံးတတ်အောင် ရေးပေးထားခြင်း ဖြစ်ပါတယ်။ ကောဇာစန်းစီးလာတာနဲ့တင် ဒီနက္ခတ်အရပ်မျက်နှာ စနစ်ကို သုံးလို့ရပါတယ်။ ပါပဂြိုဟ်စီးတာ၊ လတ္တာ၊ ဥပဂြဟ ဘာညာ ဘာမှ ထည့်စဉ်းစားစရာ မလိုပါဘူး။</p>
+      </details>
+    </section>
+    <section id="latta" class="catalog" hidden>
+      <h1 id="latta-title" tabindex="-1">လတ္တာစက်</h1>
+      <p class="hint">အခန်း (၂၀) · ဂြိုဟ် ၉ လုံး လတ္တာသင့် နက္ခတ်နှင့် အဟောများ (Lahiri ခန့်မှန်းတွက်ချက်မှု)</p>
+      <nav class="suriya-reading-tabs" aria-label="လတ္တာစက် မီနူး">
+        <button type="button" data-latta-tab="transit" aria-pressed="true">ကောဇာ လတ္တာစက်</button>
+        <button type="button" data-latta-tab="natal" aria-pressed="false">မူလ + ကောဇာ (မွေးသက္ကရာဇ်)</button>
+      </nav>
+      <div id="latta-panel-transit">
+        <form id="latta-transit-form" class="controls wish-controls">
+          <label class="field">ကြည့်လိုသည့် ရက်နှင့် အချိန် (မြန်မာစံတော်ချိန်)
+            <input id="latta-transit-time" type="datetime-local" step="1" required>
+          </label>
+          <div class="wish-actions">
+            <button class="janma-submit" type="submit">ရွေးထားသည့်အချိန် တွက်မည်</button>
+            <button id="latta-transit-now" class="akha-edit" type="button">လက်ရှိအချိန် ပြန်ကြည့်မည်</button>
+          </div>
+          <p id="latta-transit-error" role="status"></p>
+        </form>
+        <div id="latta-transit-result" aria-live="polite"></div>
+      </div>
+      <div id="latta-panel-natal" hidden>
+        <form id="latta-natal-form" class="controls">
+          <label class="field">အမည်<input id="latta-natal-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
+          <fieldset class="janma-parts">
+            <legend>မွေးသက္ကရာဇ်</legend>
+            <label>ရက်<input id="latta-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="latta-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="latta-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>မွေးချိန်</legend>
+            <label>နာရီ<input id="latta-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="latta-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="latta-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="latta-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>မွေးဖွားရာမြို့ ရှာရန် <input id="latta-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>မွေးဖွားရာမြို့ <select id="latta-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+          <label>ကောဇာ စစ်ဆေးလိုသည့်အချိန် (မထည့်လျှင် လက်ရှိအချိန်)<input id="latta-natal-transit" type="datetime-local" step="1"></label>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+          <p id="latta-natal-error" role="status"></p>
+        </form>
+        <div id="latta-natal-result" aria-live="polite"></div>
+      </div>
+      <details class="tri-guide">
+        <summary>လတ္တာစက် တွက်နည်း၊ အဟောနှင့် ဆရာမင်းနိုင်၏ ရှင်းလင်းချက် (အခန်း ၂၀ · စာမျက်နှာ ၇၇ – ၈၁)</summary>
+        <h4>ဂြိုဟ် ၉ လုံး လတ္တာတွက်ပုံ</h4>
+        <p><strong>ရှေ့တိုးရေတွက်သော ဂြိုဟ် ၄ လုံး (ရှေ့ကာကွယ်ရေးစနစ်)</strong> — တနင်္ဂနွေ (ရှေ့ ၁၂ လုံးမြောက်)၊ အင်္ဂါ (ရှေ့ ၃ လုံးမြောက်)၊ ကြာသပတေး (ရှေ့ ၆ လုံးမြောက်)၊ စနေ (ရှေ့ ၈ လုံးမြောက်)။</p>
+        <p><strong>နောက်ဆုတ်ရေတွက်သော ဂြိုဟ် ၅ လုံး (နောက်ကျောကာကွယ်ရေးစနစ်)</strong> — တနင်္လာ (နောက် ၂၂ လုံးမြောက်)၊ ဗုဒ္ဓဟူး (နောက် ၇ လုံးမြောက်)၊ သောကြာ (နောက် ၅ လုံးမြောက်)၊ ရာဟု (နောက် ၉ လုံးမြောက်)၊ ကိတ် (နောက် ၉ လုံးမြောက် — ရာဟုနှင့် လတ္တာချင်းတူ)။</p>
+        <h4>လတ္တာ၏ အနှစ်သာရနှင့် အသုံးချပုံ</h4>
+        <p>လတ္တာဆိုသည်မှာ ဂြိုဟ်တို့၏ ခုခံကာကွယ်မှုစနစ် (ကိုယ်ရံတော်တပ်သား ကင်းပုန်းရှိရာ နက္ခတ်) ကို ဆိုလိုပါသည်။ လုံခြုံရေးယူထားသော နေရာသို့ ထင်သလို ဝင်ထွက်သွားလာမိလျှင် ဘေးသင့်တတ်သော်လည်း၊ မည်သည့်နက္ခတ် လတ္တာမိနေစေကာမူ ငြိမ်ငြိမ်လေး နေတတ်ပြီး သက်ဆိုင်ရာဂြိုဟ်ကို ကောင်းသောအသွင်ဆောင် ယတြာ/ကုသိုလ်ပြုပေးပါက ကျေးဇူးတုံ့ပြန်ခြင်း (ဥပမာ — အိမ်ပိုင်ရခြင်း) ကဲ့သို့ ကောင်းကျိုးပြန်လည်ရရှိနိုင်ပါသည်။</p>
+        <p>အခါရွေးရာတွင် လတ္တာသင့်ထားသော နက္ခတ်များကို ရှောင်ရပါမည်။ နက္ခတ်တစ်လုံးသည် ဥပဂြဟလည်းဖြစ်၊ လတ္တာလည်းသင့်၊ ပါပဂြိုဟ်လည်းစီးနေလျှင် အနာရောဂါနှိပ်စက်တတ်ပြီး ပါပဂြိုဟ် ဝကြသွားပါက အထူးသတိပြုရပါမည်။</p>
+        <p>မူလဇာတာတွင် လတ္တာသင့်သော နက္ခတ်များသည် အတိတ်ဘဝက မိမိ အလေးမထား ဥပေက္ခာပြုခဲ့သော အရာများကို ညွှန်ပြတတ်သဖြင့် ဤဘဝတွင် တန်ဖိုးထား ကျေးဇူးတင်တတ်အောင် ပြုပြင်နေထိုင်ရပါမည်။</p>
       </details>
     </section>
     <section id="panchang" class="catalog" hidden>
