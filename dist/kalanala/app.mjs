@@ -426,18 +426,23 @@ function showPage(focus = false) {
   const bhumi = hash === bhumiForm || hash === bhumiResult;
   const result = hash === resultHash || hash === fourteenResult || hash === bhumiResult;
   const hasResult = Boolean(current) && Boolean(current.fourteen) === fourteen && Boolean(current.bhumi) === bhumi;
-  let page = 'home';
+  let page;
   if (result && hasResult) {
     page = 'results';
   } else if (result || hash === '#calculator' || hash === fourteenForm || hash === bhumiForm) {
     page = 'calculator';
     if (result) history.replaceState(null, '', bhumi ? bhumiForm : fourteen ? fourteenForm : '#calculator');
+  } else {
+    location.replace('../index.html#home');
+    return;
   }
-  find('calculator-title').textContent = bhumi ? bhumiName : fourteen ? fourteenName : standardName;
+  const name = bhumi ? bhumiName : fourteen ? fourteenName : standardName;
+  document.title = `${name} · Nakshatra (နက္ခတ်)`;
+  find('calculator-title').textContent = name;
   find('view-result').hidden = !hasResult;
   savedActions.hidden = bhumi || fourteen || !readSaved();
   if (page === 'calculator') updateFields();
-  for (const view of ['home', 'calculator', 'results']) find(view).hidden = view !== page;
+  for (const view of ['calculator', 'results']) find(view).hidden = view !== page;
   if (focus) {
     find(page + '-title').focus({ preventScroll: true });
     window.scrollTo(0, 0);
