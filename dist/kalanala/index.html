@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#dff3ff">
+<link rel="icon" type="image/png" href="../assets/nakshatra-192.png">
+<link rel="apple-touch-icon" href="../assets/nakshatra-180.png">
+<title>ကာလာနလစက်များ · Nakshatra (နက္ခတ်)</title>
+<link rel="stylesheet" href="style.css?v=dual-vedha-mobile">
+</head>
+<body>
+<header class="site-header">
+  <div class="shell header-bar">
+    <a class="brand-link" href="../index.html#home"><img class="brand-logo" src="../assets/nakshatra-192.png" width="32" height="32" alt="">Nakshatra <span>(နက္ခတ်)</span></a>
+    <a class="back-main-link" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  </div>
+</header>
+<main class="shell">
+  <section id="home" aria-labelledby="home-title">
+    <div class="heading"><h1 id="home-title" tabindex="-1">ကာလာနလစက်များ</h1></div>
+    <nav class="machine-menu" aria-label="စက်ရွေးရန်">
+      <a href="#calculator">ဂူဍကာလာနလစက်</a>
+      <a href="#chaturdasha">စတုဒ္ဒဿဂူဍကာလာနလစက်</a>
+      <a href="#bhumi">ကာလရေခါ ဘူမိစက်</a>
+    </nav>
+  </section>
+  <section id="calculator" aria-labelledby="calculator-title" hidden>
+    <a class="home-link" href="#home">ပင်မစာမျက်နှာ</a>
+    <div class="heading">
+      <h1 id="calculator-title" tabindex="-1">ဂူဍကာလာနလစက်</h1>
+      <p>ရက်စွဲနှင့် အချိန်မှ နက္ခတ်တွက်ပါ၊ သို့မဟုတ် သိပြီးသား နက္ခတ်ကို ရွေး၍ စက်ချပါ။</p>
+    </div>
+    <p id="calculator-status" class="hint" role="status" hidden></p>
+    <form class="card inputs" id="chart-form">
+      <h2>စက်ချရန်</h2>
+      <label id="mode-field">စက်အမျိုးအစား<select id="mode"></select></label>
+      <label>နက္ခတ်ထည့်သွင်းနည်း
+        <select id="method"><option value="auto">အလိုအလျောက်တွက်ရန်</option><option value="manual">ကိုယ်တိုင်ရွေးရန်</option></select>
+      </label>
+      <label id="anchor-field" hidden><span id="anchor-label"></span><select id="anchor"></select></label>
+      <label id="date-field"><span id="date-label"></span>
+        <input id="date" type="datetime-local" min="1600-01-01T00:00" max="2200-12-31T23:59:59" step="1" required>
+      </label>
+      <label id="year-field" hidden>ခရစ်နှစ်<input id="year" type="number" min="1600" max="2200" step="1" required></label>
+      <p id="method-note" class="hint"></p>
+      <p id="error" role="alert" hidden></p>
+      <button class="primary" type="submit">စက်တွက်မည်</button>
+    </form>
+    <div class="actions saved-actions">
+      <button type="button" id="view-result" hidden>လက်ရှိရလဒ် ကြည့်မည်</button>
+    </div>
+    <div class="actions saved-actions" id="saved-actions" hidden>
+      <button type="button" id="restore">သိမ်းထားသော စက်များ ပြန်ဖွင့်မည်</button>
+      <button type="button" id="clear-saved">သိမ်းထားသည်ကို ဖယ်မည်</button>
+    </div>
+  </section>
+  <section class="results" id="results" aria-labelledby="results-title" hidden>
+    <div class="heading">
+      <h1 id="results-title" tabindex="-1">စက်ရလဒ်</h1>
+    </div>
+    <div class="result-nav">
+      <a class="home-link" href="#home">ပင်မစာမျက်နှာ</a>
+      <button type="button" id="edit">တွက်ချက်မှုသို့ ပြန်သွားမည်</button>
+    </div>
+    <p class="hint" id="status" role="status"></p>
+    <div class="charts" id="charts"></div>
+  </section>
+</main>
+<dialog id="department-dialog" aria-labelledby="department-title">
+  <header class="department-dialog-header">
+    <h2 id="department-title"></h2>
+    <form method="dialog"><button type="submit" autofocus>ပိတ်မည်</button></form>
+  </header>
+  <div class="department-dialog-body">
+    <p id="department-stars"></p>
+    <p id="department-meaning"></p>
+    <div id="department-excerpt"></div>
+  </div>
+</dialog>
+<template id="chart-template">
+  <article class="card chart">
+    <h2 data-part="title"></h2>
+    <div data-part="summary"></div>
+    <div class="board" data-part="board"></div>
+    <section class="reading" data-part="reading" aria-live="polite"></section>
+    <details class="source-details" data-part="group-source" open>
+      <summary>အုပ်စုအလိုက် မူရင်းအဟော</summary>
+      <div data-part="excerpt"></div>
+    </details>
+  </article>
+</template>
+<script type="module" src="app.mjs?v=dual-vedha"></script>
+</body>
+</html>

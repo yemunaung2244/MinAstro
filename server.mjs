@@ -27,12 +27,30 @@ const assets = new Map([
   ['/assets/nakshatra-512.png', ['assets/nakshatra-512.png', 'image/png']],
 ]);
 
+const kalanalaTypes = new Map([
+  ['.html', 'text/html'],
+  ['.css', 'text/css'],
+  ['.mjs', 'text/javascript'],
+  ['.js', 'text/javascript'],
+]);
+
+function resolveKalanala(path) {
+  if (path === '/kalanala' || path === '/kalanala/') {
+    return ['kalanala/index.html', 'text/html'];
+  }
+  const match = /^\/kalanala\/([a-z0-9._-]+(\.html|\.css|\.mjs|\.js))$/.exec(path);
+  if (!match) return null;
+  const type = kalanalaTypes.get(match[2]);
+  return type ? [`kalanala/${match[1]}`, type] : null;
+}
+
 createServer(async (request, response) => {
   const path = request.url.split('?')[0];
   const book = /^\/assets\/books\/nakshatra-[1-9]\.pdf$/.test(path);
   const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
   const asset = book ? [path.slice(1), 'application/pdf']
-    : cover ? [path.slice(1), 'image/jpeg'] : assets.get(path);
+    : cover ? [path.slice(1), 'image/jpeg']
+    : resolveKalanala(path) ?? assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;
