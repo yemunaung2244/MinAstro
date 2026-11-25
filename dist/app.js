@@ -2442,7 +2442,7 @@ let wishTransitInstant;
 function buildWishCompassSvg(selfAngle, blessingAngle) {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', '-36 -14 332 288');
+  svg.setAttribute('viewBox', '-46 -18 352 296');
   svg.setAttribute('class', 'wish-compass-svg');
   svg.setAttribute('aria-label', 'အရပ် ၈ မျက်နှာ သံလိုက်အိမ်မြှောင်');
   const cx = 130, cy = 130, r = 86;
@@ -2538,30 +2538,47 @@ function renderWishDirection(instant = wishTransitInstant || new Date()) {
   compassWrap.append(buildWishCompassSvg(info.selfAngle, info.blessingAngle));
   const legend = document.createElement('p');
   legend.className = 'wish-legend';
-  legend.innerHTML = '<span class="wish-dot-self">●</span> မိမိအတွက် ဆုတောင်းရန် &nbsp;&nbsp; <span class="wish-dot-blessing">●</span> သူတစ်ပါးကို ဆုပေးရန် / မိမိအတွက်';
+  legend.innerHTML = '<span class="wish-legend-item"><span class="wish-dot-self">●</span> မိမိအတွက် ဆုတောင်းရန်</span><span class="wish-legend-item"><span class="wish-dot-blessing">●</span> သူတစ်ပါးကို ဆုပေးရန် / မိမိအတွက်</span>';
   compassWrap.append(legend);
   live.append(compassWrap);
 
   const table = document.createElement('table');
-  table.className = 'tri-readings-table wish-table';
-  const thead = table.createTHead().insertRow();
-  for (const col of ['စဉ်', 'ကောဇာ စန်းယှဉ်နက္ခတ်', 'မိမိအတွက် ဆုတောင်းရန်', 'သူတစ်ပါးကို ဆုပေးရန် (မိမိအတွက်လည်းရ)']) {
+  table.className = 'tri-readings-table latta-table wish-table';
+  table.setAttribute('role', 'table');
+  const columns = ['ကောဇာ စန်းယှဉ်နက္ခတ်', 'မိမိအတွက် ဆုတောင်းရန်', 'သူတစ်ပါးကို ဆုပေးရန် (မိမိအတွက်လည်းရ)'];
+  const mobileLabels = ['မိမိအတွက်', 'သူတစ်ပါး / မိမိ'];
+  const head = table.createTHead();
+  head.setAttribute('role', 'rowgroup');
+  const thead = head.insertRow();
+  thead.setAttribute('role', 'row');
+  for (const col of columns) {
     const th = document.createElement('th');
     th.scope = 'col';
     th.textContent = col;
     thead.append(th);
   }
   const tbody = table.createTBody();
+  tbody.setAttribute('role', 'rowgroup');
   yatraNames.forEach((name, idx) => {
     const row = tbody.insertRow();
+    row.setAttribute('role', 'row');
     if (idx === moon.index) row.className = 'tri-row-active';
-    row.insertCell().textContent = mm(idx + 1);
     const th = document.createElement('th');
     th.scope = 'row';
-    th.textContent = name + 'နက္ခတ်' + (idx === moon.index ? ' (ရောက်ဆဲ)' : '');
+    th.setAttribute('role', 'rowheader');
+    th.textContent = `${mm(idx + 1)}။ ${name}နက္ခတ်` + (idx === moon.index ? ' (ရောက်ဆဲ)' : '');
     row.append(th);
-    row.insertCell().textContent = wishSelfDirections[idx] + ' မျက်နှာမူပါ။';
-    row.insertCell().textContent = wishBlessingDirections[idx] + ' မျက်နှာမူပါ။';
+    [wishSelfDirections[idx] + ' မျက်နှာမူပါ။', wishBlessingDirections[idx] + ' မျက်နှာမူပါ။'].forEach((value, colIdx) => {
+      const cell = row.insertCell();
+      cell.setAttribute('role', 'cell');
+      const label = document.createElement('span');
+      label.className = 'latta-cell-label';
+      label.setAttribute('aria-hidden', 'true');
+      label.textContent = mobileLabels[colIdx];
+      const content = document.createElement('span');
+      content.textContent = value;
+      cell.append(label, content);
+    });
   });
   tableWrap.replaceChildren(table);
 }

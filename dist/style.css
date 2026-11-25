@@ -1250,9 +1250,19 @@ html { touch-action: pan-x pan-y; }
 }
 
 .wish-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
   margin-top: 10px;
   font-size: .84rem;
   color: var(--muted);
+}
+
+.wish-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .wish-dot-self { color: #15547b; font-weight: 900; }
@@ -1347,8 +1357,27 @@ html { touch-action: pan-x pan-y; }
   .tri-readings-table tbody th {
     white-space: normal;
   }
+  #wish {
+    overflow-wrap: anywhere;
+    touch-action: pan-y;
+  }
+  #wish .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #wish .controls label {
+    min-width: 0;
+  }
+  #wish .controls input {
+    font-size: 1rem;
+    max-inline-size: 100%;
+  }
+  #wish .akha-overview {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
   .wish-summary-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
   .wish-actions {
     flex-direction: column;
@@ -1366,19 +1395,44 @@ html { touch-action: pan-x pan-y; }
   .wish-compass-wrap {
     padding: 12px 8px;
   }
+  .wish-compass-svg {
+    width: min(100%, 300px);
+  }
   .wish-legend {
-    font-size: .78rem;
-    line-height: 1.6;
+    font-size: .8rem;
+    line-height: 1.5;
+    gap: 4px 12px;
   }
-  .wish-table th,
-  .wish-table td {
-    padding: 6px 4px;
-    font-size: .76rem;
+  #wish-table {
+    overflow-x: visible;
   }
-  .wish-table td:first-child,
-  .wish-table th:first-child {
-    text-align: center;
-    width: 28px;
+  #wish .wish-table,
+  .wish-table tbody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    font-size: .9rem;
+  }
+  .wish-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fbfdff;
+  }
+  .wish-table tbody th,
+  .wish-table tbody td {
+    border: 0;
+    padding: 8px 10px;
+    text-align: start;
+    font-size: .9rem;
+  }
+  .wish-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 8px;
+    border-block-start: 1px solid var(--line);
   }
 }
 
