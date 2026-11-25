@@ -129,10 +129,22 @@ function drawDepartments(board, placements, definitions, openDepartment) {
 }
 
 const planetNames = ['တနင်္ဂနွေ', 'စန်း', 'အင်္ဂါ', 'ဗုဒ္ဓဟူး', 'ကြာသပတေး', 'သောကြာ', 'စနေ', 'ရာဟု', 'ကိတ်'];
+const myanmarDigit = n => (n + 1).toLocaleString('my-MM');
 
-function vedhaPanel(data, placements, svg) {
-  const panel = element('details', '', 'source-details vedha-panel');
-  panel.append(element('summary', 'မူလ / ကောဇာ ဂြိုဟ်အထွင်း'));
+function vedhaPanel(data, placements, svg, options = {}) {
+  const { buttons = null, groupDefinitions = null, collapsible = true } = options;
+  const panel = element(collapsible ? 'details' : 'section', '', 'source-details vedha-panel');
+  if (collapsible) {
+    panel.append(element('summary', 'မူလ / ကောဇာ ဂြိုဟ်အထွင်း'));
+  } else {
+    const header = element('div', '', 'vedha-header');
+    header.append(
+      element('h3', 'မူလ / ကောဇာ ဂြိုဟ်အထွင်းစနစ်'),
+      element('p', 'ဂြိုဟ်ခလုတ် သို့မဟုတ် စက်ပေါ်ရှိ ဂြိုဟ်စီးနက္ခတ်ကို နှိပ်၍ အထွင်းမျဉ်း ၃ ကြောင်း ကြည့်ပါ။', 'hint')
+    );
+    panel.append(header);
+  }
+
   const fields = element('div', '', 'vedha-fields');
   const kindLabel = element('label', 'ဂြိုဟ်အမျိုးအစား');
   const kind = element('select', '');
@@ -150,73 +162,290 @@ function vedhaPanel(data, placements, svg) {
   timeLabel.append(timeCaption, time);
   planetLabel.append(planet);
   fields.append(kindLabel, timeLabel, planetLabel);
+
+  const nowButton = element('button', 'လက်ရှိအချိန်', 'vedha-now-btn');
+  nowButton.type = 'button';
+  nowButton.hidden = true;
+  fields.append(nowButton);
+
+  const chips = element('div', '', 'vedha-planets');
   const output = element('div', '', 'vedha-output');
   output.setAttribute('aria-live', 'polite');
-  panel.append(fields, output);
+
+  const tableDetails = element('details', '', 'vedha-table-wrap');
+  tableDetails.append(element('summary', 'ဂြိုဟ်ကိုးပါး စီးနက္ခတ်နှင့် အထွင်းဇယား'));
+  const tableScroll = element('div', '', 'vedha-table-scroll');
+  tableDetails.append(tableScroll);
+
+  panel.append(fields, chips, output, tableDetails);
 
   const dates = [
     data.birthTime ?? (!data.bhumi && data.mode === 0 && data.instant ? myanmarDateTime(new Date(data.instant)) : ''),
     data.transitTime ?? (data.bhumi ? data.requested : myanmarDateTime())
   ];
   const selectedPlanets = [0, 0];
+  let currentPositions = null;
+
   const layer = document.createElementNS(svg.namespaceURI, 'g');
   layer.classList.add('vedha-lines');
   svg.append(layer);
 
-  function update() {
+  const planetDotsLayer = document.createElementNS(svg.namespaceURI, 'g');
+  planetDotsLayer.classList.add('vedha-planet-dots');
+  svg.append(planetDotsLayer);
+
+  const starAtSlot = slot => placements[slot].star;
+  const groupNameAtSlot = slot => groupDefinitions ? groupDefinitions[placements[slot].group][0] : '';
+  const planetsOnStar = star => currentPositions
+    ? planetNames.filter((_, idx) => currentPositions[idx] === star)
+    : [];
+
+  function clearStarHighlights() {
+    if (!buttons) return;
+    buttons.forEach(btn => {
+      btn.classList.remove('vedha-source', 'vedha-target-0', 'vedha-target-1', 'vedha-target-2');
+    });
+  }
+
+  function renderRays(planetIndex) {
     layer.replaceChildren();
-    planet.replaceChildren();
     output.replaceChildren();
-    planet.disabled = true;
-    if (!panel.open) return;
-    if (!time.value || !time.validity.valid) {
-      output.textContent = 'သက်ဆိုင်ရာ ရက်စွဲနှင့် အချိန် ထည့်ပါ။';
-      return;
-    }
-    let positions;
-    try {
-      positions = planetaryStars(myanmarInstant(time.value));
-    } catch {
-      output.textContent = 'ရက်စွဲနှင့် အချိန်ကို ပြန်စစ်ပါ။';
-      return;
-    }
-    planetNames.forEach((name, index) => planet.add(new Option(name + ' · ' + stars[positions[index]][0], index)));
-    planet.disabled = false;
-    planet.value = selectedPlanets[kind.value];
-    const source = placements.findIndex(({ star }) => star === positions[Number(planet.value)]);
+    clearStarHighlights();
+    chips.querySelectorAll('button').forEach((btn, idx) => {
+      btn.classList.toggle('active', idx === planetIndex);
+      btn.setAttribute('aria-pressed', String(idx === planetIndex));
+    });
+    if (!currentPositions || planetIndex === null || planetIndex === undefined) return;
+    const star = currentPositions[planetIndex];
+    const source = placements.findIndex(entry => entry.star === star);
+    if (source < 0) return;
+
     const [x, y] = tips[source];
-    const list = element('ul', '');
-    vedhaTargets(source).forEach((target, index) => {
+    const targets = vedhaTargets(source);
+
+    targets.forEach((target, index) => {
       const [tx, ty] = tips[target];
       const ray = document.createElementNS(svg.namespaceURI, 'path');
       ray.setAttribute('d', `M${x} ${y}L${tx} ${ty}`);
       ray.setAttribute('stroke', vedhaColors[index]);
+      ray.classList.add('vedha-ray');
       layer.append(ray);
-      const row = element('li', vedhaNames[index] + ' · ' + stars[placements[target].star][0]);
+
+      const endDot = document.createElementNS(svg.namespaceURI, 'circle');
+      endDot.setAttribute('cx', tx);
+      endDot.setAttribute('cy', ty);
+      endDot.setAttribute('r', '.16');
+      endDot.setAttribute('fill', vedhaColors[index]);
+      endDot.setAttribute('stroke', '#fff');
+      endDot.setAttribute('stroke-width', '.04');
+      layer.append(endDot);
+
+      if (buttons?.[target]) buttons[target].classList.add(`vedha-target-${index}`);
+    });
+
+    const sourceDot = document.createElementNS(svg.namespaceURI, 'circle');
+    sourceDot.setAttribute('cx', x);
+    sourceDot.setAttribute('cy', y);
+    sourceDot.setAttribute('r', '.18');
+    sourceDot.setAttribute('fill', '#15547b');
+    sourceDot.setAttribute('stroke', '#fff');
+    sourceDot.setAttribute('stroke-width', '.05');
+    layer.append(sourceDot);
+
+    if (buttons?.[source]) buttons[source].classList.add('vedha-source');
+
+    const sourceGroup = groupNameAtSlot(source);
+    const titleParts = [
+      `${myanmarDigit(planetIndex)} · ${planetNames[planetIndex]}`,
+      stars[star][0],
+      sourceGroup ? `(${sourceGroup})` : ''
+    ].filter(Boolean);
+    output.append(element('strong', titleParts.join(' · '), 'vedha-source-title'));
+
+    const list = element('ul', '');
+    targets.forEach((target, index) => {
+      const targetStar = starAtSlot(target);
+      const targetGroup = groupNameAtSlot(target);
+      const piercedPlanets = planetsOnStar(targetStar);
+      const targetText = [
+        vedhaNames[index],
+        stars[targetStar][0] + (targetGroup ? ` (${targetGroup})` : ''),
+        piercedPlanets.length ? `${piercedPlanets.join('၊ ')}ကို ထွင်း` : 'ဂြိုဟ်မရှိ'
+      ].join(' · ');
+      const row = element('li', targetText);
       row.style.borderColor = vedhaColors[index];
+      if (piercedPlanets.length) row.classList.add('vedha-hit');
       list.append(row);
     });
     output.append(list);
   }
 
+  function renderTable() {
+    tableScroll.replaceChildren();
+    if (!currentPositions) return;
+    const table = element('table', '', 'vedha-table');
+    const thead = table.createTHead().insertRow();
+    const headers = groupDefinitions
+      ? ['ဂြိုဟ်', 'စီးနက္ခတ်', 'ဌာန', ...vedhaNames]
+      : ['ဂြိုဟ်', 'စီးနက္ခတ်', ...vedhaNames];
+    headers.forEach(text => {
+      const th = element('th', text);
+      th.scope = 'col';
+      thead.append(th);
+    });
+    const tbody = table.createTBody();
+    planetNames.forEach((name, pIndex) => {
+      const tr = tbody.insertRow();
+      const star = currentPositions[pIndex];
+      const slot = placements.findIndex(entry => entry.star === star);
+      const targets = slot >= 0 ? vedhaTargets(slot) : [];
+      const cells = [
+        `${myanmarDigit(pIndex)} · ${name}`,
+        stars[star][0],
+        ...(groupDefinitions ? [slot >= 0 ? groupNameAtSlot(slot) : '—'] : []),
+        ...targets.map(target => {
+          const tStar = starAtSlot(target);
+          const hits = planetsOnStar(tStar);
+          return hits.length ? `${stars[tStar][0]} (${hits.join('၊ ')})` : stars[tStar][0];
+        })
+      ];
+      cells.forEach((text, cIndex) => {
+        const td = tr.insertCell();
+        td.textContent = text;
+        td.dataset.label = headers[cIndex];
+      });
+      tr.addEventListener('click', () => {
+        selectedPlanets[kind.value] = pIndex;
+        planet.value = String(pIndex);
+        renderRays(pIndex);
+      });
+    });
+    tableScroll.append(table);
+  }
+
+  function syncBoardBadges() {
+    planetDotsLayer.replaceChildren();
+    if (!buttons) return;
+    buttons.forEach((btn, slot) => {
+      const star = starAtSlot(slot);
+      const occupants = currentPositions
+        ? planetNames.map((_, idx) => (currentPositions[idx] === star ? idx : -1)).filter(idx => idx >= 0)
+        : [];
+      btn.classList.toggle('occupied', occupants.length > 0);
+      btn.querySelector('.star-planets')?.remove();
+      if (occupants.length) {
+        const badge = element('span', occupants.map(myanmarDigit).join('·'), 'star-planets');
+        badge.setAttribute('aria-hidden', 'true');
+        btn.append(badge);
+        const [tx, ty] = tips[slot];
+        const dot = document.createElementNS(svg.namespaceURI, 'circle');
+        dot.setAttribute('cx', tx);
+        dot.setAttribute('cy', ty);
+        dot.setAttribute('r', '.11');
+        dot.classList.add('occupied-tip');
+        planetDotsLayer.append(dot);
+      }
+    });
+  }
+
+  function update() {
+    layer.replaceChildren();
+    planetDotsLayer.replaceChildren();
+    planet.replaceChildren();
+    chips.replaceChildren();
+    output.replaceChildren();
+    tableScroll.replaceChildren();
+    clearStarHighlights();
+    currentPositions = null;
+    planet.disabled = true;
+    tableDetails.hidden = true;
+    if (collapsible && !panel.open) {
+      syncBoardBadges();
+      return;
+    }
+    if (!time.value || !time.validity.valid) {
+      output.textContent = 'သက်ဆိုင်ရာ ရက်စွဲနှင့် အချိန် ထည့်ပါ။';
+      syncBoardBadges();
+      return;
+    }
+    try {
+      currentPositions = planetaryStars(myanmarInstant(time.value));
+    } catch {
+      output.textContent = 'ရက်စွဲနှင့် အချိန်ကို ပြန်စစ်ပါ။';
+      syncBoardBadges();
+      return;
+    }
+
+    planetNames.forEach((name, index) => {
+      planet.add(new Option(`${myanmarDigit(index)} · ${name} · ${stars[currentPositions[index]][0]}`, index));
+      const chip = element('button', `${myanmarDigit(index)} · ${name} · ${stars[currentPositions[index]][0]}`, 'vedha-chip');
+      chip.type = 'button';
+      chip.addEventListener('click', () => {
+        selectedPlanets[kind.value] = index;
+        planet.value = String(index);
+        renderRays(index);
+      });
+      chip.addEventListener('pointerenter', () => renderRays(index));
+      chip.addEventListener('pointerleave', () => renderRays(selectedPlanets[kind.value]));
+      chips.append(chip);
+    });
+    planet.disabled = false;
+    planet.value = String(selectedPlanets[kind.value]);
+    tableDetails.hidden = false;
+    syncBoardBadges();
+    renderTable();
+    renderRays(selectedPlanets[kind.value]);
+  }
+
   function changeKind() {
-    const caption = kind.value === '0' ? 'မွေးရက်နှင့် မွေးချိန်' : 'ကောဇာ ရက်စွဲနှင့် အချိန်';
+    const isTransit = kind.value === '1';
+    const caption = isTransit ? 'ကောဇာ ရက်စွဲနှင့် အချိန်' : 'မွေးရက်နှင့် မွေးချိန်';
     timeCaption.textContent = caption + ' (မြန်မာစံတော်ချိန်)';
     time.value = dates[kind.value];
+    nowButton.hidden = !isTransit;
     update();
   }
+
+  if (buttons) {
+    buttons.forEach((btn, slot) => {
+      const star = starAtSlot(slot);
+      const firstPlanetOnStar = () => currentPositions ? currentPositions.findIndex(s => s === star) : -1;
+      btn.addEventListener('click', () => {
+        const pIndex = firstPlanetOnStar();
+        if (pIndex >= 0) {
+          selectedPlanets[kind.value] = pIndex;
+          planet.value = String(pIndex);
+          renderRays(pIndex);
+        }
+      });
+      btn.addEventListener('pointerenter', () => {
+        const pIndex = firstPlanetOnStar();
+        if (pIndex >= 0) renderRays(pIndex);
+      });
+      btn.addEventListener('pointerleave', () => {
+        if (currentPositions) renderRays(selectedPlanets[kind.value]);
+      });
+    });
+  }
+
   kind.value = dates[0] ? '0' : '1';
   kind.addEventListener('change', changeKind);
   time.addEventListener('change', () => {
     dates[kind.value] = time.value;
     update();
   });
+  nowButton.addEventListener('click', () => {
+    const now = myanmarDateTime().slice(0, 16);
+    dates[1] = now;
+    time.value = now;
+    update();
+  });
   planet.addEventListener('change', () => {
     selectedPlanets[kind.value] = Number(planet.value);
-    update();
+    renderRays(selectedPlanets[kind.value]);
     planet.focus();
   });
-  panel.addEventListener('toggle', update);
+  if (collapsible) panel.addEventListener('toggle', update);
   changeKind();
   return panel;
 }
@@ -282,7 +511,7 @@ function bhumiView(data) {
     label.style.gridArea = starGridPosition(slot);
     board.append(label);
   });
-  const overlay = vedhaPanel(data, placements, svg);
+  const overlay = vedhaPanel(data, placements, svg, { collapsible: true });
   overlay.append(board);
   card.append(grid, overlay, note);
   return card;
@@ -304,7 +533,6 @@ function chartView(data) {
   const board = part('board');
   const svg = lattice();
   board.append(svg);
-  board.after(vedhaPanel(data, placements, svg));
   drawDepartments(board, placements, groupDefinitions, openDepartment);
   const startMarker = document.createElementNS(svg.namespaceURI, 'circle');
   const [startX, startY] = tips[anchorSlot];
@@ -337,6 +565,11 @@ function chartView(data) {
     board.append(button);
     return button;
   });
+  board.after(vedhaPanel(data, placements, svg, {
+    buttons,
+    groupDefinitions,
+    collapsible: false
+  }));
 
   function readingParagraphs(group) {
     return data.fourteen

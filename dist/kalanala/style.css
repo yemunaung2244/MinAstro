@@ -392,3 +392,155 @@ input[type="datetime-local"] { max-width: 100%; }
   .result-nav button { width: 100%; }
   .bhumi-vedha-board { margin-inline: 0; }
 }
+
+/* Interactive Rahu-style Vedha piercing system & visible rays */
+.vedha-header {
+  padding: 12px 14px 4px;
+  background: #f2f9fe;
+  border-bottom: 1px solid var(--line);
+}
+.vedha-header h3 { color: var(--accent); margin-bottom: 2px; }
+.vedha-header .hint { font-size: .86rem; }
+.vedha-now-btn {
+  align-self: end;
+  background: #e1f2fc;
+  color: var(--accent);
+  font-weight: 700;
+}
+.vedha-now-btn:hover { background: #cfe8f8; }
+.vedha-planets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 12px 10px;
+}
+.vedha-chip {
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fcff;
+  color: var(--accent);
+  font-size: .86rem;
+  font-weight: 700;
+}
+.vedha-chip:hover { background: #e1f2fc; }
+.vedha-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.vedha-source-title {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: .95rem;
+}
+.vedha-output li.vedha-hit { font-weight: 700; }
+.vedha-lines .vedha-ray {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.vedha-planet-dots { pointer-events: none; }
+.occupied-tip {
+  fill: #15547b;
+  fill-opacity: .35;
+  stroke: #15547b;
+  stroke-width: .035;
+}
+.star.occupied {
+  background: #e6f4fc;
+}
+.star .star-planets {
+  display: inline-block;
+  margin-inline-start: 3px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: #15547b;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.star.vedha-source {
+  background: #15547b;
+  color: #fff;
+  font-weight: 800;
+}
+.star.vedha-source .star-planets {
+  background: #fff;
+  color: #15547b;
+}
+.star.vedha-target-0 {
+  outline: 2px solid #895006;
+  background: #fff4e3;
+}
+.star.vedha-target-1 {
+  outline: 2px solid #007f85;
+  background: #e3f7f8;
+}
+.star.vedha-target-2 {
+  outline: 2px solid #a72f80;
+  background: #fae8f4;
+}
+.vedha-table-wrap {
+  margin: 0 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.vedha-table-wrap summary {
+  cursor: pointer;
+  padding: 9px 12px;
+  font-weight: 700;
+  font-size: .9rem;
+  background: #f2f9fe;
+}
+.vedha-table-scroll {
+  overflow-x: auto;
+  padding: 8px;
+}
+.vedha-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .86rem;
+  text-align: left;
+}
+.vedha-table th,
+.vedha-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #dbeaf3;
+  vertical-align: top;
+}
+.vedha-table th { color: var(--accent); white-space: nowrap; }
+.vedha-table tbody tr { cursor: pointer; }
+.vedha-table tbody tr:hover { background: #edf6fc; }
+
+@media (max-width: 670px) {
+  .vedha-planets { gap: 5px; }
+  .vedha-chip { font-size: .8rem; padding: 4px 8px; }
+  .vedha-table thead { display: none; }
+  .vedha-table tbody tr {
+    display: grid;
+    gap: 3px;
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .vedha-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 0;
+    border: 0;
+    text-align: right;
+  }
+  .vedha-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--accent);
+    text-align: left;
+    flex: none;
+  }
+}
