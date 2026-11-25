@@ -1380,10 +1380,88 @@ html { touch-action: pan-x pan-y; }
     text-align: center;
     width: 28px;
   }
-  .latta-table th,
-  .latta-table td {
-    padding: 6px 4px;
-    font-size: .75rem;
+}
+
+.latta-table-wrap {
+  margin-block: 10px 18px;
+}
+
+.latta-cell-label {
+  display: none;
+}
+
+@media (max-width: 670px) {
+  #latta {
+    overflow-wrap: anywhere;
+    touch-action: pan-y;
+  }
+
+  #latta .suriya-reading-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  #latta .suriya-reading-tabs button {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  #latta .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #latta .controls label {
+    min-width: 0;
+  }
+
+  #latta .controls input,
+  #latta .controls select {
+    font-size: 1rem;
+    max-inline-size: 100%;
+  }
+
+  #latta .latta-table,
+  .latta-table tbody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    font-size: .92rem;
+  }
+
+  .latta-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .latta-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .latta-table tbody th,
+  .latta-table tbody td {
+    border: 0;
+    padding: 8px 10px;
+    text-align: start;
+  }
+
+  .latta-table tbody td {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 8px;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .latta-cell-label {
+    display: block;
+    color: var(--muted);
   }
 }
 
@@ -1439,4 +1517,139 @@ html { touch-action: pan-x pan-y; }
   background: #fde8ef !important;
   color: #6b1535;
   font-weight: 800;
+}
+
+#dasha-natal-form .janma-parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+#dasha-natal-form .janma-parts input {
+  max-width: 6rem;
+  min-height: 38px;
+  padding: 5px 9px;
+}
+
+#dasha-transit-result .entry,
+#dasha-natal-result .entry {
+  margin-top: 14px;
+}
+
+.dasha-verdict {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.dasha-samasatta-wrap {
+  margin-block: 10px 18px;
+}
+
+.dasha-vedha-table {
+  margin-top: 8px;
+  table-layout: fixed;
+}
+
+.dasha-vedha-table th:first-child,
+.dasha-vedha-table td:first-child {
+  width: 44px;
+  text-align: center;
+}
+
+.dasha-star-name {
+  font-weight: 700;
+}
+
+.dasha-planet-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dasha-p-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 700;
+  background: #e1f1fb;
+  color: #15547b;
+}
+
+.dasha-p-moon {
+  background: #15547b;
+  color: #fff;
+}
+
+.dasha-p-sun {
+  background: #b45309;
+  color: #fff;
+}
+
+.dasha-p-benefic {
+  background: #1f7a4c;
+  color: #fff;
+}
+
+.dasha-p-malefic {
+  background: #9d2451;
+  color: #fff;
+}
+
+@media (max-width: 670px) {
+  #dashayoga {
+    overflow-wrap: anywhere;
+    touch-action: pan-y;
+  }
+
+  #dashayoga .suriya-reading-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  #dashayoga .suriya-reading-tabs button {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  #dashayoga .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #dashayoga .controls label {
+    min-width: 0;
+  }
+
+  #dashayoga .controls input,
+  #dashayoga .controls select {
+    font-size: 1rem;
+    max-inline-size: 100%;
+  }
+
+  .dasha-vedha-table {
+    font-size: .82rem;
+  }
+
+  .dasha-vedha-table th,
+  .dasha-vedha-table td {
+    padding: 6px 5px;
+  }
+
+  .dasha-vedha-table th:first-child,
+  .dasha-vedha-table td:first-child {
+    width: 30px;
+  }
+
+  .dasha-p-badge {
+    font-size: .7rem;
+    padding: 1px 5px;
+  }
 }

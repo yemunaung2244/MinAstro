@@ -16,6 +16,7 @@ const assets = new Map([
   ['/tripataki.js', ['tripataki.js', 'text/javascript']],
   ['/wish-direction.js', ['wish-direction.js', 'text/javascript']],
   ['/latta.js', ['latta.js', 'text/javascript']],
+  ['/dasha-yoga.js', ['dasha-yoga.js', 'text/javascript']],
   ['/manifest.webmanifest', ['manifest.webmanifest', 'application/manifest+json']],
   ['/yatra-food.js', ['yatra-food.js', 'text/javascript; charset=utf-8']],
   ['/yatra6.js', ['yatra6.js', 'text/javascript; charset=utf-8']],

@@ -31,6 +31,7 @@
       <a class="home-choice" href="#books">ဆရာမင်းနိုင်ရဲ့ စာအုပ်များ</a>
       <a class="home-choice" href="#tripataki">တြိပတာကီစက်</a>
       <a class="home-choice" href="#latta">လတ္တာစက်</a>
+      <a class="home-choice" href="#dashayoga">ဒဿယောဂစက်</a>
       <a class="home-choice" href="#wish">ဆုတောင်းပြည့် အရပ်မျက်နှာ</a>
       <a class="home-choice" href="#panchang">Panchang</a>
     </nav>
@@ -232,6 +233,68 @@
         <p>လတ္တာဆိုသည်မှာ ဂြိုဟ်တို့၏ ခုခံကာကွယ်မှုစနစ် (ကိုယ်ရံတော်တပ်သား ကင်းပုန်းရှိရာ နက္ခတ်) ကို ဆိုလိုပါသည်။ လုံခြုံရေးယူထားသော နေရာသို့ ထင်သလို ဝင်ထွက်သွားလာမိလျှင် ဘေးသင့်တတ်သော်လည်း၊ မည်သည့်နက္ခတ် လတ္တာမိနေစေကာမူ ငြိမ်ငြိမ်လေး နေတတ်ပြီး သက်ဆိုင်ရာဂြိုဟ်ကို ကောင်းသောအသွင်ဆောင် ယတြာ/ကုသိုလ်ပြုပေးပါက ကျေးဇူးတုံ့ပြန်ခြင်း (ဥပမာ — အိမ်ပိုင်ရခြင်း) ကဲ့သို့ ကောင်းကျိုးပြန်လည်ရရှိနိုင်ပါသည်။</p>
         <p>အခါရွေးရာတွင် လတ္တာသင့်ထားသော နက္ခတ်များကို ရှောင်ရပါမည်။ နက္ခတ်တစ်လုံးသည် ဥပဂြဟလည်းဖြစ်၊ လတ္တာလည်းသင့်၊ ပါပဂြိုဟ်လည်းစီးနေလျှင် အနာရောဂါနှိပ်စက်တတ်ပြီး ပါပဂြိုဟ် ဝကြသွားပါက အထူးသတိပြုရပါမည်။</p>
         <p>မူလဇာတာတွင် လတ္တာသင့်သော နက္ခတ်များသည် အတိတ်ဘဝက မိမိ အလေးမထား ဥပေက္ခာပြုခဲ့သော အရာများကို ညွှန်ပြတတ်သဖြင့် ဤဘဝတွင် တန်ဖိုးထား ကျေးဇူးတင်တတ်အောင် ပြုပြင်နေထိုင်ရပါမည်။</p>
+      </details>
+    </section>
+    <section id="dashayoga" class="catalog" hidden>
+      <h1 id="dashayoga-title" tabindex="-1">ဒဿယောဂစက်</h1>
+      <p class="hint">အခန်း (၃) · မုဟုတ္တစိန္တာမဏိကျမ်းလာ ဒဿယောဂစက်၊ ရဝိယုဂ် နိုင်/မနိုင် နှင့် ၁၄ တန်း သမသတ်ထွင်းဇယား (Lahiri ခန့်မှန်းတွက်ချက်မှု)</p>
+      <nav class="suriya-reading-tabs" aria-label="ဒဿယောဂစက် မီနူး">
+        <button type="button" data-dasha-tab="transit" aria-pressed="true">ကောဇာ ဒဿယောဂစက်</button>
+        <button type="button" data-dasha-tab="natal" aria-pressed="false">မူလ + ကောဇာ (မွေးသက္ကရာဇ်)</button>
+      </nav>
+      <div id="dasha-panel-transit">
+        <form id="dasha-transit-form" class="controls wish-controls">
+          <label class="field">ကြည့်လိုသည့် ရက်နှင့် အချိန် (မြန်မာစံတော်ချိန်)
+            <input id="dasha-transit-time" type="datetime-local" step="1" required>
+          </label>
+          <div class="wish-actions">
+            <button class="janma-submit" type="submit">ရွေးထားသည့်အချိန် တွက်မည်</button>
+            <button id="dasha-transit-now" class="akha-edit" type="button">လက်ရှိအချိန် ပြန်ကြည့်မည်</button>
+          </div>
+          <p id="dasha-transit-error" role="status"></p>
+        </form>
+        <div id="dasha-transit-result" aria-live="polite"></div>
+      </div>
+      <div id="dasha-panel-natal" hidden>
+        <form id="dasha-natal-form" class="controls">
+          <label class="field">အမည်<input id="dasha-natal-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
+          <fieldset class="janma-parts">
+            <legend>မွေးသက္ကရာဇ်</legend>
+            <label>ရက်<input id="dasha-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="dasha-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="dasha-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>မွေးချိန်</legend>
+            <label>နာရီ<input id="dasha-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="dasha-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="dasha-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="dasha-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>မွေးဖွားရာမြို့ ရှာရန် <input id="dasha-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>မွေးဖွားရာမြို့ <select id="dasha-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+          <label>ကောဇာ စစ်ဆေးလိုသည့်အချိန် (မထည့်လျှင် လက်ရှိအချိန်)<input id="dasha-natal-transit" type="datetime-local" step="1"></label>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+          <p id="dasha-natal-error" role="status"></p>
+        </form>
+        <div id="dasha-natal-result" aria-live="polite"></div>
+      </div>
+      <details class="tri-guide">
+        <summary>ဒဿယောဂစက် တွက်နည်း၊ သမသတ်ထွင်းဇယားနှင့် ဆရာမင်းနိုင်၏ မှတ်ချက် (အခန်း ၃ · စာမျက်နှာ ၃၅ – ၃၉)</summary>
+        <h4>အပိုင်း (၁) — နက္ခတ် ၂၇ လုံးမူ ဒဿယောဂ တွက်ပုံ</h4>
+        <p>အဿဝဏီကို (၁) မှ ရေဝတီကို (၂၇) အထိ ဂဏန်းသတ်မှတ်ပြီး တနင်္ဂနွေစီးနက္ခတ်ဂဏန်းနှင့် တနင်္လာစီးနက္ခတ်ဂဏန်းကို ပေါင်းပါ။ ပေါင်းရကိန်း ၂၇ ထက်ပိုလျှင် ၂၇ ဖြင့်စား၍ အကြွင်းကိုယူပါ (၂၇ အတိဖြစ်လျှင် အကြွင်း ၀)။</p>
+        <p><strong>အကြွင်း ၁၀ မျိုး အကျိုးပေး</strong> — ၀ (လေဘေးသင့်မယ်)၊ ၁ (တိမ်ထူမယ်၊ မိုးဒဏ်သင့်မယ်)၊ ၄ (မီးဘေးသင့်မယ်)၊ ၆ (ရာဇဒဏ်သင့်မယ်)၊ ၁၀ (သူခိုးဘေးသင့်မယ်)၊ ၁၁ (သေမယ်)၊ ၁၅ (ရောဂါဘေးသင့်မယ်)၊ ၁၈ (လက်နက်ဘေးသင့်မယ်)၊ ၁၉ (သဘောထား အကြီးအကျယ် ကွဲလွဲမယ်)၊ ၂၀ (စီးပွားဥစ္စာ ပျက်သုဉ်းမယ်)။ ကျန်ဂဏန်းများတွင် ပြဿနာမရှိပါ။</p>
+        <p><strong>ရဝိယုဂ် နိုင်/မနိုင် စည်းမျဉ်း</strong> — တနင်္ဂနွေစီးနက္ခတ်မှ ၉ လုံးမြောက်နက္ခတ်တွင် တနင်္လာစီးလျှင် ရဝိယုဂ်ရသည်။ ကောဇာအခါရွေးတွင် ရဝိယုဂ်နှင့် ဒဿယောဂစက် ပြိုင်လာပါက <strong>ရဝိယုဂ် နိုင်ပါသည်</strong>။ ဒဿယောဂစက်ကို ထည့်စဉ်းစားစရာ လုံးဝ မလိုပါ။</p>
+        <h4>အပိုင်း (၂) — ၁၄ တန်း သမသတ်ထွင်းဇယား (နက္ခတ် ၂၈ လုံးမူ)</h4>
+        <p>တနင်္ဂနွေနှင့် တနင်္လာစီးနက္ခတ် ပေါင်းရကိန်းကို ယူပါ။ မဂဏန်းဖြစ်လျှင် စုံဂဏန်းဖြစ်အောင် (၁) ပေါင်းပါ။ ရလာသော စုံဂဏန်းကို ထက်ဝက်ခွဲပြီး ပုံသေကိန်း (၁၄) ပေါင်းပါ။ ထို့နောက် အဘိဇိနက္ခတ်ပါဝင်သော နက္ခတ် (၂၈) လုံးစနစ်သို့ ပြောင်းကာ (၂၈ ထက်ပိုလျှင် ၂၈ နုတ်၍) စတင်ရမည့် နက္ခတ်ကို ရှာပါ။</p>
+        <p>ဘယ်ဘက်ကော်လံတွင် အထက်မှအောက် ၁၄ လုံး၊ ညာဘက်ကော်လံတွင် အောက်မှအထက် ၁၄ လုံး စီချပါ။ မျက်နှာချင်းဆိုင် တစ်တန်းတည်းကျသော နက္ခတ်နှစ်လုံးသည် အချင်းချင်း <strong>သမသတ်ထွင်း</strong> ကြသည်။</p>
+        <ul>
+          <li>တနင်္ဂနွေက တနင်္လာစီးနက္ခတ်ကို သမသတ်ထွင်းထားလျှင် အလွန်အပြစ်ကြီးသဖြင့် အခါရွေးရာတွင် လုံးဝရှောင်ရပါမည်။</li>
+          <li>ရာဟု၊ စနေ၊ အင်္ဂါ၊ ကိတ် စသော ပါပဂြိုဟ်များက ဒဿယောဂနက္ခတ်ကို သမသတ်ထွင်းနေလျှင် ဆိုးကျိုးပိုမိုထင်ရှားစေသည်။</li>
+          <li><strong>ဖြေဖျောက်ချက် (အပြစ်ကင်းခြင်း)</strong> — ဤစက်ထဲတွင် ကြာသပတေး သို့မဟုတ် သောကြာဂြိုဟ်က တနင်္လာစီးနက္ခတ်ပေါ် စီးနေလျှင်ဖြစ်စေ၊ မျက်နှာချင်းဆိုင်မှ သမသတ်ထွင်းနေလျှင်ဖြစ်စေ <strong>ဒဿယောဂ အပြစ်မသင့်ပါ</strong>။</li>
+        </ul>
+        <h4>မူလဇာတာနှင့် အသုံးချပုံ</h4>
+        <p>မူလဇာတာမှ တနင်္ဂနွေစီးနက္ခတ်ကို အခြေခံ၍ ဒဿယောဂသင့်သော နက္ခတ် (၁၀) လုံးကို ကြိုတင်ရှာထားနိုင်သည်။ ကောဇာစန်း ၎င်းနက္ခတ်များပေါ် ရောက်လာချိန် သို့မဟုတ် ပါပဂြိုဟ်များ သမသတ်ထွင်းချိန်တွင် သက်ဆိုင်ရာအခက်အခဲများ ပေါ်ပေါက်တတ်ပြီး ကြိုတင်ပြုပြင်ထားပါက ပျော့ကွက် ၁၀ ခုမှ ခံတပ် ၁၀ ခု ဖြစ်လာနိုင်ပါသည်။ ဥပဂြဟနက္ခတ်များနှင့်လည်း တွဲဖက်ချိန်ဆပါ။</p>
       </details>
     </section>
     <section id="panchang" class="catalog" hidden>
