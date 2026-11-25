@@ -2629,7 +2629,25 @@ function buildLattaTable(snapshot, highlightStarIndex) {
     lattaCell.textContent = yatraNames[p.lattaIndex] + 'နက္ခတ်' + (hitTarget ? ' ⚠' : '');
   }
   scroll.append(table);
-  return scroll;
+  const aspects = document.createElement('details');
+  aspects.className = 'entry';
+  const summary = document.createElement('summary');
+  summary.textContent = 'ဇယားအလိုက် မြင်ရသောနက္ခတ်များ';
+  aspects.append(summary);
+  for (const { planet, targets } of snapshot.aspects) {
+    const heading = document.createElement('h4');
+    heading.textContent = `${planet.name} · ${yatraNames[planet.starIndex]}နက္ခတ်`;
+    const list = document.createElement('ul');
+    for (const { label, count, starIndex } of targets) {
+      const item = document.createElement('li');
+      item.textContent = `${label} · ${mm(count)} လုံးမြောက် · ${yatraNames[starIndex]}နက္ခတ်`;
+      list.append(item);
+    }
+    aspects.append(heading, list);
+  }
+  const result = document.createDocumentFragment();
+  result.append(scroll, aspects);
+  return result;
 }
 
 function buildLattaEvaluationCards(container, title, targetStarIndex, snapshot) {
@@ -2668,6 +2686,18 @@ function buildLattaEvaluationCards(container, title, targetStarIndex, snapshot) 
     strong.textContent = `ပေါင်းစပ်အဟော (${combo.title}) — `;
     box.append(strong, combo.reading);
     card.append(box);
+  }
+  if (evalRes.aspectHits.length) {
+    const heading = document.createElement('h4');
+    heading.textContent = 'ဤနက္ခတ်ကို မြင်သောဂြိုဟ်များ';
+    const list = document.createElement('ul');
+    for (const { planet, targets } of evalRes.aspectHits) {
+      const item = document.createElement('li');
+      const matches = targets.map(({ label, count }) => `${label} ${mm(count)} လုံးမြောက်`);
+      item.textContent = `${planet.name} · ${matches.join('၊ ')}`;
+      list.append(item);
+    }
+    card.append(heading, list);
   }
   container.append(card);
 }

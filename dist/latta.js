@@ -170,6 +170,63 @@ export function lattaTargetIndex(starIndex, offset) {
   return ((starIndex + offset) % 27 + 27) % 27;
 }
 
+// Source tables count the occupied nakshatra as the first of the 27.
+const aspectCountsByPlanet = {
+  sun: [7, 8, 11, 16, 21, 26],
+  moon: [4, 8, 10, 15, 18],
+  mars: [3, 7, 8, 15],
+  mercury: [3, 5],
+  jupiter: [3, 5, 10, 19],
+  venus: [3, 5],
+  saturn: [3, 5, 15, 16],
+};
+
+// The additional source tables list their own sets of counts.
+const additionalCountsByPlanet = {
+  mars: [5, 7, 10, 14, 16, 24, 25],
+  mercury: [8, 18, 24],
+  jupiter: [7, 9],
+  venus: [10, 15],
+  rahu: [5, 11, 13],
+};
+
+const namedAspects = [
+  ['သမသတ်မြင်', 11],
+  ['လက်ယာမြင်', 18],
+  ['လက်ဝဲမြင်', 4],
+];
+
+function aspectTargets(planet) {
+  const makeTarget = (count, label) => ({
+    count,
+    label,
+    starIndex: lattaTargetIndex(planet.starIndex, count - 1),
+  });
+  const general = [15];
+  if (planet.id === 'sun' || planet.id === 'moon') general.push(14);
+  if (planet.id === 'mars' || planet.id === 'saturn') general.push(3);
+  if (planet.id === 'jupiter' || planet.id === 'saturn') general.push(19);
+  if (planet.id === 'jupiter') general.push(10);
+  if (planet.id === 'mars') general.push(7, 8);
+  if (planet.id === 'saturn') general.push(5);
+
+  const generalTargets = general.map(count => {
+    const target = makeTarget(count, 'အထွေထွေမြင်');
+    // The standalone Saturn 5th column swaps these two printed entries.
+    if (planet.id === 'saturn' && count === 5) {
+      if (planet.starIndex === 20) target.starIndex = 25;
+      if (planet.starIndex === 21) target.starIndex = 24;
+    }
+    return target;
+  });
+  return [
+    ...generalTargets,
+    ...(aspectCountsByPlanet[planet.id] ?? []).map(count => makeTarget(count, 'ဂြိုဟ်အလိုက်မြင်')),
+    ...(additionalCountsByPlanet[planet.id] ?? []).map(count => makeTarget(count, 'ဖြည့်စွက်ဇယား')),
+    ...namedAspects.map(([label, count]) => makeTarget(count, label)),
+  ];
+}
+
 export function computeLattaSnapshot(instant) {
   const planets = lattaPlanetDefs.map(def => {
     const pos = toNakshatra(instant, planetTropical(def.id, instant));
@@ -215,7 +272,8 @@ export function computeLattaSnapshot(instant) {
     }
   }
 
-  return { planets, byId, sunLattaIndex, sunLattaOccupants, upagrahaHits };
+  const aspects = planets.map(planet => ({ planet, targets: aspectTargets(planet) }));
+  return { planets, byId, sunLattaIndex, sunLattaOccupants, upagrahaHits, aspects };
 }
 
 // Evaluate all Chapter 20 readings for a target nakshatra (e.g. Natal Janma or Transit Moon)
@@ -271,5 +329,8 @@ export function evaluateLattaOnStar(targetStarIndex, snapshot) {
     });
   }
 
-  return { lattaHits, occupants, combinations };
+  const aspectHits = (snapshot.aspects ?? [])
+    .map(({ planet, targets }) => ({ planet, targets: targets.filter(target => target.starIndex === targetStarIndex) }))
+    .filter(({ targets }) => targets.length);
+  return { lattaHits, occupants, combinations, aspectHits };
 }
