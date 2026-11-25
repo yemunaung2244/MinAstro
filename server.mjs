@@ -32,16 +32,17 @@ const kalanalaTypes = new Map([
   ['.css', 'text/css'],
   ['.mjs', 'text/javascript'],
   ['.js', 'text/javascript'],
+  ['.json', 'application/json'],
 ]);
 
-function resolveKalanala(path) {
-  if (path === '/kalanala' || path === '/kalanala/') {
-    return ['kalanala/index.html', 'text/html'];
+function resolveSubApp(prefix, path) {
+  if (path === `/${prefix}` || path === `/${prefix}/`) {
+    return [`${prefix}/index.html`, 'text/html'];
   }
-  const match = /^\/kalanala\/([a-z0-9._-]+(\.html|\.css|\.mjs|\.js))$/.exec(path);
+  const match = new RegExp(`^/${prefix}/([a-z0-9._-]+(\\.html|\\.css|\\.mjs|\\.js|\\.json))$`).exec(path);
   if (!match) return null;
   const type = kalanalaTypes.get(match[2]);
-  return type ? [`kalanala/${match[1]}`, type] : null;
+  return type ? [`${prefix}/${match[1]}`, type] : null;
 }
 
 createServer(async (request, response) => {
@@ -50,7 +51,7 @@ createServer(async (request, response) => {
   const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
   const asset = book ? [path.slice(1), 'application/pdf']
     : cover ? [path.slice(1), 'image/jpeg']
-    : resolveKalanala(path) ?? assets.get(path);
+    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e3f3fc">
+  <link rel="icon" type="image/png" href="../assets/nakshatra-192.png">
+  <link rel="apple-touch-icon" href="../assets/nakshatra-180.png">
+  <title>ရာဟုကာလာနလစက် · Nakshatra (နက္ခတ်)</title>
+  <link rel="stylesheet" href="./style.css?v=mobile-fit">
+</head>
+<body>
+  <header class="top"><div class="shell top-inner">
+    <a class="brand" href="../index.html#home"><img class="brand-logo" src="../assets/nakshatra-192.png" width="32" height="32" alt="">Nakshatra <span class="brand-myanmar">(နက္ခတ်)</span></a>
+    <a class="back-main-link" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  </div></header>
+  <main class="shell" id="top">
+    <section id="home">
+      <h1>ရာဟုကာလာနလစက်</h1>
+      <nav class="home-buttons" aria-label="စက်အမျိုးအစား">
+        <button data-mode="dwi">ဒွိဒင်္ဂ</button>
+        <button data-mode="shad">ဆဋ္ဌင်္ဂ</button>
+        <button data-mode="dasa">ဒဿင်္ဂ</button>
+        <button data-mode="takka">တက္ကလိကာ</button>
+      </nav>
+    </section>
+    <button id="back-home" class="back" hidden>ပင်မစာမျက်နှာ</button>
+    <h1 id="form-title" hidden></h1>
+    <section class="calculator" aria-label="စက်တွက်ရန်">
+      <form class="panel controls" id="chart-form" hidden>
+        <label class="birth-input">အမည်<input id="person-name" placeholder="အမည်" autocomplete="name"></label>
+        <fieldset class="date-fields birth-input"><legend>မွေးသက္ကရာဇ်</legend><div class="three">
+          <label>ရက်<input id="day" type="number" min="1" max="31" required></label>
+          <label>လ<input id="month" type="number" min="1" max="12" required></label>
+          <label>နှစ်<input id="year" type="number" min="1600" max="2200" required></label>
+        </div></fieldset>
+        <fieldset class="date-fields birth-input"><legend>မွေးချိန်</legend><div class="four">
+          <label>နာရီ<input id="hour" type="number" min="1" max="12" required></label>
+          <label>မိနစ်<input id="minute" type="number" min="0" max="59" required></label>
+          <label>စက္ကန့်<input id="second" type="number" min="0" max="59" value="0" required></label>
+          <label>AM/PM<select id="meridiem"><option>AM</option><option>PM</option></select></label>
+        </div></fieldset>
+        <label><span id="city-search-caption">မွေးဖွားရာမြို့ ရှာရန်</span><input id="city-search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+        <label><span id="city-caption">မွေးဖွားရာမြို့</span><select id="city" required><option value="">မြို့ ရွေးပါ</option></select></label>
+        <label>ဇာတာအမျိုးအစား<select id="context"><option>ကောဇာ</option><option>မူလ</option><option>တက္ကာလိက</option></select></label>
+        <label id="chart-time-label" hidden>ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+          <input id="chart-time" type="hidden">
+        </label>
+        <fieldset class="timing" id="timing" hidden>
+          <legend>သတ်မှတ်ထားသော အခါပိုင်း</legend>
+          <label>တက္ကာလိကာနည်း<select id="timed-method">
+            <option value="pakkha">ပက္ခ</option><option value="dina">ဒိန</option><option value="khana" selected>ခဏ</option>
+            <option value="dwi">ဒွိဒင်္ဂ</option><option value="shad">ဆဋ္ဌင်္ဂ</option><option value="dasa">ဒဿင်္ဂ</option>
+          </select></label>
+          <label id="timed-period-label" hidden>အခါပိုင်းတွက်နည်း<select id="timed-period" disabled>
+            <option value="pakkha">ပက္ခ</option><option value="dina">ဒိန</option><option value="khana" selected>ခဏ</option>
+          </select></label>
+          <p id="interval-note" class="hint"></p>
+          <label>အခါပိုင်း အစ<input id="start" type="text" readonly></label>
+          <label>အခါပိုင်း အဆုံး<input id="end" type="text" readonly></label>
+          <label>စစ်ဆေးလိုသည့် အချိန်<input id="event-time" type="datetime-local" step="1" min="1600-01-01T00:00" max="2200-12-31T23:59"></label>
+        </fieldset>
+        <p class="error" id="error" role="alert" hidden></p>
+        <button class="primary" type="submit">စက်တွက်မည်</button>
+      </form>
+
+      <section class="panel result" id="result" hidden aria-live="polite">
+        <button type="button" id="edit-data" class="back">အချက်အလက် ပြင်ရန်</button><p id="person-output"></p><p class="eyebrow" id="result-type">ဒွိဒင် · ကောဇာ</p>
+        <h2 id="result-heading">ရက်စွဲနှင့် အချိန် ထည့်ပါ</h2>
+        <div id="result-body"></div>
+      </section>
+    </section>
+
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
