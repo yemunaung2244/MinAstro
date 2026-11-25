@@ -2604,29 +2604,49 @@ for (const btn of lattaTabButtons) {
 
 function buildLattaTable(snapshot, highlightStarIndex) {
   const scroll = document.createElement('div');
-  scroll.className = 'tri-table-scroll';
+  scroll.className = 'latta-table-wrap';
   const table = document.createElement('table');
   table.className = 'tri-readings-table latta-table';
-  const thead = table.createTHead().insertRow();
-  for (const col of ['ဂြိုဟ်', 'စီးနက္ခတ်', 'တွက်ပုံ', 'လတ္တာသင့် နက္ခတ်']) {
+  table.setAttribute('role', 'table');
+  const columns = ['ဂြိုဟ်', 'စီးနက္ခတ်', 'တွက်ပုံ', 'လတ္တာသင့် နက္ခတ်'];
+  const head = table.createTHead();
+  head.setAttribute('role', 'rowgroup');
+  const thead = head.insertRow();
+  thead.setAttribute('role', 'row');
+  for (const col of columns) {
     const th = document.createElement('th');
     th.scope = 'col';
     th.textContent = col;
     thead.append(th);
   }
   const tbody = table.createTBody();
+  tbody.setAttribute('role', 'rowgroup');
   for (const p of snapshot.planets) {
     const row = tbody.insertRow();
+    row.setAttribute('role', 'row');
     const hitTarget = highlightStarIndex !== undefined && p.lattaIndex === highlightStarIndex;
     if (hitTarget) row.className = 'latta-row-hit';
     const th = document.createElement('th');
     th.scope = 'row';
+    th.setAttribute('role', 'rowheader');
     th.textContent = p.name + (p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' (ဝကြ)' : '');
     row.append(th);
-    row.insertCell().textContent = `${yatraNames[p.starIndex]} · ပါဒ ${mm(p.pada)}`;
-    row.insertCell().textContent = p.ruleText;
-    const lattaCell = row.insertCell();
-    lattaCell.textContent = yatraNames[p.lattaIndex] + 'နက္ခတ်' + (hitTarget ? ' ⚠' : '');
+    const values = [
+      `${yatraNames[p.starIndex]} · ပါဒ ${mm(p.pada)}`,
+      p.ruleText,
+      yatraNames[p.lattaIndex] + 'နက္ခတ်' + (hitTarget ? ' ⚠' : ''),
+    ];
+    values.forEach((value, index) => {
+      const cell = row.insertCell();
+      cell.setAttribute('role', 'cell');
+      const label = document.createElement('span');
+      label.className = 'latta-cell-label';
+      label.setAttribute('aria-hidden', 'true');
+      label.textContent = columns[index + 1];
+      const content = document.createElement('span');
+      content.textContent = value;
+      cell.append(label, content);
+    });
   }
   scroll.append(table);
   const aspects = document.createElement('details');
