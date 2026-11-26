@@ -249,3 +249,65 @@ export function openStarInformation(name) {
   if (!starDialog.open) starDialog.showModal();
   starDialog.scrollTop = 0;
 }
+
+
+// Limit plain-text linking to rendered content. Interactive chart controls use
+// their own handlers so their selection and Vedha behavior remain intact.
+export function connectStarInformation(root, displayNames = chartNames) {
+  const names = new Map(displayNames.map((name, index) => [name, chartNames[index]]));
+  const alternatives = [...names.keys()].filter(name => name !== 'မူလ')
+    .sort((a, b) => b.length - a.length);
+  const pattern = new RegExp('(' + alternatives.join('|') + ')(နက္ခတ်)?|(မူလ)နက္ခတ်', 'gu');
+  const excluded = 'a, button, select, input, textarea, script, style, svg, #star-information, #akha';
+  function linkText(node) {
+    if (!node.parentElement || node.parentElement.closest(excluded)) return;
+    const value = node.textContent;
+    // A standalone table value can be the star, whereas the same word in
+    // a longer label can mean natal.
+    const matches = value.trim() === 'မူလ' && node.parentElement.closest('td')
+      ? [Object.assign(['မူလ', 'မူလ'], { index: value.indexOf('မူလ') })]
+      : [...value.matchAll(pattern)];
+    if (!matches.length) return;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    for (const match of matches) {
+      fragment.append(value.slice(cursor, match.index));
+      const link = document.createElement('button');
+      link.type = 'button';
+      link.dataset.starInformation = names.get(match[1] ?? match[3]);
+      link.setAttribute('aria-haspopup', 'dialog');
+      link.textContent = match[0];
+      fragment.append(link);
+      cursor = match.index + match[0].length;
+    }
+    fragment.append(value.slice(cursor));
+    node.replaceWith(fragment);
+  }
+  function linkContent(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      linkText(node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      textNodes.forEach(linkText);
+    }
+  }
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-star-information]');
+    if (!trigger) return;
+    event.preventDefault();
+    openStarInformation(trigger.dataset.starInformation);
+  });
+  const options = { childList: true, subtree: true, characterData: true };
+  const observer = new MutationObserver(records => {
+    observer.disconnect();
+    for (const record of records) {
+      if (record.type === 'characterData') linkText(record.target);
+      else record.addedNodes.forEach(linkContent);
+    }
+    observer.observe(root, options);
+  });
+  linkContent(root);
+  observer.observe(root, options);
+}

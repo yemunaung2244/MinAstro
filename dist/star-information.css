@@ -1,0 +1,29 @@
+.star-information-dialog {
+  width: min(94vw, 48rem);
+  max-height: 88dvh;
+  box-sizing: border-box;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  padding: 20px;
+  border: 1px solid #c9e2f1;
+  border-radius: 16px;
+  background: #f5fbff;
+  color: #142e45;
+}
+.star-information-dialog::backdrop { background: #142e4577; }
+.star-information-dialog p { white-space: pre-line; }
+.star-information-dialog button { min-height: 44px; font: inherit; }
+
+button[data-star-information]:not(.star-list-button) {
+  display: inline;
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sky-accent, #15547b);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

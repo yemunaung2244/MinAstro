@@ -1,3 +1,4 @@
+import { openChartStarInformation, connectStarInformation } from '../star-information.js';
 import { tips, vedhaTargets, vedhaNames, vedhaColors } from './vedha.mjs';
 import { calculateBhumi, bhumiWindows, directionOf, directions as bhumiDirections } from './bhumi.mjs';
 import { fourteenGroups, fourteenSlots, fourteenReadings, fourteenNote } from './chaturdasha.mjs';
@@ -506,7 +507,10 @@ function bhumiView(data) {
   const svg = lattice();
   board.append(svg);
   placements.forEach(({ star }, slot) => {
-    const label = element('span', stars[star][0], 'star');
+    const label = element('button', stars[star][0], 'star');
+    label.type = 'button';
+    label.setAttribute('aria-haspopup', 'dialog');
+    label.addEventListener('click', () => openChartStarInformation(star));
     label.classList.add(['top-label', 'right-label', 'bottom-label', 'left-label'][Math.floor(slot / 7)]);
     label.style.gridArea = starGridPosition(slot);
     board.append(label);
@@ -556,11 +560,13 @@ function chartView(data) {
     button.classList.toggle('anchor', isAnchor);
     button.style.gridArea = starGridPosition(slot);
     button.type = 'button';
+    button.setAttribute('aria-haspopup', 'dialog');
     button.title = isAnchor ? startLabel + ' · အခြေခံနက္ခတ်' : groupDefinitions[group][0];
     button.setAttribute('aria-label', [stars[star][0], groupDefinitions[group][0], isAnchor ? startLabel + 'ရှိ အခြေခံနက္ခတ်' : ''].filter(Boolean).join('၊ '));
     button.addEventListener('click', () => {
       showReading(star);
       rememberCharts();
+      openChartStarInformation(star);
     });
     board.append(button);
     return button;
@@ -754,3 +760,5 @@ if (active) {
   render();
 }
 showPage();
+
+connectStarInformation(document.getElementById('results'), stars.map(([name]) => name));

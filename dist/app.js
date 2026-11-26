@@ -1,4 +1,4 @@
-import { weekdays, yatraNames, yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra7Title, yatra7Descriptions, yatra8Title, yatra8Groups, yatra8Descriptions, openStarInformation } from './star-information.js';
+import { weekdays, yatraNames, yatraDescriptions, yatra2Descriptions, yatra3Descriptions, yatra4Descriptions, yatra5Descriptions, yatra7Title, yatra7Descriptions, yatra8Title, yatra8Groups, yatra8Descriptions, connectStarInformation } from './star-information.js';
 import { myanmarMonth } from './myanmar-calendar.js';
 import { akhaIntervals, akhaMonths, akhaRashis, akhaSourceReading, akhaTimeDivisions } from './akha.js';
 import { dailyPanchang, karanaName, tithiName, yogaNames } from './panchang.js';
@@ -2449,7 +2449,7 @@ function buildLattaTable(snapshot, highlightStarIndex) {
     th.textContent = p.name + (p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' (ဝကြ)' : '');
     row.append(th);
     const values = [
-      `${yatraNames[p.starIndex]} · ပါဒ ${mm(p.pada)}`,
+      `${yatraNames[p.starIndex]}နက္ခတ် · ပါဒ ${mm(p.pada)}`,
       p.ruleText,
       yatraNames[p.lattaIndex] + 'နက္ခတ်' + (hitTarget ? ' ⚠' : ''),
     ];
@@ -2594,7 +2594,7 @@ function renderLattaTransit(instant = lattaTransitInstant || new Date()) {
   h.textContent = `ကောဇာစန်း — ${yatraNames[snap.byId.moon.starIndex]}နက္ခတ် · ပါဒ ${mm(snap.byId.moon.pada)}`;
   const p1 = document.createElement('p');
   p1.textContent = `ကြည့်ရှုချိန် — ${timeFmt.format(instant)} (မြန်မာစံတော်ချိန်)`;
-  const uniqueLattaStars = [...new Set(snap.planets.map(p => p.lattaIndex))].map(i => yatraNames[i]).join('၊ ');
+  const uniqueLattaStars = [...new Set(snap.planets.map(p => p.lattaIndex))].map(i => yatraNames[i] + 'နက္ခတ်').join('၊ ');
   const p2 = document.createElement('p');
   p2.textContent = `အခါရွေးရာတွင် ရှောင်ရန် လတ္တာသင့် နက္ခတ်များ — ${uniqueLattaStars}`;
   overview.append(h, p1, p2);
@@ -3076,54 +3076,7 @@ byId('yatra-entries').replaceChildren(...guruNames.map(name => {
   button.textContent = name + 'နက္ခတ်';
   return button;
 }));
-document.addEventListener('click', event => {
-  const link = event.target.closest('[data-star-information]');
-  if (!link) return;
-  event.preventDefault();
-  openStarInformation(link.dataset.starInformation);
-});
-// မူလ is also a natal label. Link it only where a calculated star is known.
-const starNames = [...yatraNames.filter(name => name !== 'မူလ'), 'အဘိဇိ'].sort((a, b) => b.length - a.length);
-const starPattern = new RegExp('(' + starNames.join('|') + ')(နက္ခတ်)?', 'gu');
-function linkStarNames(root) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (!node.parentElement.closest('a, button, select, input, textarea, script, style, svg, #star-information, #akha')) nodes.push(node);
-  }
-  for (const node of nodes) {
-    const text = node.textContent;
-    const matches = [...text.matchAll(starPattern)];
-    if (!matches.length) continue;
-    const fragment = document.createDocumentFragment();
-    let cursor = 0;
-    for (const match of matches) {
-      fragment.append(text.slice(cursor, match.index));
-      const link = document.createElement('a');
-      link.href = '#';
-      link.dataset.starInformation = match[1];
-      link.textContent = match[0];
-      fragment.append(link);
-      cursor = match.index + match[0].length;
-    }
-    fragment.append(text.slice(cursor));
-    node.replaceWith(fragment);
-  }
-}
-linkStarNames(document.querySelector('main'));
-const starObserver = new MutationObserver(records => {
-  starObserver.disconnect();
-  for (const record of records) {
-    if (record.type === 'characterData') linkStarNames(record.target.parentElement);
-    else for (const node of record.addedNodes) {
-      if (node.nodeType === Node.ELEMENT_NODE) linkStarNames(node);
-      else if (node.nodeType === Node.TEXT_NODE && node.parentElement) linkStarNames(node.parentElement);
-    }
-  }
-  starObserver.observe(document.querySelector('main'), {childList:true, subtree:true, characterData:true});
-});
-starObserver.observe(document.querySelector('main'), {childList:true, subtree:true, characterData:true});
+connectStarInformation(document.querySelector('main'));
 
 window.addEventListener('hashchange', showPage);
 showPage();

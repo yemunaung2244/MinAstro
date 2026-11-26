@@ -548,9 +548,6 @@ html { touch-action: pan-x pan-y; }
 .panchang-table th { width: 30%; color: var(--sky-accent); }
 .panchang-table tr:nth-child(even) { background: #dff3ff; }
 
-#star-information { width: min(94vw, 48rem); max-height: 88dvh; overflow: auto; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); }
-#star-information::backdrop { background: #142e4577; }
-#star-information p { white-space: pre-line; }
 [data-star-information] { color: var(--sky-accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
 #nadika-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }

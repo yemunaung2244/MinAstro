@@ -1,3 +1,4 @@
+import { openChartStarInformation, connectStarInformation } from '../star-information.js';
 import { dasaExcerpts } from './dasa-excerpts.mjs';
 import { nodeRemedies } from './node-remedies.mjs';
 import { shadExcerpts } from './shad-excerpts.mjs';
@@ -302,12 +303,14 @@ function renderTakkalika(body) {
       pen.restore();
     }
     if (star === positions.rahu || star === positions.ketu) button.classList.add('axis');
-    button.onclick = () => {
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.onclick = event => {
       sheet.querySelector('.active')?.classList.remove('active');
       button.classList.add('active');
       caption.textContent = description;
       selectedStar = occupants.length ? star : undefined;
       showVedha(selectedStar);
+      if (event.isTrusted) openChartStarInformation(star);
     };
     if (occupants.length) previewVedha(button, star);
     chartButtons.set(star, button);
@@ -603,6 +606,7 @@ function render() {
     }
     if (star === rahu || star === guru) button.classList.add('axis');
     const group = placement(rahu, star);
+    if (star !== abhijitIndex) button.setAttribute('aria-haspopup', 'dialog');
     const describe = () => {
       const readings = mode in modes ? [labelOf(group[mode])]
         : mode === 'bhumi' ? [directions[star]]
@@ -612,9 +616,10 @@ function render() {
       sheet.querySelector('.active')?.classList.remove('active');
       button.classList.add('active');
     };
-    button.addEventListener('click', () => {
+    button.addEventListener('click', event => {
       describe();
       showLines(occupants.some(name => name !== 'လဂ်') ? index : null);
+      if (event.isTrusted && star !== abhijitIndex) openChartStarInformation(star);
     });
     if (showVedha && occupants.some(name => name !== 'လဂ်')) {
       button.addEventListener('pointerenter', () => showLines(index));
@@ -1059,3 +1064,5 @@ find('chart-time').value=current;
 find('event-time').value=current;
 updateTimeInterval();
 route();
+
+connectStarInformation(document.getElementById('result-body'), stars);
