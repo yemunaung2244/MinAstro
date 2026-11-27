@@ -1447,32 +1447,32 @@ html { touch-action: pan-x pan-y; }
     touch-action: pan-y;
   }
 
-  :is(#latta, #jamitra) .suriya-reading-tabs {
+  :is(#latta, #jamitra, #meinmamyat) .suriya-reading-tabs {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: visible;
   }
 
-  :is(#latta, #jamitra) .suriya-reading-tabs button {
+  :is(#latta, #jamitra, #meinmamyat) .suriya-reading-tabs button {
     min-width: 0;
     white-space: normal;
   }
 
-  :is(#latta, #jamitra) .controls {
+  :is(#latta, #jamitra, #meinmamyat) .controls {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  :is(#latta, #jamitra) .controls label {
+  :is(#latta, #jamitra, #meinmamyat) .controls label {
     min-width: 0;
   }
 
-  :is(#latta, #jamitra) .controls input,
-  :is(#latta, #jamitra) .controls select {
+  :is(#latta, #jamitra, #meinmamyat) .controls input,
+  :is(#latta, #jamitra, #meinmamyat) .controls select {
     font-size: 1rem;
     max-inline-size: 100%;
   }
 
-  :is(#latta, #jamitra) .latta-table,
+  :is(#latta, #jamitra, #meinmamyat) .latta-table,
   .latta-table tbody {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -1516,7 +1516,7 @@ html { touch-action: pan-x pan-y; }
   }
 }
 
-:is(#latta-natal-form, #jamitra-natal-form, #jamitra-transit-form) .janma-parts {
+:is(#latta-natal-form, #jamitra-natal-form, #jamitra-transit-form, #meinmamyat-natal-form, #meinmamyat-transit-form) .janma-parts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
   gap: 8px;
@@ -1527,7 +1527,7 @@ html { touch-action: pan-x pan-y; }
   border-radius: 12px;
 }
 
-:is(#latta-natal-form, #jamitra-natal-form, #jamitra-transit-form) .janma-parts input {
+:is(#latta-natal-form, #jamitra-natal-form, #jamitra-transit-form, #meinmamyat-natal-form, #meinmamyat-transit-form) .janma-parts input {
   max-width: 6rem;
   min-height: 38px;
   padding: 5px 9px;
@@ -1787,14 +1787,12 @@ main :where(th, td) { border: 1px solid #aacbdf; }
   padding: 1px 4px;
   font-weight: 800;
 }
-.mm-cell.mm-active-good {
-  background: #e1f6ea;
-  box-shadow: inset 0 0 0 2px #196745;
-}
+.mm-cell.mm-active-good,
 .mm-cell.mm-active-caution {
-  background: #fdebe8;
-  box-shadow: inset 0 0 0 2px #963d36;
+  background: #e4f5ff;
+  box-shadow: inset 0 0 0 2px #247aac;
 }
+.mm-cell-stars .mm-moon button[data-star-information] { color: inherit; }
 @media (max-width: 670px) {
   .mm-board-wrap { padding: 10px 6px; }
   .mm-compass-row { gap: 4px; }
@@ -1805,7 +1803,7 @@ main :where(th, td) { border: 1px solid #aacbdf; }
 }
 
 
-#jamitra [data-machine-output] .entry { margin-block: 14px; }
+:is(#jamitra, #meinmamyat) [data-machine-output] .entry { margin-block: 14px; }
 .jamitra-summary-table th { width: 42%; }
 .jamitra-summary-table :is(th, td) { overflow-wrap: anywhere; }
-#jamitra .tri-table-scroll { overflow-x: visible; }
+:is(#jamitra, #meinmamyat) .tri-table-scroll { overflow-x: visible; }

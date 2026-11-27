@@ -37,6 +37,9 @@
       <a class="home-choice" href="rudra/index.html">ရုဒြနက္ခတ်</a>
       <a class="home-choice" href="hidden-chakra/index.html">လျှို့ဝှက်အပ်သောစက်</a>
       <a class="home-choice" href="kama/index.html">ကာမသျှတ္တရကျမ်း</a>
+      <a class="home-choice" href="rikta/index.html">ရိတ္တာနှင့် ပုဏ္ဏာ</a>
+      <a class="home-choice" href="kumbha/index.html">ကုမ္ဘစက်</a>
+      <a class="home-choice" href="chandra/index.html">စန္ဒြစက်</a>
       <a class="home-choice" href="#dashayoga">ဒဿယောဂစက်</a>
       <a class="home-choice" href="#jamitra">ဇာမိတြနက္ခတ်</a>
       <a class="home-choice" href="#meinmamyat">မိန်းမမြတ်စက်</a>
@@ -389,14 +392,14 @@
     </section>
     <section id="meinmamyat" class="catalog" hidden>
       <h1 id="meinmamyat-title" tabindex="-1">မိန်းမမြတ်စက်</h1>
-      <p class="hint">တနင်္ဂနွေစီးနက္ခတ်မှ ကိုးကွက်ပတ်လည် အဋ္ဌလက်ခွင်စက် (၂၇ လုံးမူ) နှင့် တွဲဖက် နက္ခတ် (၂၃) တွဲ (စာမျက်နှာ ၇၄ – ၇၈)</p>
+      <p class="hint">နေစီးနက္ခတ်မှ စ၍ နက္ခတ် ၂၇ လုံးကို ကိုးကွက်ခွဲပြီး စန်းစီးနက္ခတ် ကျရာအကွက်ကို စစ်ပါ။</p>
       <nav class="suriya-reading-tabs" aria-label="မိန်းမမြတ်စက် မီနူး">
-        <button type="button" data-meinmamyat-tab="transit" aria-pressed="true">ကောဇာ မိန်းမမြတ်စက်</button>
-        <button type="button" data-meinmamyat-tab="natal" aria-pressed="false">မူလ + ကောဇာ (မွေးသက္ကရာဇ်)</button>
+        <button type="button" data-meinmamyat-tab="transit" aria-pressed="true">ကောဇာ</button>
+        <button type="button" data-meinmamyat-tab="natal" aria-pressed="false">မူလ + ကောဇာ</button>
         <button type="button" data-meinmamyat-tab="pairs" aria-pressed="false">နက္ခတ် (၂၃) တွဲ</button>
       </nav>
       <div id="meinmamyat-panel-transit">
-        <form id="meinmamyat-transit-form" class="controls">
+        <form id="meinmamyat-transit-form" class="controls wish-controls">
           <fieldset class="janma-parts">
             <legend>ကောဇာ ရက်စွဲ</legend>
             <label>ရက်<input id="mm-tr-day" type="text" inputmode="numeric" maxlength="2" required></label>
@@ -419,7 +422,7 @@
         <div id="meinmamyat-transit-result" aria-live="polite"></div>
       </div>
       <div id="meinmamyat-panel-natal" hidden>
-        <form id="meinmamyat-natal-form" class="controls">
+        <form id="meinmamyat-natal-form" class="controls wish-controls">
           <label class="field">အမည်<input id="meinmamyat-natal-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
           <fieldset class="janma-parts">
             <legend>မွေးသက္ကရာဇ်</legend>
@@ -455,18 +458,18 @@
         <div id="meinmamyat-natal-result" aria-live="polite"></div>
       </div>
       <div id="meinmamyat-panel-pairs" hidden>
-        <form id="meinmamyat-pairs-form" class="controls">
-          <label class="field">ရှေ့နက္ခတ် (ယောကျ်ား / နဂို / မူလ / စားသုံးသူ)
+        <form id="meinmamyat-pairs-form" class="controls wish-controls">
+          <label class="field">ပထမနက္ခတ် (မူလ)
             <select id="mm-pair-first"></select>
           </label>
-          <label class="field">နောက်နက္ခတ် (မိန်းမ / မူလီ / ယာယီ / စားသုံးခြင်း ခံရသူ)
+          <label class="field">ဒုတိယနက္ခတ် (မူလီ)
             <select id="mm-pair-second"></select>
           </label>
           <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> စစ်ဆေးမည်</button>
         </form>
         <div id="meinmamyat-pairs-result" aria-live="polite"></div>
       </div>
-      <details class="tri-guide">
+      <details class="tri-guide" id="meinmamyat-guide">
         <summary>မိန်းမမြတ်စက် တွက်နည်း၊ အရပ်မျက်နှာအသုံးပြုပုံနှင့် နက္ခတ် (၂၃) တွဲ (စာမျက်နှာ ၇၄ – ၇၈)</summary>
         <h4>စက်ချပုံ</h4>
         <p>တနင်္ဂနွေစီးနက္ခတ်မှစ၍ နက္ခတ် (၂၇) လုံးကို ကိုးကွက်ပတ်လည် အဋ္ဌလက်ခွင်စက်တွင် တစ်ကွက်လျှင် နက္ခတ် (၃) လုံးစီ ထည့်သွင်းသည်။ ပထမ (၃) လုံးကို <strong>အလယ်ကွက်</strong>၊ နောက် (၃) လုံးကို <strong>အရှေ့ကွက်</strong>မှစ၍ လက်ယာရစ်အတိုင်း အရှေ့တောင်၊ တောင်၊ အနောက်တောင်၊ အနောက်၊ အနောက်မြောက်၊ မြောက်၊ အရှေ့မြောက် ဟူ၍ အစဉ်လိုက် ချထားပြီး တနင်္လာစီးနက္ခတ် ကျရောက်ရာအကွက်ဖြင့် ဟောပြောသည်။ မူလတနင်္ဂနွေနှင့် မူလတနင်္လာတို့ဖြင့်လည်း အသုံးပြုနိုင်သည်။</p>

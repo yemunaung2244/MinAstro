@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ကုမ္ဘစက် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ကုမ္ဘစက်</h1>
+  <form id="chart-form" class="panel controls">
+    <label class="field">မူလ မွေးရက်စွဲနှင့် မွေးချိန် (မြန်မာစံတော်ချိန်)
+      <input name="birth" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">ကောဇာ ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="transit" type="datetime-local" step="1" required>
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="error" role="alert" hidden>ရက်စွဲနှင့် အချိန်ကို ပြန်စစ်ပါ။</p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">ကုမ္ဘစက် ရလဒ်</h2>
+    <div id="results" aria-live="polite"></div>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ တွက်နည်းနှင့် အသုံးပြုပုံ</summary>
+      <p>ဂြိုဟ်တစ်လုံးစီအတွက် မူလစီးနက္ခတ်ကို ရိတ္တာအဖြစ်ထားပြီး နောက်နက္ခတ်ကို ပုဏ္ဏာအဖြစ်ထားသည်။ နက္ခတ် ၂၇ လုံးပြည့်သည်အထိ အလှည့်ကျ ရေတွက်သည်။ ရိတ္တာ ၁၄ လုံးနှင့် ပုဏ္ဏာ ၁၃ လုံး ရသည်။</p>
+      <p>ကျမ်းတွင် ရိတ္တာကို ဖြည့်ကျင့်ရန် ကျန်သည့်အပိုင်း၊ ပုဏ္ဏာကို ဖြည့်ကျင့်ပြီးသည့်အပိုင်းဟု ရှင်းပြထားသည်။ မိမိဇနမနက္ခတ်၊ လဂ်စီးနက္ခတ်နှင့် အခြားသူ၏ ကုမ္ဘစက်တို့ကိုလည်း တွဲဖက်ချိန်ဆနိုင်ကြောင်း ဖော်ပြထားသည်။</p>
+    </details>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

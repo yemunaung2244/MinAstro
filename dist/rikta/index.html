@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ရိတ္တာနှင့် ပုဏ္ဏာ · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ရိတ္တာနှင့် ပုဏ္ဏာ</h1>
+  <form id="chart-form" class="panel controls">
+    <label class="field">စစ်ဆေးလိုသည့် ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="time" type="datetime-local" step="1" required>
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="error" role="alert" hidden>ရက်စွဲနှင့် အချိန်ကို ပြန်စစ်ပါ။</p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">ရိတ္တာနှင့် ပုဏ္ဏာ ရလဒ်</h2>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">စစ်ဆေးချက်</th><th scope="col">ရလဒ်</th><th scope="col">အုပ်စု</th></tr></thead>
+      <tbody id="result-rows"></tbody>
+    </table>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ အုပ်စုဇယား</summary>
+      <table class="tri-readings-table">
+        <thead><tr><th scope="col">အမျိုးအစား</th><th scope="col">ရိတ္တာ</th><th scope="col">ပုဏ္ဏာ</th></tr></thead>
+        <tbody id="reference"></tbody>
+      </table>
+    </details>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ အသုံးပြုပုံ</summary>
+      <p>ကျမ်းအရ ရိတ္တာနက္ခတ်တွင် ခရီးသွားရန် မသင့်ဟု ဆိုထားပြီး ပုဏ္ဏာနက္ခတ်တွင် သင့်သည်ဟု ဖော်ပြထားသည်။ စာရေးသူက «ယတြာ» ဟူသော စကားလုံးကို ခရီးသွားခြင်းနှင့် ဆက်စပ်ရှင်းပြထားပြီး ကိုယ်စားလုပ်ဆောင်ခြင်းနှင့် ကိုယ်စားလွှဲသော ယတြာများကိုလည်း သီးခြား ဆွေးနွေးထားသည်။</p>
+      <p>ရိတ္တာကို ခွက်အလွတ်၊ ပုဏ္ဏာကို တစ်ခုခုရှိပြီးသား ခွက်နှင့် ဥပမာပေးထားသည်။ ရာသီ၊ နက္ခတ်နှင့် တီထိကို သီးခြားသုံးနိုင်ပြီး အရေးကြီးလျှင် သုံးမျိုးလုံး တွဲဖက်ချိန်ဆရန် ဖော်ပြထားသည်။</p>
+    </details>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

@@ -55,7 +55,7 @@ createServer(async (request, response) => {
   const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
   const asset = book ? [path.slice(1), 'application/pdf']
     : cover ? [path.slice(1), 'image/jpeg']
-    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? resolveSubApp('ketula', path) ?? resolveSubApp('brahma', path) ?? resolveSubApp('rudra', path) ?? resolveSubApp('hidden-chakra', path) ?? resolveSubApp('kama', path) ?? assets.get(path);
+    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? resolveSubApp('ketula', path) ?? resolveSubApp('brahma', path) ?? resolveSubApp('rudra', path) ?? resolveSubApp('hidden-chakra', path) ?? resolveSubApp('kama', path) ?? resolveSubApp('rikta', path) ?? resolveSubApp('kumbha', path) ?? resolveSubApp('chandra', path) ?? assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;

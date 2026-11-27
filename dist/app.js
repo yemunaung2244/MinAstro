@@ -11,6 +11,7 @@ import { wishSelfDirections, wishBlessingDirections, wishDirectionForNakshatra }
 import { lattaPlanetDefs, sunLattaOccupantReadings, computeLattaSnapshot, evaluateLattaOnStar } from './latta.js';
 import { evaluateDashaYogaAt } from './dasha-yoga.js';
 import { evaluateNatalJamitra, evaluateTransitJamitra, rashiNames } from './jamitra.js';
+import { meinmamyatGridOrder, meinmamyatPairs, evaluateMeinmamyatAt, findMeinmamyatPair, pairsForStar } from './meinmamyat.js';
 
 const byId = (id) => document.getElementById(id);
 const effectText = (name, effect) => {
@@ -102,6 +103,7 @@ const savedChartTypes = {
   latta: ['လတ္တာစက်', 'latta-natal-form'],
   dashayoga: ['ဒဿယောဂစက်', 'dasha-natal-form'],
   jamitra: ['ဇာမိတြနက္ခတ်', 'jamitra-natal-form'],
+  meinmamyat: ['မိန်းမမြတ်စက်', 'meinmamyat-natal-form'],
   akha: ['အခါပဒေသာ', 'akha-form'],
   panchang: ['Panchang', 'panchang-form'],
 };
@@ -202,8 +204,8 @@ function renderSavedCharts() {
     for (const record of group) {
       const fields = Object.fromEntries(record.fields);
       const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
-        ['janma', 'upa', 'tri', 'latta', 'dasha', 'jamitra'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
-      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : type === 'dashayoga' ? 'dasha' : type === 'jamitra' ? 'jamitra' : 'upa';
+        ['janma', 'upa', 'tri', 'latta', 'dasha', 'jamitra', 'mm'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
+      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : type === 'dashayoga' ? 'dasha' : type === 'jamitra' ? 'jamitra' : type === 'meinmamyat' ? 'mm' : 'upa';
       const birthTime = fields[birthPrefix + '-hour']
         ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
       const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
@@ -3253,6 +3255,275 @@ byId('jamitra-natal-form')?.addEventListener('submit', (event) => {
   }
 });
 
+// --- Meinmamyat Chakra (မိန်းမမြတ်စက် · စာမျက်နှာ ၇၄–၇၈) ---
+let mmTransitInstant;
+connectTownSearch('mm');
+fillBirthPartsFromInstant('mm-tr');
+
+const mmPairFirst = byId('mm-pair-first');
+const mmPairSecond = byId('mm-pair-second');
+if (mmPairFirst && mmPairSecond) {
+  yatraNames.forEach((name, idx) => {
+    mmPairFirst.add(new Option(`${mm(idx + 1)}။ ${name}နက္ခတ်`, String(idx)));
+    mmPairSecond.add(new Option(`${mm(idx + 1)}။ ${name}နက္ခတ်`, String(idx)));
+  });
+}
+
+const mmTabButtons = [...document.querySelectorAll('[data-meinmamyat-tab]')];
+mmTabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.meinmamyatTab;
+    mmTabButtons.forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    for (const key of ['transit', 'natal', 'pairs']) {
+      byId('meinmamyat-panel-' + key).hidden = tab !== key;
+    }
+  });
+});
+
+function buildMeinmamyatBoard(res, sunLabel, moonLabel) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mm-board-wrap';
+  const topDir = document.createElement('div');
+  topDir.className = 'mm-dir-label';
+  topDir.textContent = 'အရှေ့';
+  const midRow = document.createElement('div');
+  midRow.className = 'mm-compass-row';
+  const leftDir = document.createElement('div');
+  leftDir.className = 'mm-dir-label mm-dir-side';
+  leftDir.textContent = 'မြောက်';
+  const rightDir = document.createElement('div');
+  rightDir.className = 'mm-dir-label mm-dir-side';
+  rightDir.textContent = 'တောင်';
+  const grid = document.createElement('div');
+  grid.className = 'mm-grid';
+
+  for (const boxIdx of meinmamyatGridOrder) {
+    const box = res.boxes[boxIdx];
+    const cell = document.createElement('div');
+    cell.className = 'mm-cell';
+    if (box.index === res.activeBox.index) {
+      cell.classList.add(box.good ? 'mm-active-good' : 'mm-active-caution');
+    }
+    const dirEl = document.createElement('div');
+    dirEl.className = 'mm-cell-dir';
+    dirEl.textContent = box.direction;
+    const ul = document.createElement('ul');
+    ul.className = 'mm-cell-stars';
+    for (const sIdx of box.stars) {
+      const li = document.createElement('li');
+      const marks = [];
+      if (sIdx === res.sunIndex) {
+        li.classList.add('mm-sun');
+        marks.push(sunLabel || 'နေ');
+      }
+      if (sIdx === res.moonIndex) {
+        li.classList.add('mm-moon');
+        marks.push(moonLabel || 'စန်း');
+      }
+      li.textContent = yatraNames[sIdx] + 'နက္ခတ်' + (marks.length ? ` (${marks.join('·')})` : '');
+      ul.append(li);
+    }
+    cell.append(dirEl, ul);
+    grid.append(cell);
+  }
+  midRow.append(leftDir, grid, rightDir);
+  const botDir = document.createElement('div');
+  botDir.className = 'mm-dir-label';
+  botDir.textContent = 'အနောက်';
+  wrap.append(topDir, midRow, botDir);
+  return wrap;
+}
+
+function buildMeinmamyatPairsTable(highlightFirst, highlightSecond) {
+  const scroll = document.createElement('div');
+  scroll.className = 'tri-table-scroll';
+  const table = document.createElement('table');
+  table.className = 'tri-readings-table latta-table';
+  const headers = ['စဉ်', 'ပထမနက္ခတ်', 'ဒုတိယနက္ခတ်', 'အကျိုးပေး'];
+  const thead = document.createElement('thead');
+  const htr = document.createElement('tr');
+  headers.forEach(text => {
+    const th = document.createElement('th');
+    th.textContent = text;
+    htr.append(th);
+  });
+  thead.append(htr);
+  const tbody = document.createElement('tbody');
+  meinmamyatPairs.forEach(([a, b, reading], i) => {
+    const tr = document.createElement('tr');
+    if (a === highlightFirst && b === highlightSecond) tr.className = 'tri-row-active';
+    [mm(i + 1), `${yatraNames[a]}နက္ခတ်`, `${yatraNames[b]}နက္ခတ်`, reading].forEach((val, ci) => {
+      const td = document.createElement('td');
+      const lbl = document.createElement('span');
+      lbl.className = 'latta-cell-label';
+      lbl.textContent = headers[ci];
+      lbl.setAttribute('aria-hidden', 'true');
+      const value = document.createElement('span');
+      value.textContent = val;
+      td.append(lbl, value);
+      tr.append(td);
+    });
+    tbody.append(tr);
+  });
+  table.append(thead, tbody);
+  scroll.append(table);
+  return scroll;
+}
+
+function renderMeinmamyatTransit() {
+  const out = byId('meinmamyat-transit-result');
+  if (!out) return;
+  const instant = mmTransitInstant ?? new Date();
+  if (!mmTransitInstant) fillBirthPartsFromInstant('mm-tr', instant);
+  const res = evaluateMeinmamyatAt(instant);
+  const timeFmt = new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  out.replaceChildren();
+
+  const rows = [
+    ['စစ်ဆေးချိန်', timeFmt.format(instant) + ' (မြန်မာစံတော်ချိန်)'],
+    ['ကောဇာ တနင်္ဂနွေစီးနက္ခတ် (အလယ်ကွက် အစ)', `${yatraNames[res.sunIndex]}နက္ခတ်`],
+    ['ကောဇာ တနင်္လာစီးနက္ခတ်', `${yatraNames[res.moonIndex]}နက္ခတ်`],
+    ['ကျရောက်ရာအကွက်', res.activeBox.direction],
+    ['အဟော (စာမျက်နှာ ၇၅)', res.activeBox.reading],
+  ];
+  if (res.activeBox.index === 7) {
+    rows.push(['မြောက်အရပ် အထူးမှတ်ချက်', 'ချမ်းသာကြွယ်ဝရေးအတွက် သင့်လျော်သော အမျိုးသမီးများနှင့် တိုင်ပင်ဆွေးနွေးခြင်း၊ မေတ္တာပို့ပေးရန် တောင်းဆိုခြင်း ပြုနိုင်ပါသည်။']);
+  }
+  rows.push(['အရပ်မျက်နှာ အသုံးပြုပုံ', 'မိမိကိုယ်တိုင်အကျိုးအတွက် ကျောပေးခြင်းက အာနိသင်ပိုမြန်ပြီး၊ သူတစ်ပါးကို ဆွဲဆောင်သိမ်းသွင်း/မေတ္တာတောင်းခံရာတွင် မျက်နှာမူခြင်းက အာနိသင်ပိုမြန်ပါသည်။']);
+  out.append(buildJamitraCard(
+    `ကောဇာ မိန်းမမြတ်စက် · ${res.activeBox.direction}`,
+    rows,
+    res.activeBox.good ? 'ကောင်းမြတ်' : 'သတိပြု',
+    res.activeBox.good ? 'good' : 'caution'
+  ));
+  out.append(buildMeinmamyatBoard(res, 'နေ', 'စန်း'));
+
+  const pairHit = findMeinmamyatPair(res.sunIndex, res.moonIndex);
+  if (pairHit) {
+    out.append(buildJamitraCard(
+      `နက္ခတ် ၂၃ တွဲ တိုက်ဆိုင်မှု (အမှတ် ${mm(pairHit.number)})`,
+      [
+        ['အတွဲ', `${yatraNames[pairHit.first]}နက္ခတ် – ${yatraNames[pairHit.second]}နက္ခတ်`],
+        ['အကျိုးပေး', pairHit.reading],
+      ],
+      pairHit.good ? 'ကောင်းမြတ်' : 'သတိပြု',
+      pairHit.good ? 'good' : 'caution'
+    ));
+  }
+}
+
+byId('meinmamyat-transit-form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const err = byId('mm-transit-error');
+  try {
+    mmTransitInstant = readBirthInstant('mm-tr');
+    err.textContent = '';
+    renderMeinmamyatTransit();
+    window.location.hash = 'meinmamyat-transit-result';
+  } catch {
+    err.textContent = 'ရက်၊ လ၊ နှစ်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('mm-transit-now')?.addEventListener('click', () => {
+  mmTransitInstant = undefined;
+  fillBirthPartsFromInstant('mm-tr');
+  byId('mm-transit-error').textContent = '';
+  renderMeinmamyatTransit();
+  window.location.hash = 'meinmamyat-transit-result';
+});
+
+byId('meinmamyat-natal-form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const err = byId('mm-natal-error');
+  const out = byId('meinmamyat-natal-result');
+  try {
+    const birthInstant = readBirthInstant('mm');
+    const cityVal = byId('mm-city').value;
+    const town = towns[Number(cityVal)];
+    if (!town) throw new RangeError('missing town');
+    const hasCustomTransit = ['day', 'month', 'year', 'hour', 'minute', 'second', 'period'].some(
+      part => byId('mm-nt-' + part).value.trim() !== ''
+    );
+    const transitInstant = hasCustomTransit ? readBirthInstant('mm-nt') : new Date();
+    const natalRes = evaluateMeinmamyatAt(birthInstant);
+    const natalToTransitRes = evaluateMeinmamyatAt(transitInstant, natalRes.sunIndex);
+    const nameVal = byId('meinmamyat-natal-form-name').value.trim();
+    const timeFmt = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    out.replaceChildren();
+
+    const natalRows = [
+      ['မွေးချိန် / မြို့', `${timeFmt.format(birthInstant)} · ${town[0]}`],
+      ['မူလ တနင်္ဂနွေစီးနက္ခတ် (အလယ်ကွက် အစ)', `${yatraNames[natalRes.sunIndex]}နက္ခတ်`],
+      ['မူလ တနင်္လာ / ဇနမနက္ခတ်', `${yatraNames[natalRes.moonIndex]}နက္ခတ်`],
+      ['မူလ ကျရောက်ရာအကွက်', `${natalRes.activeBox.direction} — ${natalRes.activeBox.reading}`],
+    ];
+    if (natalRes.activeBox.index === 7) {
+      natalRows.push(['ဇနမနက္ခတ် မြောက်အရပ် မှတ်ချက်', 'မိမိ၏ ဇနမနက္ခတ်သည် မြောက်အရပ်အကွက်တွင် ကျရောက်နေသဖြင့် သင့်လျော်ရာ မယ်တော်တစ်ပါးပါးကို ကိုးကွယ်ပူဇော်နိုင်ကြောင်း ဆိုထားပါသည်။']);
+    }
+    natalRows.push(
+      ['ကောဇာ စစ်ဆေးချိန်', timeFmt.format(transitInstant) + ' (မြန်မာစံတော်ချိန်)'],
+      ['ကောဇာ တနင်္လာစီးနက္ခတ် (မူလနေစက်ပေါ်)', `${yatraNames[natalToTransitRes.moonIndex]}နက္ခတ် → ${natalToTransitRes.activeBox.direction} (${natalToTransitRes.activeBox.reading})`]
+    );
+    out.append(buildJamitraCard(
+      (nameVal ? `${nameVal} · ` : '') + 'မူလ + ကောဇာ မိန်းမမြတ်စက်',
+      natalRows,
+      natalRes.activeBox.good ? 'မူလ ကောင်းမြတ်' : 'မူလ သတိပြု',
+      natalRes.activeBox.good ? 'good' : 'caution'
+    ));
+    out.append(buildMeinmamyatBoard(natalRes, 'မူလနေ', 'မူလစန်း'));
+
+    const relatedPairs = pairsForStar(natalRes.moonIndex);
+    if (relatedPairs.length) {
+      out.append(buildJamitraCard(
+        `မူလ ဇနမနက္ခတ် (${yatraNames[natalRes.moonIndex]}) နှင့် ဆက်စပ်သော နက္ခတ် ၂၃ တွဲ`,
+        relatedPairs.map(p => [
+          `အတွဲ ${mm(p.number)} (${yatraNames[p.first]} – ${yatraNames[p.second]})`,
+          p.reading,
+        ])
+      ));
+    }
+    err.textContent = '';
+    saveChart('meinmamyat');
+    window.location.hash = 'meinmamyat-natal-result';
+  } catch {
+    err.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('meinmamyat-pairs-form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const out = byId('meinmamyat-pairs-result');
+  const a = Number(byId('mm-pair-first').value);
+  const b = Number(byId('mm-pair-second').value);
+  const hit = findMeinmamyatPair(a, b);
+  const reverseHit = findMeinmamyatPair(b, a);
+  out.replaceChildren();
+  const rows = [
+    ['ပထမနက္ခတ် (မူလ)', `${yatraNames[a]}နက္ခတ်`],
+    ['ဒုတိယနက္ခတ် (မူလီ)', `${yatraNames[b]}နက္ခတ်`],
+    ['စစ်ဆေးချက်', hit ? `အတွဲအမှတ် ${mm(hit.number)} — ${hit.reading}` : 'နက္ခတ် ၂၃ တွဲစာရင်းတွင် ဤအစဉ်အတိုင်း မပါဝင်ပါ။'],
+  ];
+  if (!hit && reverseHit) {
+    rows.push(['ပြောင်းပြန်အစဉ် မှတ်ချက်', `(${yatraNames[b]} – ${yatraNames[a]}) အစဉ်အတိုင်းဆိုလျှင် အတွဲအမှတ် ${mm(reverseHit.number)} — ${reverseHit.reading}`]);
+  }
+  out.append(buildJamitraCard(
+    'နက္ခတ် ၂၃ တွဲ စစ်ဆေးချက်',
+    rows,
+    hit ? (hit.good ? 'ကောင်းမြတ်' : 'သတိပြု') : 'စာရင်းပြင်ပ',
+    hit ? (hit.good ? 'good' : 'caution') : 'good'
+  ));
+  const h3 = document.createElement('h3');
+  h3.className = 'tri-section-title';
+  h3.textContent = 'နက္ခတ် ၂၃ တွဲ ဇယားအပြည့်အစုံ (စာမျက်နှာ ၇၇ – ၇၈)';
+  out.append(h3, buildMeinmamyatPairsTable(a, b));
+  window.location.hash = 'meinmamyat-pairs-result';
+});
+
 function showPage() {
   const rawHash = window.location.hash.slice(1);
   const hash = machineResults.has(rawHash) ? rawHash.replace(/(?:-(?:natal|transit))?-result$/, '') : ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
@@ -3266,7 +3537,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'latta', 'dashayoga', 'jamitra', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'latta', 'dashayoga', 'jamitra', 'meinmamyat', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -3346,11 +3617,14 @@ function showPage() {
     const prefix = id === 'dashayoga' ? 'dasha' : id;
     if (id !== 'wish') {
       const active = machine.querySelector('button[aria-pressed="true"]').dataset[prefix + 'Tab'];
-      for (const tab of ['natal', 'transit']) byId(prefix + '-panel-' + tab).hidden = showResult || active !== tab;
+      for (const tab of ['natal', 'transit', 'pairs']) {
+        const panel = byId(prefix + '-panel-' + tab);
+        if (panel) panel.hidden = showResult || active !== tab;
+      }
     }
   }
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'meinmamyat' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'meinmamyat' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -3389,6 +3663,7 @@ const machineResultIds = {
   latta: ['latta-transit-result', 'latta-natal-result'],
   dashayoga: ['dasha-transit-result', 'dasha-natal-result'],
   jamitra: ['jamitra-transit-result', 'jamitra-natal-result'],
+  meinmamyat: ['meinmamyat-transit-result', 'meinmamyat-natal-result', 'meinmamyat-pairs-result'],
 };
 const machineResults = new Map();
 for (const [id, resultIds] of Object.entries(machineResultIds)) {
@@ -3413,7 +3688,7 @@ for (const [id, resultIds] of Object.entries(machineResultIds)) {
     const table = byId('wish-table');
     output.append(table.previousElementSibling, table);
   }
-  if (id === 'jamitra') output.append(byId('jamitra-guide'));
+  if (id === 'jamitra' || id === 'meinmamyat') output.append(byId(id + '-guide'));
   byId(id).append(output);
 }
 

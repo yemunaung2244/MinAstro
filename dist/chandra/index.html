@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>စန္ဒြစက် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>စန္ဒြစက်</h1>
+  <form id="chart-form" class="panel controls">
+    <p class="hint">လပြည့်နေ့ နေထွက်ချိန် စန်းစီးနက္ခတ်ကနေ စပြီး နက္ခတ် ၂၇ လုံး စီသည်။</p>
+    <label class="field">မွေးရက်စွဲနှင့် မွေးချိန် (မြန်မာစံတော်ချိန်)
+      <input name="birth" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">စက်အမျိုးအစား
+      <select name="mode"><option value="natal">မူလစန္ဒြစက်</option><option value="monthly">လစဉ် ကောဇာစန္ဒြစက်</option><option value="annual">တစ်နှစ်စာ စန္ဒြစက်</option></select>
+    </label>
+    <label class="field" id="reference-field" hidden>ကောဇာ ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="reference" type="datetime-local" step="1">
+    </label>
+    <fieldset class="times">
+      <legend>နေထွက်ချိန်နှင့် လဂ်တွက်ရန် တည်နေရာ (မူလတန်ဖိုး ရန်ကုန်)</legend>
+      <label class="field">လတ္တီတွဒ်<input name="latitude" type="number" min="-66" max="66" step="any" value="16.84" required></label>
+      <label class="field">လောင်ဂျီတွဒ်<input name="longitude" type="number" min="-180" max="180" step="any" value="96.17" required></label>
+    </fieldset>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="chart-error" role="alert" hidden>မွေးရက်စွဲနှင့် မွေးချိန်ကို ပြန်စစ်ပါ။</p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">စန္ဒြစက် ရလဒ်</h2>
+    <p id="summary"></p>
+    <p id="reading"></p>
+    <p id="lagna"></p>
+    <table class="tri-readings-table">
+      <caption>အခြေခံ စန်းစီးနက္ခတ်မှ စ၍ စီထားသော နက္ခတ် ၂၇ လုံး</caption>
+      <thead><tr><th scope="col">ကိုယ်ခန္ဓာအပိုင်း</th><th scope="col">လုံးမြောက်</th><th scope="col">နက္ခတ်</th><th scope="col">ဂြိုဟ်စီးမှု</th></tr></thead>
+      <tbody id="chart-rows"></tbody>
+    </table>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ အသုံးပြုပုံ</summary>
+      <p>မူလစက်ကို မွေးရာ မြန်မာလ၏ လပြည့်နေ့မှ စီသည်။ လစဉ်စက်ကို ရွေးထားသည့် မြန်မာလ၏ လပြည့်နေ့မှ စီသည်။ တစ်နှစ်စာစက်ကို ရွေးထားသည့်နှစ်၌ နေ မိဿရာသီဝင်ချိန် စန်းစီးနက္ခတ်မှ စီသည်။</p>
+      <p>ကျမ်းတွင် မူလနှင့် ကောဇာဂြိုဟ်၊ လဂ်စီးနက္ခတ်တို့ကို သက်ဆိုင်ရာ ကိုယ်ခန္ဓာအပိုင်းနှင့် တွဲကြည့်ရန် ဖော်ပြထားသည်။</p>
+    </details>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>
