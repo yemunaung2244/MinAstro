@@ -1802,6 +1802,22 @@ main :where(th, td) { border: 1px solid #aacbdf; }
   .mm-cell-stars { font-size: .76rem; line-height: 1.35; }
 }
 
+/* Home menu grouped headings */
+.home-group-title {
+  grid-column: 1 / -1;
+  margin: 14px 0 2px;
+  padding: 6px 12px;
+  border-inline-start: 4px solid #15547b;
+  border-radius: 6px;
+  background: #e6f4fc;
+  color: #15547b;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.home-group-title:first-child {
+  margin-top: 0;
+}
+
 
 :is(#jamitra, #meinmamyat) [data-machine-output] .entry { margin-block: 14px; }
 .jamitra-summary-table th { width: 42%; }

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eef7ff">
+<title>တာရာကိုးပါးစက်</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="vendor/astronomy.js"></script>
+<script defer src="cities.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
+<header><div class="bar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">✦</span> တာရာကိုးပါး</a><a href="../index.html#home" style="display:inline-flex;align-items:center;min-height:36px;padding:4px 12px;border:1px solid #c7deec;border-radius:999px;background:#f2f9fe;color:#15547b;text-decoration:none;font-size:.88rem;font-weight:700;">← ပင်မစာမျက်နှာ</a></div></header>
+<main id="top">
+<section class="heading">
+<h1>တာရာကိုးပါးစက်</h1>
+<p>မွေးဖွားချိန်အလိုက် သင့်နက္ခတ်နှင့် တာရာကိုးပါးကို သိနိုင်ပါသည်။</p>
+</section>
+<form class="panel">
+<h2>မွေးဖွားမှု အချက်အလက်</h2>
+<fieldset class="parts date-parts"><legend>မွေးသက္ကရာဇ် (ခရစ်နှစ်)</legend>
+<label>ရက်<input id="day" type="text" inputmode="numeric" maxlength="2" required></label><label>လ<input id="month" type="text" inputmode="numeric" maxlength="2" required></label><label>နှစ်<input id="year" type="text" inputmode="numeric" maxlength="4" required></label>
+</fieldset>
+<fieldset class="parts time-parts"><legend>မွေးချိန်</legend>
+<label>နာရီ<input id="hour" type="text" inputmode="numeric" maxlength="2" required></label><label>မိနစ်<input id="minute" type="text" inputmode="numeric" maxlength="2" required></label><label>စက္ကန့်<input id="second" type="text" inputmode="numeric" maxlength="2" required></label>
+<label>AM/PM<select id="period" required><option value="">ရွေးပါ</option><option>AM</option><option>PM</option></select></label>
+</fieldset>
+<label for="city">မွေးဖွားရာမြို့ ရှာရန်</label>
+<input id="city" type="search" placeholder="မြန်မာ သို့မဟုတ် English" autocomplete="off">
+<label for="places">မွေးဖွားရာမြို့</label>
+<select id="places" required><option value="">မြို့ရွေးပါ</option></select>
+<button class="calculate" type="submit">တွက်မည်</button>
+<p id="feedback" role="status"></p>
+</form>
+</main>
+</body>
+</html>

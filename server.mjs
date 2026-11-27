@@ -37,16 +37,29 @@ const kalanalaTypes = new Map([
   ['.mjs', 'text/javascript'],
   ['.js', 'text/javascript'],
   ['.json', 'application/json'],
+  ['.jpg', 'image/jpeg'],
+  ['.png', 'image/png'],
+  ['.svg', 'image/svg+xml'],
 ]);
 
-function resolveSubApp(prefix, path) {
-  if (path === `/${prefix}` || path === `/${prefix}/`) {
-    return [`${prefix}/index.html`, 'text/html'];
+const subAppNames = [
+  'kalanala', 'rahu-kalanala', 'ketula', 'brahma', 'rudra',
+  'hidden-chakra', 'kama', 'rikta', 'kumbha', 'chandra',
+  'tithi-set', 'ravana-samhita', 'tara-9',
+];
+
+function resolveSubApp(path) {
+  for (const prefix of subAppNames) {
+    if (path === `/${prefix}` || path === `/${prefix}/`) {
+      return [`${prefix}/index.html`, 'text/html'];
+    }
+    const match = new RegExp(`^/${prefix}/((?:vendor/)?[a-z0-9._-]+(\\.html|\\.css|\\.mjs|\\.js|\\.json|\\.jpg|\\.png|\\.svg))$`).exec(path);
+    if (match) {
+      const type = kalanalaTypes.get(match[2]);
+      if (type) return [`${prefix}/${match[1]}`, type];
+    }
   }
-  const match = new RegExp(`^/${prefix}/([a-z0-9._-]+(\\.html|\\.css|\\.mjs|\\.js|\\.json))$`).exec(path);
-  if (!match) return null;
-  const type = kalanalaTypes.get(match[2]);
-  return type ? [`${prefix}/${match[1]}`, type] : null;
+  return null;
 }
 
 createServer(async (request, response) => {
@@ -55,7 +68,7 @@ createServer(async (request, response) => {
   const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
   const asset = book ? [path.slice(1), 'application/pdf']
     : cover ? [path.slice(1), 'image/jpeg']
-    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? resolveSubApp('ketula', path) ?? resolveSubApp('brahma', path) ?? resolveSubApp('rudra', path) ?? resolveSubApp('hidden-chakra', path) ?? resolveSubApp('kama', path) ?? resolveSubApp('rikta', path) ?? resolveSubApp('kumbha', path) ?? resolveSubApp('chandra', path) ?? assets.get(path);
+    : resolveSubApp(path) ?? assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;

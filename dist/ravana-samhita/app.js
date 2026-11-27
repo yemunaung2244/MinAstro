@@ -1,0 +1,823 @@
+const stars = [
+  'အဿဝဏီ', 'ဘရဏီ', 'ကြတ္တိကာ', 'ရောဟဏီ', 'မိဂသီ', 'အဒြ', 'ပုဏ္ဏဖုသျှ',
+  'ဖုသျှ', 'အဿလိဿ', 'မာဃ', 'ပြုဗ္ဗာဖလဂုဏီ', 'ဥတြဖလဂုဏီ', 'ဟဿတ', 'စိတြ',
+  'သွာတိ', 'ဝိသာခါ', 'အနုရာဓ', 'ဇေဌ', 'မူလ', 'ပြုဗ္ဗာသာန်', 'ဥတြသာန်',
+  'အဘီဇိ', 'သရဝဏ်', 'ဓနသိဒ္ဓိ', 'သတ္တဘီသ', 'ပြုဗ္ဗာဘဒြပိုဒ်', 'ဥတြဘဒြပိုဒ်', 'ရေဝတီ',
+];
+
+const planetDefs = [
+  { id: 'sun', name: 'တနင်္ဂနွေ' },
+  { id: 'moon', name: 'တနင်္လာ' },
+  { id: 'mars', name: 'အင်္ဂါ' },
+  { id: 'mercury', name: 'ဗုဒ္ဓဟူး' },
+  { id: 'jupiter', name: 'ကြာသပတေး' },
+  { id: 'venus', name: 'သောကြာ' },
+  { id: 'saturn', name: 'စနေ' },
+  { id: 'rahu', name: 'ရာဟု' },
+  { id: 'ketu', name: 'ကိတ်' },
+];
+
+// ရာဟုကာလာနလစက် (နက္ခတ်မှတ်စု အတွဲ ၇၊ စာ ၄၉၊ ၅၃) အတိုင်း ဇနမကို ၁ အဖြစ် ရေတွက်သည်။
+const birthStarRoles = [
+  ['birth', 'ဇနမနက္ခတ်', 'ဇနမ', 1],
+  ['karma', 'ကမ္မနက္ခတ်', 'ကမ္မ', 10],
+  ['samudayika', 'သာမုဒါယိကနက္ခတ်', 'သာမုဒါယိက', 18],
+  ['sanghatika', 'သံဃာဋိကနက္ခတ်', 'သံဃာဋိက', 16],
+  ['jati', 'ဇာတိနက္ခတ်', 'ဇာတိ', 25],
+  ['nidhana', 'နိဓနနက္ခတ်', 'နိဓန', 7],
+  ['desa', 'ဒေသနက္ခတ်', 'ဒေသ', 26],
+  ['abhisheka', 'အဘိသေကနက္ခတ်', 'အဘိသေက', 27],
+  ['adhana', 'အာဓာနနက္ခတ်', 'အာဓာန', 19],
+  ['vinashaka', 'ဝိနာသကနက္ခတ်', 'ဝိနာသက', 23],
+];
+
+const abhijitIndex = stars.indexOf('အဘီဇိ');
+const zodiac27 = stars.map((_, index) => index).filter(index => index !== abhijitIndex);
+
+function birthStarPositions(birth) {
+  if (birth === null || birth === undefined) return {};
+  const start = zodiac27.indexOf(birth);
+  if (start < 0) return {};
+  return Object.fromEntries(birthStarRoles.map(([id, , , ordinal]) => [
+    id, zodiac27[(start + ordinal - 1) % zodiac27.length],
+  ]));
+}
+
+const wheels = [
+  { id: 'sun', name: 'တနင်္ဂနွေ', top: 6 },
+  { id: 'moon', name: 'တနင်္လာ', top: 18, alias: 'သူလစက်။' },
+  { id: 'mars', name: 'အင်္ဂါ', top: 9, alias: 'ပရိဃစက်။' },
+  { id: 'mercury', name: 'ဗုဒ္ဓဟူး', top: 8 },
+  { id: 'jupiter', name: 'ကြာသပတေး', top: 0, reversed: true, alias: 'ဝိသကုမ္ဘစက်။' },
+  { id: 'venus', name: 'သောကြာ', top: 18, alias: 'ဂန္ဓစက်။' },
+  { id: 'saturn', name: 'စနေ', top: 16, alias: 'အတိ ဂန္ဓစက်။' },
+  { id: 'rahu', name: 'ရာဟု', top: 7, alias: 'ဝဇိရစက်။' },
+  { id: 'ketu', name: 'ကိတ်', top: 13 },
+];
+
+const find = id => document.getElementById(id);
+const number = n => String(n).replace(/\d/g, digit => '၀၁၂၃၄၅၆၇၈၉'[digit]);
+const starAt = (wheel, offset) => (wheel.top + (wheel.reversed ? -offset : offset) + 28) % 28;
+const offsetOf = (wheel, starIndex) => ((wheel.reversed ? wheel.top - starIndex : starIndex - wheel.top) % 28 + 28) % 28;
+const oppositeOffset = offset => (offset === 0 ? 14 : offset === 14 ? 0 : 28 - offset);
+const oppositeStarOf = (wheel, starIndex) => starAt(wheel, oppositeOffset(offsetOf(wheel, starIndex)));
+const pairForOffset = offset => {
+  if (offset === 0 || offset === 14) return [0, 14];
+  const distance = offset < 14 ? offset : 28 - offset;
+  return [28 - distance, distance];
+};
+const label = index => stars[index] + 'နက္ခတ်';
+const starNumber = index => (index === abhijitIndex ? '×' : number(index < abhijitIndex ? index + 1 : index));
+const numberedLabel = index => starNumber(index) + '. ' + label(index);
+const point = (index, radius = 208) => {
+  const angle = index * Math.PI / 14;
+  return [260 + radius * Math.sin(angle), 260 - radius * Math.cos(angle)];
+};
+
+function svg(tag, attributes, value) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [key, content] of Object.entries(attributes)) node.setAttribute(key, content);
+  if (value) node.textContent = value;
+  return node;
+}
+
+const yangonFormatter = new Intl.DateTimeFormat('my-MM', {
+  timeZone: 'Asia/Yangon',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+let currentWheel = wheels[0];
+let selectedOffsets = [0, 14];
+let occupiedOffset = null;
+let piercedOffset = null;
+let focusSubject = '';
+let selectedBirthStar = 0;
+let natalInstant = null;
+let transitInstant = null;
+let natalStars = null;
+let transitStars = null;
+let chartScope = 'transit';
+const changeCache = new Map();
+
+const scopeLabel = () => (chartScope === 'natal' ? 'မူလ' : 'ကောဇာ');
+const activePlanetStars = () => (chartScope === 'natal' ? natalStars : transitStars);
+
+function birthRoleMap() {
+  const positions = birthStarPositions(selectedBirthStar);
+  const map = new Map();
+  birthStarRoles.forEach(([id, title, shortTitle, ordinal], index) => {
+    const star = positions[id];
+    if (star !== undefined) {
+      map.set(star, { id, title, shortTitle, ordinal, order: index + 1 });
+    }
+  });
+  return map;
+}
+
+function planetsAtStar(starMap, starIndex) {
+  if (!starMap) return [];
+  return planetDefs.filter(p => starMap[p.id] === starIndex).map(p => p.name);
+}
+
+function computeStarChanges(baseInstant, days) {
+  const eph = window.RAVANA_EPHEMERIS;
+  if (!eph || !baseInstant) return [];
+  const key = `${+baseInstant}:${days}`;
+  if (changeCache.has(key)) return changeCache.get(key);
+
+  const rows = [];
+  const step = 2 * 3600000;
+  const endLimit = +baseInstant + days * 86400000;
+  let previous = eph.planetaryStars(baseInstant);
+  for (let end = +baseInstant + step; end <= endLimit; end += step) {
+    const current = eph.planetaryStars(new Date(end));
+    for (const planet of planetDefs) {
+      if (current[planet.id] === previous[planet.id]) continue;
+      let low = end - step;
+      let high = end;
+      while (high - low > 1000) {
+        const mid = Math.floor((low + high) / 2);
+        if (eph.planetaryStars(new Date(mid))[planet.id] === previous[planet.id]) low = mid;
+        else high = mid;
+      }
+      rows.push({
+        planetId: planet.id,
+        planetName: planet.name,
+        fromStar: previous[planet.id],
+        toStar: current[planet.id],
+        time: high,
+      });
+    }
+    previous = current;
+  }
+  rows.sort((a, b) => a.time - b.time);
+  changeCache.set(key, rows);
+  return rows;
+}
+
+function setDefaultFocusForWheel() {
+  const scopeStars = activePlanetStars();
+  if (scopeStars && scopeStars[currentWheel.id] !== undefined) {
+    const occ = offsetOf(currentWheel, scopeStars[currentWheel.id]);
+    occupiedOffset = occ;
+    piercedOffset = oppositeOffset(occ);
+    focusSubject = scopeLabel() + ' ' + currentWheel.name;
+    selectedOffsets = pairForOffset(occ);
+  } else {
+    occupiedOffset = null;
+    piercedOffset = null;
+    focusSubject = '';
+    selectedOffsets = [0, 14];
+  }
+}
+
+function focusStarOnWheel(starIndex, subject = '') {
+  const occ = offsetOf(currentWheel, starIndex);
+  occupiedOffset = occ;
+  piercedOffset = oppositeOffset(occ);
+  focusSubject = subject;
+  selectOffsets(pairForOffset(occ), true);
+}
+
+function openStarDetails(star) {
+  const opposite = oppositeStarOf(currentWheel, star);
+  const role = birthRoleMap().get(star);
+  const occupants = map => planetsAtStar(map, star).join('၊ ') || 'မရှိပါ';
+  const wheelHadFocus = find('wheel').contains(document.activeElement);
+  focusStarOnWheel(star);
+  if (wheelHadFocus) find('wheel').querySelector('[data-star-detail="' + star + '"]').focus();
+  find('star-detail-title').textContent = numberedLabel(star);
+  const rows = [
+    ['လက်ရှိစက်', scopeLabel() + ' ' + currentWheel.name + 'စက်'],
+    ['သမသတ် အထွင်းနက္ခတ်', numberedLabel(opposite)],
+    ['မူလ စီးဂြိုဟ်', occupants(natalStars)],
+    ['ကောဇာ စီးဂြိုဟ်', occupants(transitStars)],
+  ];
+  if (role) rows.push(['ဇနမဆယ်ပါး', role.title]);
+  find('star-detail-body').replaceChildren(...rows.flatMap(([name, value]) =>
+    ['dt', 'dd'].map((tag, index) => {
+      const node = document.createElement(tag);
+      node.textContent = index === 0 ? name : value;
+      return node;
+    })
+  ));
+  find('star-detail').showModal();
+}
+
+function starButton(star, text = numberedLabel(star)) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'star-detail-button';
+  button.setAttribute('aria-haspopup', 'dialog');
+  button.textContent = text;
+  button.addEventListener('click', event => {
+    event.stopPropagation();
+    openStarDetails(star);
+  });
+  return button;
+}
+
+function drawWheel() {
+  const chart = find('wheel');
+  const roles = birthRoleMap();
+  const scopeStars = activePlanetStars();
+  chart.replaceChildren(
+    svg('desc', {}, selectedOffsets.map(offset => label(starAt(currentWheel, offset))).join(' — ')),
+    svg('circle', { cx: 260, cy: 260, r: 237, class: 'grid' }),
+    svg('circle', { cx: 260, cy: 260, r: 208, class: 'orbit-ring' }),
+    svg('circle', { cx: 260, cy: 260, r: 170, class: 'grid' }),
+  );
+  for (let offset = 0; offset < 14; offset++) {
+    const [x, y] = point(offset);
+    const [oppositeX, oppositeY] = point(offset + 14);
+    chart.append(svg('line', { x1: x, y1: y, x2: oppositeX, y2: oppositeY, class: 'grid' }));
+  }
+  const ends = occupiedOffset !== null && piercedOffset !== null
+    ? [occupiedOffset, piercedOffset]
+    : (selectedOffsets.length === 2 ? selectedOffsets : [0, 14]);
+  const [x1, y1] = point(ends[0]);
+  const [x2, y2] = point(ends[1]);
+  chart.append(svg('line', { x1, y1, x2, y2, class: 'axis' }));
+  const centerFill = chartScope === 'natal' ? '#e6f5ff' : '#e6f7ee';
+  chart.append(svg('circle', { cx: 260, cy: 260, r: 92, fill: centerFill, class: 'center' }));
+  chart.append(svg('text', { x: 260, y: 247, class: 'center-title' }, currentWheel.name + 'စက်'));
+  chart.append(svg('text', { x: 260, y: 274, fill: chartScope === 'natal' ? '#124b73' : '#145c3c' }, scopeLabel() + 'စက်'));
+  for (let offset = 0; offset < 28; offset++) {
+    const [x, y] = point(offset);
+    const starIndex = starAt(currentWheel, offset);
+    const isOccupied = occupiedOffset === offset;
+    const isPierced = piercedOffset === offset;
+    const active = isOccupied || isPierced || selectedOffsets.includes(offset);
+    const role = roles.get(starIndex);
+    const planetsHere = planetsAtStar(scopeStars, starIndex);
+    const node = svg('g', { style: 'cursor: pointer' });
+    const titleParts = [
+      numberedLabel(starIndex),
+      isOccupied ? 'အစီး' : isPierced ? 'အထွင်း' : '',
+      role ? role.title : '',
+      planetsHere.length ? scopeLabel() + ': ' + planetsHere.join('၊ ') : '',
+    ].filter(Boolean);
+    const circleClass = [
+      isOccupied ? 'node occupied-node' : isPierced ? 'node pierced-node' : active ? 'node active' : 'node',
+      role && !active ? 'birth-node' : '',
+    ].filter(Boolean).join(' ');
+    node.append(
+      svg('title', {}, titleParts.join(' · ')),
+      svg('circle', { cx: x, cy: y, r: 17, class: circleClass }),
+      svg('text', { x, y, class: active ? 'active-number' : '' }, starNumber(starIndex)),
+    );
+    if (planetsHere.length) {
+      const [px, py] = point(offset, 183);
+      node.append(svg('circle', { cx: px, cy: py, r: 4, class: 'planet-dot' }));
+    }
+    if (role) {
+      const [bx, by] = point(offset, 237);
+      node.append(
+        svg('circle', { cx: bx, cy: by, r: 10, class: 'birth-badge' }),
+        svg('text', { x: bx, y: by, class: 'birth-badge-text' }, number(role.order)),
+      );
+    }
+    node.setAttribute('data-star-detail', starIndex);
+    node.setAttribute('role', 'button');
+    node.setAttribute('tabindex', '0');
+    node.setAttribute('aria-label', titleParts.join(' · '));
+    node.setAttribute('aria-haspopup', 'dialog');
+    node.addEventListener('click', () => openStarDetails(starIndex));
+    node.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openStarDetails(starIndex);
+    });
+    chart.append(node);
+  }
+  if (occupiedOffset !== null && piercedOffset !== null) {
+    const occStar = starAt(currentWheel, occupiedOffset);
+    const prcStar = starAt(currentWheel, piercedOffset);
+    const occRole = roles.get(occStar);
+    const prcRole = roles.get(prcStar);
+    const prcPlanets = planetsAtStar(scopeStars, prcStar);
+    const leftText = 'အစီး' + (focusSubject ? ' (' + focusSubject + ')' : '') + ': ' + numberedLabel(occStar) + (occRole ? ' [' + occRole.shortTitle + ']' : '');
+    const rightText = 'အထွင်း: ' + numberedLabel(prcStar) + (prcRole ? ' [' + prcRole.shortTitle + ']' : '') + (prcPlanets.length ? ' · ' + scopeLabel() + ' ' + prcPlanets.join('၊ ') : '');
+    find('selection').textContent = leftText + '  →  ' + rightText;
+  } else {
+    find('selection').textContent = selectedOffsets.map(offset => {
+      const starIndex = starAt(currentWheel, offset);
+      const role = roles.get(starIndex);
+      return numberedLabel(starIndex) + (role ? ' (' + role.shortTitle + ')' : '');
+    }).join(' — ');
+  }
+}
+
+function syncTableSelections() {
+  const activeStars = new Set(selectedOffsets.map(offset => starAt(currentWheel, offset)));
+  for (const wrapId of ['vedha-table-wrap', 'changes-table-wrap', 'birth-table-wrap']) {
+    const table = find(wrapId)?.querySelector('table');
+    if (!table) continue;
+    for (const row of table.querySelectorAll('tbody tr')) {
+      row.classList.toggle('is-selected', activeStars.has(Number(row.dataset.star)));
+    }
+  }
+}
+
+function selectOffsets(activeOffsets, keepFocus = false) {
+  if (!keepFocus) {
+    occupiedOffset = null;
+    piercedOffset = null;
+    focusSubject = '';
+  }
+  const group = activeOffsets.join(',');
+  for (const item of find('pairs').querySelectorAll('[aria-pressed="true"]')) {
+    item.setAttribute('aria-pressed', 'false');
+  }
+  for (const item of find('pairs').querySelectorAll(`[data-group="${group}"]`)) {
+    item.setAttribute('aria-pressed', 'true');
+  }
+  for (const cell of find('pairs').querySelectorAll('td[data-offset]')) {
+    const cellOffset = Number(cell.dataset.offset);
+    cell.classList.toggle('is-occupied-cell', occupiedOffset === cellOffset);
+    cell.classList.toggle('is-pierced-cell', piercedOffset === cellOffset);
+  }
+  selectedOffsets = activeOffsets;
+  drawWheel();
+  syncTableSelections();
+}
+
+function makeBadges(starIndex, roles) {
+  const stack = document.createElement('div');
+  stack.className = 'badge-stack';
+  const role = roles.get(starIndex);
+  if (role) {
+    const badge = document.createElement('span');
+    badge.className = 'role-badge';
+    badge.textContent = role.shortTitle;
+    stack.append(badge);
+  }
+  for (const pName of planetsAtStar(activePlanetStars(), starIndex)) {
+    const badge = document.createElement('span');
+    badge.className = 'planet-badge ' + chartScope;
+    badge.textContent = pName;
+    stack.append(badge);
+  }
+  return stack;
+}
+
+function fillStarCell(cell, offset) {
+  const starIndex = starAt(currentWheel, offset);
+  cell.dataset.offset = String(offset);
+  cell.append(starButton(starIndex, stars[starIndex]));
+}
+
+function addGridRow(tbody, offsets, roles) {
+  const activeOffsets = offsets.length === 1 ? [0, 14] : offsets;
+  const tr = tbody.insertRow();
+  tr.dataset.group = activeOffsets.join(',');
+  tr.setAttribute('aria-pressed', String(offsets.length === 1));
+  if (offsets.length === 1) {
+    const td = tr.insertCell();
+    td.colSpan = 4;
+    td.className = 'single-cell';
+    td.dataset.offset = String(offsets[0]);
+    const starIndex = starAt(currentWheel, offsets[0]);
+    const wrap = document.createElement('div');
+    wrap.className = 'single-wrap';
+    wrap.append(starButton(starIndex, stars[starIndex]));
+    const badges = makeBadges(starIndex, roles);
+    if (badges.childElementCount) wrap.append(badges);
+    td.append(wrap);
+  } else {
+    const leftStar = starAt(currentWheel, offsets[0]);
+    const rightStar = starAt(currentWheel, offsets[1]);
+    const leftBadgeCell = tr.insertCell();
+    leftBadgeCell.className = 'badge-col';
+    leftBadgeCell.append(makeBadges(leftStar, roles));
+    const leftStarCell = tr.insertCell();
+    leftStarCell.className = 'star-col';
+    fillStarCell(leftStarCell, offsets[0]);
+    const rightStarCell = tr.insertCell();
+    rightStarCell.className = 'star-col';
+    fillStarCell(rightStarCell, offsets[1]);
+    const rightBadgeCell = tr.insertCell();
+    rightBadgeCell.className = 'badge-col';
+    rightBadgeCell.append(makeBadges(rightStar, roles));
+  }
+  tr.addEventListener('click', () => {
+    const star0 = starAt(currentWheel, activeOffsets[0]);
+    const star1 = starAt(currentWheel, activeOffsets[1]);
+    const p0 = planetsAtStar(activePlanetStars(), star0);
+    const p1 = planetsAtStar(activePlanetStars(), star1);
+    if (p0.length) focusStarOnWheel(star0, scopeLabel() + ' ' + p0.join('၊ '));
+    else if (p1.length) focusStarOnWheel(star1, scopeLabel() + ' ' + p1.join('၊ '));
+    else selectOffsets(activeOffsets, false);
+  });
+}
+
+function renderVedhaPanel() {
+  const focalWrap = find('focal-summary');
+  const tableWrap = find('vedha-table-wrap');
+  if (!focalWrap || !tableWrap) return;
+
+  const isNatal = chartScope === 'natal';
+  const activeMap = activePlanetStars();
+  const focalId = currentWheel.id;
+  const focalName = currentWheel.name;
+  find('vedha-title').textContent = scopeLabel() + ' ' + focalName + 'စက် ဂြိုဟ်အထွင်း';
+
+  const card = document.createElement('article');
+  card.className = isNatal ? 'focal-card' : 'focal-card transit-card';
+  const h3 = document.createElement('h3');
+  h3.textContent = scopeLabel() + ' ' + focalName + ' အထွင်း';
+  card.append(h3);
+  if (!activeMap) {
+    const p = document.createElement('p');
+    p.className = 'hint';
+    p.textContent = isNatal
+      ? 'မူလစက် ကြည့်ရှုရန် အပေါ်တွင် မူလ မွေးသက္ကရာဇ်နှင့် အချိန် ထည့်သွင်းပေးပါ။'
+      : 'ကောဇာစက် ကြည့်ရှုရန် ကောဇာ ရက်စွဲနှင့် အချိန် ထည့်သွင်းပေးပါ။';
+    card.append(p);
+    focalWrap.replaceChildren(card);
+    tableWrap.replaceChildren();
+    return;
+  }
+
+  const focalStar = activeMap[focalId];
+  const focalOpp = oppositeStarOf(currentWheel, focalStar);
+  const focalNatalPiercers = planetsAtStar(natalStars, focalOpp);
+  const focalTransitPiercers = planetsAtStar(transitStars, focalOpp);
+  for (const [text, star] of [
+    [scopeLabel() + ' စီးနက္ခတ်: ', focalStar],
+    ['သမသတ် အထွင်းနက္ခတ်: ', focalOpp],
+    ['မူလ ထွင်းဂြိုဟ်: ' + (focalNatalPiercers.length ? focalNatalPiercers.join('၊ ') : 'မရှိပါ')],
+    ['ကောဇာ ထွင်းဂြိုဟ်: ' + (focalTransitPiercers.length ? focalTransitPiercers.join('၊ ') : 'မရှိပါ')],
+  ]) {
+    const p = document.createElement('p');
+    p.className = 'focal-line';
+    p.textContent = text;
+    if (star !== undefined) p.append(starButton(star));
+    card.append(p);
+  }
+  focalWrap.replaceChildren(card);
+
+  const roles = birthRoleMap();
+  const table = document.createElement('table');
+  table.className = 'birth-table';
+  const head = table.createTHead().insertRow();
+  const headers = [
+    'ဂြိုဟ်',
+    isNatal ? 'မူလ စီးနက္ခတ်' : 'ကောဇာ စီးနက္ခတ်',
+    'သမသတ် အထွင်းနက္ခတ်',
+    'မူလ ထွင်းဂြိုဟ်',
+    'ကောဇာ ထွင်းဂြိုဟ်',
+    'ဇနမဆယ်ပါး',
+  ];
+  for (const title of headers) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = title;
+    head.append(th);
+  }
+  const body = table.createTBody();
+  for (const planet of planetDefs) {
+    const star = activeMap[planet.id];
+    const opp = oppositeStarOf(currentWheel, star);
+    const natalPiercers = planetsAtStar(natalStars, opp);
+    const transitPiercers = planetsAtStar(transitStars, opp);
+    const roleHere = roles.get(star);
+    const roleOpp = roles.get(opp);
+    const roleNotes = [
+      roleHere ? 'စီး: ' + roleHere.shortTitle : '',
+      roleOpp ? 'ထွင်း: ' + roleOpp.shortTitle : '',
+    ].filter(Boolean);
+    const tr = body.insertRow();
+    tr.dataset.star = String(star);
+    if (planet.id === currentWheel.id) tr.classList.add('is-focal');
+    const cells = [
+      planet.name,
+      numberedLabel(star),
+      numberedLabel(opp),
+      natalPiercers.length ? natalPiercers.join('၊ ') : '—',
+      transitPiercers.length ? transitPiercers.join('၊ ') : '—',
+      roleNotes.length ? roleNotes.join(' · ') : '—',
+    ];
+    const starColumns = new Map([[1, star], [2, opp]]);
+    cells.forEach((value, index) => {
+      const cell = tr.insertCell();
+      if (starColumns.has(index)) cell.append(starButton(starColumns.get(index), value));
+      else cell.textContent = value;
+    });
+    tr.addEventListener('click', () => focusStarOnWheel(star, scopeLabel() + ' ' + planet.name));
+  }
+  tableWrap.replaceChildren(table);
+  syncTableSelections();
+}
+
+function renderChangesPanel() {
+  const wrap = find('changes-table-wrap');
+  if (!wrap) return;
+  const isNatal = chartScope === 'natal';
+  find('changes-title').textContent = scopeLabel() + ' ဂြိုဟ်ကိုးလုံး နက္ခတ်ပြောင်းချိန်';
+
+  const baseInstant = isNatal ? natalInstant : transitInstant;
+  if (!baseInstant) {
+    const note = document.createElement('p');
+    note.className = 'empty-note';
+    note.textContent = isNatal
+      ? 'မူလ နက္ခတ်ပြောင်းချိန် ကြည့်ရှုရန် အပေါ်တွင် မူလ မွေးသက္ကရာဇ်နှင့် အချိန် ထည့်သွင်းပေးပါ။'
+      : 'ကောဇာ နက္ခတ်ပြောင်းချိန် ကြည့်ရှုရန် ကောဇာ ရက်စွဲနှင့် အချိန် ထည့်သွင်းပေးပါ။';
+    wrap.replaceChildren(note);
+    return;
+  }
+
+  const days = Number(find('change-days').value) || 30;
+  const filterPlanet = find('change-planet').value;
+  const allRows = computeStarChanges(baseInstant, days);
+  const rows = filterPlanet ? allRows.filter(row => row.planetId === filterPlanet) : allRows;
+
+  if (!rows.length) {
+    const note = document.createElement('p');
+    note.className = 'empty-note';
+    note.textContent = 'ရွေးချယ်ထားသော ကာလအတွင်း နက္ခတ်ပြောင်းမှု မရှိပါ။';
+    wrap.replaceChildren(note);
+    return;
+  }
+
+  const roles = birthRoleMap();
+  const table = document.createElement('table');
+  table.className = 'birth-table';
+  const head = table.createTHead().insertRow();
+  for (const title of ['ဂြိုဟ်', 'မှ (ယခင်နက္ခတ်)', 'သို့ (နက္ခတ်အသစ်)', 'မြန်မာစံတော်ချိန်', 'လက်ရှိစက် အထွင်းနက္ခတ်', 'စက်ဝိုင်းပြ']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = title;
+    head.append(th);
+  }
+  const body = table.createTBody();
+  for (const row of rows) {
+    const opp = oppositeStarOf(currentWheel, row.toStar);
+    const oppNatal = planetsAtStar(natalStars, opp);
+    const oppRole = roles.get(opp);
+    const oppExtra = [
+      oppNatal.length ? 'မူလ ' + oppNatal.join('၊ ') : '',
+      oppRole ? oppRole.shortTitle : '',
+    ].filter(Boolean);
+    const tr = body.insertRow();
+    tr.dataset.star = String(row.toStar);
+    if (row.planetId === currentWheel.id) tr.classList.add('is-focal');
+    const cells = [
+      row.planetName,
+      numberedLabel(row.fromStar),
+      numberedLabel(row.toStar),
+      yangonFormatter.format(row.time),
+      numberedLabel(opp) + (oppExtra.length ? ' (' + oppExtra.join(' · ') + ')' : ''),
+    ];
+    const starColumns = new Map([[1, row.fromStar], [2, row.toStar], [4, opp]]);
+    cells.forEach((value, index) => {
+      const cell = tr.insertCell();
+      if (starColumns.has(index)) cell.append(starButton(starColumns.get(index), value));
+      else cell.textContent = value;
+    });
+    const actionCell = tr.insertCell();
+    const jumpBtn = document.createElement('button');
+    jumpBtn.type = 'button';
+    jumpBtn.className = 'mini-btn';
+    jumpBtn.textContent = 'ထိုအချိန်သို့ ပြောင်း';
+    jumpBtn.addEventListener('click', event => {
+      event.stopPropagation();
+      const targetInput = find(isNatal ? 'natal-time' : 'transit-time');
+      if (targetInput && window.RAVANA_EPHEMERIS) {
+        targetInput.value = window.RAVANA_EPHEMERIS.yangonDateTime(new Date(row.time + 60000));
+        updateTimeCalculations(isNatal);
+        focusStarOnWheel(row.toStar, scopeLabel() + ' ' + row.planetName);
+        find('result-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+    actionCell.append(jumpBtn);
+    tr.addEventListener('click', () => {
+      focusStarOnWheel(row.toStar, scopeLabel() + ' ' + row.planetName);
+      find('result-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+  wrap.replaceChildren(table);
+  syncTableSelections();
+}
+
+function renderBirthTable() {
+  const wrap = find('birth-table-wrap');
+  if (!wrap) return;
+  if (selectedBirthStar === null) {
+    wrap.replaceChildren();
+    return;
+  }
+  const positions = birthStarPositions(selectedBirthStar);
+  const table = document.createElement('table');
+  table.className = 'birth-table';
+  const head = table.createTHead().insertRow();
+  for (const title of ['စဉ်', 'အမျိုးအစား', 'လုံးမြောက်', 'နက္ခတ်', 'ထွင်းသော သမသတ်နက္ခတ်']) {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.textContent = title;
+    head.append(th);
+  }
+  const body = table.createTBody();
+  birthStarRoles.forEach(([id, title, , ordinal], index) => {
+    const star = positions[id];
+    const oppositeStar = oppositeStarOf(currentWheel, star);
+    const tr = body.insertRow();
+    tr.dataset.star = String(star);
+    if (id === 'birth') tr.classList.add('is-birth');
+    const cells = [
+      number(index + 1),
+      title,
+      number(ordinal),
+      numberedLabel(star),
+      numberedLabel(oppositeStar),
+    ];
+    const starColumns = new Map([[3, star], [4, oppositeStar]]);
+    cells.forEach((value, index) => {
+      const cell = tr.insertCell();
+      if (starColumns.has(index)) cell.append(starButton(starColumns.get(index), value));
+      else cell.textContent = value;
+    });
+    tr.addEventListener('click', () => focusStarOnWheel(star, title));
+  });
+  wrap.replaceChildren(table);
+  syncTableSelections();
+}
+
+function renderPairs() {
+  const roles = birthRoleMap();
+  const table = document.createElement('table');
+  table.className = 'pair-grid';
+  const tbody = table.createTBody();
+  addGridRow(tbody, [0], roles);
+  for (let offset = 1; offset < 14; offset++) addGridRow(tbody, [28 - offset, offset], roles);
+  addGridRow(tbody, [14], roles);
+  find('pairs').replaceChildren(table);
+  selectOffsets(selectedOffsets, true);
+}
+
+function renderBlocks(container, blocks = []) {
+  container.replaceChildren(...blocks.map(block => {
+    if (block.type === 'ul') {
+      const list = document.createElement('ul');
+      for (const item of block.items) {
+        const li = document.createElement('li');
+        li.textContent = item;
+        list.append(li);
+      }
+      return list;
+    }
+    const element = document.createElement(block.type === 'h3' ? 'h3' : 'p');
+    element.textContent = block.text;
+    return element;
+  }));
+}
+
+function renderScopeUI() {
+  const isNatal = chartScope === 'natal';
+  find('scope-natal')?.setAttribute('aria-selected', String(isNatal));
+  find('scope-transit')?.setAttribute('aria-selected', String(!isNatal));
+  find('result-panel')?.classList.toggle('is-transit', !isNatal);
+  if (find('scope-badge')) {
+    find('scope-badge').textContent = isNatal ? 'မူလစက်' : 'ကောဇာစက်';
+  }
+  find('wheel-title').textContent = scopeLabel() + ' ' + currentWheel.name + 'စက်။';
+  if (find('pairs-title')) find('pairs-title').textContent = currentWheel.name + 'စက်';
+  setDefaultFocusForWheel();
+  renderPairs();
+  renderVedhaPanel();
+  renderChangesPanel();
+  renderBirthTable();
+}
+
+function updateTimeCalculations(syncBirth = false) {
+  const eph = window.RAVANA_EPHEMERIS;
+  if (!eph) return;
+  const natalValue = find('natal-time')?.value || '';
+  const transitValue = find('transit-time')?.value || '';
+  const statusParts = [];
+
+  if (natalValue) {
+    try {
+      natalInstant = eph.yangonInstant(natalValue);
+      natalStars = eph.planetaryStars(natalInstant);
+      if (syncBirth) {
+        selectedBirthStar = natalStars.birthMoon;
+        if (find('birth-star')) find('birth-star').value = String(selectedBirthStar);
+      }
+      statusParts.push('မူလ ဇနမနက္ခတ်: ' + numberedLabel(natalStars.birthMoon));
+    } catch {
+      natalInstant = null;
+      natalStars = null;
+    }
+  } else {
+    natalInstant = null;
+    natalStars = null;
+  }
+
+  if (transitValue) {
+    try {
+      transitInstant = eph.yangonInstant(transitValue);
+      transitStars = eph.planetaryStars(transitInstant);
+      statusParts.push('ကောဇာ စန်းစီးနက္ခတ်: ' + numberedLabel(transitStars.moon));
+    } catch {
+      transitInstant = null;
+      transitStars = null;
+    }
+  } else {
+    transitInstant = null;
+    transitStars = null;
+  }
+
+  const statusEl = find('time-status');
+  if (statusEl) {
+    statusEl.textContent = statusParts.length
+      ? statusParts.join(' · ')
+      : 'မူလ ဂြိုဟ်အထွင်းနှင့် နက္ခတ်ပြောင်းကြည့်ရန် မွေးသက္ကရာဇ်/အချိန် ထည့်သွင်းပါ။';
+  }
+  renderScopeUI();
+}
+
+function showWheel(wheel) {
+  currentWheel = wheel;
+  for (const [index, button] of [...find('modes').children].entries()) {
+    button.setAttribute('aria-pressed', String(wheel === wheels[index]));
+  }
+  find('alias').textContent = wheel.alias || '';
+  find('alias').hidden = !wheel.alias;
+  renderScopeUI();
+  const notes = window.RAVANA_NOTES?.wheels?.[wheel.name] || [];
+  find('notes-title').textContent = wheel.name + 'စက် ရှင်းလင်းချက်';
+  renderBlocks(find('notes-body'), notes);
+}
+
+for (const wheel of wheels) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = wheel.name;
+  button.addEventListener('click', () => showWheel(wheel));
+  find('modes').append(button);
+}
+
+const birthSelect = find('birth-star');
+if (birthSelect) {
+  birthSelect.add(new Option('မပြပါ', ''));
+  for (const starIndex of zodiac27) {
+    birthSelect.add(new Option(numberedLabel(starIndex), String(starIndex)));
+  }
+  birthSelect.value = String(selectedBirthStar);
+  birthSelect.addEventListener('change', event => {
+    selectedBirthStar = event.target.value === '' ? null : Number(event.target.value);
+    renderPairs();
+    renderVedhaPanel();
+    renderChangesPanel();
+    renderBirthTable();
+  });
+}
+
+const changePlanetSelect = find('change-planet');
+if (changePlanetSelect) {
+  changePlanetSelect.add(new Option('ဂြိုဟ်အားလုံး (၉ လုံး)', ''));
+  for (const planet of planetDefs) {
+    changePlanetSelect.add(new Option(planet.name, planet.id));
+  }
+  changePlanetSelect.addEventListener('change', renderChangesPanel);
+}
+
+find('change-days')?.addEventListener('change', renderChangesPanel);
+find('scope-natal')?.addEventListener('click', () => { chartScope = 'natal'; renderScopeUI(); });
+find('scope-transit')?.addEventListener('click', () => { chartScope = 'transit'; renderScopeUI(); });
+
+find('natal-time')?.addEventListener('input', () => {
+  if (find('natal-time').value) chartScope = 'natal';
+  updateTimeCalculations(true);
+});
+find('natal-time')?.addEventListener('change', () => {
+  if (find('natal-time').value) chartScope = 'natal';
+  updateTimeCalculations(true);
+});
+find('transit-time')?.addEventListener('input', () => updateTimeCalculations(false));
+find('transit-time')?.addEventListener('change', () => updateTimeCalculations(false));
+find('clear-natal')?.addEventListener('click', () => {
+  find('natal-time').value = '';
+  updateTimeCalculations(false);
+});
+find('reset-transit')?.addEventListener('click', () => {
+  if (window.RAVANA_EPHEMERIS) {
+    find('transit-time').value = window.RAVANA_EPHEMERIS.yangonDateTime();
+    updateTimeCalculations(false);
+  }
+});
+
+if (find('intro-text') && window.RAVANA_NOTES?.intro) {
+  renderBlocks(find('intro-text'), window.RAVANA_NOTES.intro);
+}
+if (window.RAVANA_EPHEMERIS && find('transit-time')) {
+  find('transit-time').value = window.RAVANA_EPHEMERIS.yangonDateTime();
+}
+updateTimeCalculations(false);
+showWheel(currentWheel);

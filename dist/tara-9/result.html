@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eef7ff">
+<title>တာရာရလဒ် · တာရာကိုးပါးစက်</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="vendor/astronomy.js"></script>
+<script defer src="cities.js"></script>
+<script defer src="readings.js"></script>
+<script defer src="karaka-readings.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
+<header><div class="bar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">✦</span> တာရာကိုးပါး</a><a href="../index.html#home" style="display:inline-flex;align-items:center;min-height:36px;padding:4px 12px;border:1px solid #c7deec;border-radius:999px;background:#f2f9fe;color:#15547b;text-decoration:none;font-size:.88rem;font-weight:700;">← ပင်မစာမျက်နှာ</a></div></header>
+<main id="top">
+<a class="edit-link" href="index.html">မွေးဖွားမှုအချက်အလက် ပြန်ပြင်ရန်</a>
+<h1>တာရာရလဒ်</h1>
+<p id="feedback" role="status"></p>
+<dl id="overview" aria-label="နက္ခတ်ရလဒ်" hidden></dl>
+<section hidden class="results" aria-labelledby="result-title">
+<fieldset class="method-controls">
+  <legend>တွက်နည်းစနစ်</legend>
+  <label for="method">တာရာစက်၏ စမှတ်</label>
+  <select id="method"></select>
+  <div id="planet-input" hidden><label for="planet">ကောဇာဂြိုဟ်</label><select id="planet"></select></div>
+  <div id="anchor-input" hidden><label for="anchor">စမှတ်နက္ခတ်</label><select id="anchor"></select></div>
+  <p id="method-note" role="status"></p>
+</fieldset>
+<div id="method-output">
+<div class="section-heading"><h2 id="result-title">တာရာကိုးပါးဇယား</h2><p id="status" aria-live="polite"></p></div>
+<table class="tara-table" aria-labelledby="result-title">
+  <thead><tr><th scope="col">တာရာ</th><th scope="col">ကိုယ်</th><th scope="col">စိတ်</th><th scope="col">ဝိညာဏ</th></tr></thead>
+  <tbody id="chart"></tbody>
+</table>
+<figure class="tara-illustration">
+  <div class="wheel-stage" role="group" aria-label="ဇာတာအလိုက် တာရာကိုးပါးစက်">
+    <div id="wheel-pointer" aria-hidden="true"></div>
+    <div id="wheel-center" aria-live="polite"></div>
+    <div id="wheel-segments"></div>
+  </div>
+  <figcaption>နက္ခတ် ၃ လုံးကို ကြည့်ရန် စက်ဝိုင်းပေါ်က တာရာအမည်ကို နှိပ်ပါ။</figcaption>
+</figure>
+<section class="reading-panel" aria-labelledby="reading-title">
+  <h2 id="reading-title">တာရာအဟော</h2>
+  <div id="readings" aria-live="polite"></div>
+  <details id="election-reading">
+    <summary>တာရာကိုးပါးစက်နဲ့ အခါရွေးခြင်း။</summary>
+    <div id="election-sections"></div>
+  </details>
+  <details id="karaka-topics" class="reading-details"><summary>ကာရကဂြိုဟ်များနဲ့ ယတြာများ</summary><div id="karaka-sections"></div></details>
+  <details class="reading-details"><summary>နက္ခတ်တို့အကြောင်း</summary><div id="nakshatra-sections"></div></details>
+</section>
+</div>
+</section>
+<footer>တွက်ချက်မှုတွင် Lahiri အယနာံသ အနီးစပ်ဆုံးတန်ဖိုးနှင့် နက္ခတ် ၂၇ လုံးစနစ်ကို အသုံးပြုထားပါသည်။</footer>
+</main>
+</body>
+</html>
