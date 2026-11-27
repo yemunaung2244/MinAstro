@@ -17,6 +17,10 @@ const assets = new Map([
   ['/wish-direction.js', ['wish-direction.js', 'text/javascript']],
   ['/latta.js', ['latta.js', 'text/javascript']],
   ['/dasha-yoga.js', ['dasha-yoga.js', 'text/javascript']],
+  ['/jamitra.js', ['jamitra.js', 'text/javascript']],
+  ['/meinmamyat.js', ['meinmamyat.js', 'text/javascript']],
+  ['/star-information.js', ['star-information.js', 'text/javascript']],
+  ['/star-information.css', ['star-information.css', 'text/css']],
   ['/manifest.webmanifest', ['manifest.webmanifest', 'application/manifest+json']],
   ['/yatra-food.js', ['yatra-food.js', 'text/javascript; charset=utf-8']],
   ['/yatra6.js', ['yatra6.js', 'text/javascript; charset=utf-8']],
@@ -51,7 +55,7 @@ createServer(async (request, response) => {
   const cover = /^\/assets\/books\/cover-[1-9]\.jpg$/.test(path);
   const asset = book ? [path.slice(1), 'application/pdf']
     : cover ? [path.slice(1), 'image/jpeg']
-    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? assets.get(path);
+    : resolveSubApp('kalanala', path) ?? resolveSubApp('rahu-kalanala', path) ?? resolveSubApp('ketula', path) ?? resolveSubApp('brahma', path) ?? resolveSubApp('rudra', path) ?? resolveSubApp('hidden-chakra', path) ?? resolveSubApp('kama', path) ?? assets.get(path);
   if (!asset) {
     response.writeHead(404).end('Not found');
     return;

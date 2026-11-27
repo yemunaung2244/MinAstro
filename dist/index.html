@@ -32,7 +32,14 @@
       <a class="home-choice" href="#books">ဆရာမင်းနိုင်ရဲ့ စာအုပ်များ</a>
       <a class="home-choice" href="#tripataki">တြိပတာကီစက်</a>
       <a class="home-choice" href="#latta">လတ္တာစက်</a>
+      <a class="home-choice" href="ketula/index.html">ကေတုလစက်</a>
+      <a class="home-choice" href="brahma/index.html">ဗြဟ္မပါဋစက်</a>
+      <a class="home-choice" href="rudra/index.html">ရုဒြနက္ခတ်</a>
+      <a class="home-choice" href="hidden-chakra/index.html">လျှို့ဝှက်အပ်သောစက်</a>
+      <a class="home-choice" href="kama/index.html">ကာမသျှတ္တရကျမ်း</a>
       <a class="home-choice" href="#dashayoga">ဒဿယောဂစက်</a>
+      <a class="home-choice" href="#jamitra">ဇာမိတြနက္ခတ်</a>
+      <a class="home-choice" href="#meinmamyat">မိန်းမမြတ်စက်</a>
       <a class="home-choice" href="#wish">ဆုတောင်းပြည့် အရပ်မျက်နှာ</a>
       <a class="home-choice" href="kalanala/index.html#calculator">ဂူဍကာလာနလစက်</a>
       <a class="home-choice" href="kalanala/index.html#chaturdasha">စတုဒ္ဒဿဂူဍကာလာနလစက်</a>
@@ -300,6 +307,175 @@
         </ul>
         <h4>မူလဇာတာနှင့် အသုံးချပုံ</h4>
         <p>မူလဇာတာမှ တနင်္ဂနွေစီးနက္ခတ်ကို အခြေခံ၍ ဒဿယောဂသင့်သော နက္ခတ် (၁၀) လုံးကို ကြိုတင်ရှာထားနိုင်သည်။ ကောဇာစန်း ၎င်းနက္ခတ်များပေါ် ရောက်လာချိန် သို့မဟုတ် ပါပဂြိုဟ်များ သမသတ်ထွင်းချိန်တွင် သက်ဆိုင်ရာအခက်အခဲများ ပေါ်ပေါက်တတ်ပြီး ကြိုတင်ပြုပြင်ထားပါက ပျော့ကွက် ၁၀ ခုမှ ခံတပ် ၁၀ ခု ဖြစ်လာနိုင်ပါသည်။ ဥပဂြဟနက္ခတ်များနှင့်လည်း တွဲဖက်ချိန်ဆပါ။</p>
+      </details>
+    </section>
+    <section id="jamitra" class="catalog" hidden>
+      <h1 id="jamitra-title" tabindex="-1">ဇာမိတြနက္ခတ်</h1>
+      <p id="jamitra-subtitle" class="hint">လဂ်စီးနက္ခတ်မှ ၁၂ လုံးမြောက် ဇာမိတြနက္ခတ်နှင့် စန်းစီးနက္ခတ်မှ ၁၆ လုံးမြောက် သံဃာဋိကနက္ခတ်ကို တွက်ပါ။</p>
+      <nav class="suriya-reading-tabs jamitra-mode-tabs" aria-label="ဇာမိတြနက္ခတ် မီနူး">
+        <button type="button" data-jamitra-tab="natal" aria-pressed="true">မူလ + ကောဇာ</button>
+        <button type="button" data-jamitra-tab="transit" aria-pressed="false">ကောဇာ</button>
+      </nav>
+      <div id="jamitra-panel-natal">
+        <form id="jamitra-natal-form" class="controls wish-controls">
+          <label class="field">အမည်<input id="jamitra-natal-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
+          <fieldset class="janma-parts">
+            <legend>မွေးသက္ကရာဇ်</legend>
+            <label>ရက်<input id="jamitra-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="jamitra-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="jamitra-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>မွေးချိန်</legend>
+            <label>နာရီ<input id="jamitra-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="jamitra-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="jamitra-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="jamitra-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>မွေးဖွားရာမြို့ ရှာရန် <input id="jamitra-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>မွေးဖွားရာမြို့ <select id="jamitra-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ စစ်ဆေးလိုသည့်ရက် (မထည့်လျှင် လက်ရှိအချိန်)</legend>
+            <label>ရက်<input id="jamitra-nt-day" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>လ<input id="jamitra-nt-month" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>နှစ်<input id="jamitra-nt-year" type="text" inputmode="numeric" maxlength="4"></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ စစ်ဆေးလိုသည့်အချိန်</legend>
+            <label>နာရီ<input id="jamitra-nt-hour" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>မိနစ်<input id="jamitra-nt-minute" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>စက္ကန့်<input id="jamitra-nt-second" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>AM/PM<select id="jamitra-nt-period"><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+          <p id="jamitra-natal-error" role="status"></p>
+        </form>
+        <div id="jamitra-natal-result" aria-live="polite"></div>
+      </div>
+      <div id="jamitra-panel-transit" hidden>
+        <form id="jamitra-transit-form" class="controls wish-controls">
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ ရက်စွဲ</legend>
+            <label>ရက်<input id="jamitra-tr-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="jamitra-tr-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="jamitra-tr-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ အချိန် (မြန်မာစံတော်ချိန်)</legend>
+            <label>နာရီ<input id="jamitra-tr-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="jamitra-tr-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="jamitra-tr-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="jamitra-tr-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>တည်နေရာမြို့ ရှာရန် <input id="jamitra-transit-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>တည်နေရာမြို့ <select id="jamitra-transit-city" required></select></label>
+          <div class="wish-actions">
+            <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+            <button id="jamitra-transit-now" class="akha-edit" type="button">လက်ရှိအချိန် တွက်မည်</button>
+          </div>
+          <p id="jamitra-transit-error" role="status"></p>
+        </form>
+        <div id="jamitra-transit-result" aria-live="polite"></div>
+      </div>
+      <details class="tri-guide" id="jamitra-guide">
+        <summary>ကျမ်းပါ ရှင်းလင်းချက်</summary>
+        <h3>ဇာမိတြနက္ခတ်</h3>
+        <p>လဂ်စီးနက္ခတ်ကို ၁ အဖြစ်ထား၍ ရေတွက်သော ၁၂ လုံးမြောက် နက္ခတ်ကို ယာမိတ္တ သို့မဟုတ် ဇာမိတြဟု ခေါ်သည်။ အိမ်ထောင်ဘက်၏ မိတ်ဆွေဖြစ်သော နက္ခတ်ဟု အနက်ရသည်။</p>
+        <h3>သံဃာဋိကနက္ခတ်</h3>
+        <p>စန်းစီးနက္ခတ်ကို ၁ အဖြစ်ထား၍ ရေတွက်သော ၁၆ လုံးမြောက် နက္ခတ်ဖြစ်သည်။ ကျမ်းတွင် လဂ်ကို ခန္ဓာကိုယ်နှင့်၊ စန်းကို စိတ်နှင့် ဆက်စပ်ဖော်ပြထားသည်။</p>
+        <h3>ဂြိုဟ်စီးမှုနှင့် အခါရွေး</h3>
+        <p>မူလနှင့် ကောဇာတွင် ဇာမိတြနက္ခတ်ပေါ်ရှိ ဂြိုဟ်စီးမှု၊ ပါပနှင့် သောမဂြိုဟ်တို့၏ အမြင်၊ အထွင်းကို ချိန်ဆရန် ကျမ်းတွင် ဖော်ပြထားသည်။ ကောဇာလဂ်မှ ၁၂ လုံးမြောက် နက္ခတ်တွင် ကောဇာစန်းစီးချိန်ကိုလည်း ရွေးချယ်အသုံးပြုနိုင်ကြောင်း ဆိုထားသည်။</p>
+      </details>
+    </section>
+    <section id="meinmamyat" class="catalog" hidden>
+      <h1 id="meinmamyat-title" tabindex="-1">မိန်းမမြတ်စက်</h1>
+      <p class="hint">တနင်္ဂနွေစီးနက္ခတ်မှ ကိုးကွက်ပတ်လည် အဋ္ဌလက်ခွင်စက် (၂၇ လုံးမူ) နှင့် တွဲဖက် နက္ခတ် (၂၃) တွဲ (စာမျက်နှာ ၇၄ – ၇၈)</p>
+      <nav class="suriya-reading-tabs" aria-label="မိန်းမမြတ်စက် မီနူး">
+        <button type="button" data-meinmamyat-tab="transit" aria-pressed="true">ကောဇာ မိန်းမမြတ်စက်</button>
+        <button type="button" data-meinmamyat-tab="natal" aria-pressed="false">မူလ + ကောဇာ (မွေးသက္ကရာဇ်)</button>
+        <button type="button" data-meinmamyat-tab="pairs" aria-pressed="false">နက္ခတ် (၂၃) တွဲ</button>
+      </nav>
+      <div id="meinmamyat-panel-transit">
+        <form id="meinmamyat-transit-form" class="controls">
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ ရက်စွဲ</legend>
+            <label>ရက်<input id="mm-tr-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="mm-tr-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="mm-tr-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ အချိန် (မြန်မာစံတော်ချိန်)</legend>
+            <label>နာရီ<input id="mm-tr-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="mm-tr-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="mm-tr-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="mm-tr-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <div class="wish-actions">
+            <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+            <button id="mm-transit-now" class="akha-edit" type="button">လက်ရှိအချိန် တွက်မည်</button>
+          </div>
+          <p id="mm-transit-error" role="status"></p>
+        </form>
+        <div id="meinmamyat-transit-result" aria-live="polite"></div>
+      </div>
+      <div id="meinmamyat-panel-natal" hidden>
+        <form id="meinmamyat-natal-form" class="controls">
+          <label class="field">အမည်<input id="meinmamyat-natal-form-name" type="text" maxlength="100" placeholder="အမည်"></label>
+          <fieldset class="janma-parts">
+            <legend>မွေးသက္ကရာဇ်</legend>
+            <label>ရက်<input id="mm-day" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>လ<input id="mm-month" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>နှစ်<input id="mm-year" type="text" inputmode="numeric" maxlength="4" required></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>မွေးချိန်</legend>
+            <label>နာရီ<input id="mm-hour" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>မိနစ်<input id="mm-minute" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>စက္ကန့်<input id="mm-second" type="text" inputmode="numeric" maxlength="2" required></label>
+            <label>AM/PM<select id="mm-period" required><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <label>မွေးဖွားရာမြို့ ရှာရန် <input id="mm-city-search" type="search" placeholder="မြန်မာ သို့မဟုတ် English"></label>
+          <label>မွေးဖွားရာမြို့ <select id="mm-city" required><option value="">မြို့ရွေးပါ</option></select></label>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ စစ်ဆေးလိုသည့်ရက် (မထည့်လျှင် လက်ရှိအချိန်)</legend>
+            <label>ရက်<input id="mm-nt-day" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>လ<input id="mm-nt-month" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>နှစ်<input id="mm-nt-year" type="text" inputmode="numeric" maxlength="4"></label>
+          </fieldset>
+          <fieldset class="janma-parts">
+            <legend>ကောဇာ စစ်ဆေးလိုသည့်အချိန်</legend>
+            <label>နာရီ<input id="mm-nt-hour" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>မိနစ်<input id="mm-nt-minute" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>စက္ကန့်<input id="mm-nt-second" type="text" inputmode="numeric" maxlength="2"></label>
+            <label>AM/PM<select id="mm-nt-period"><option value="">ရွေးပါ</option><option value="AM">AM</option><option value="PM">PM</option></select></label>
+          </fieldset>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> တွက်မည်</button>
+          <p id="mm-natal-error" role="status"></p>
+        </form>
+        <div id="meinmamyat-natal-result" aria-live="polite"></div>
+      </div>
+      <div id="meinmamyat-panel-pairs" hidden>
+        <form id="meinmamyat-pairs-form" class="controls">
+          <label class="field">ရှေ့နက္ခတ် (ယောကျ်ား / နဂို / မူလ / စားသုံးသူ)
+            <select id="mm-pair-first"></select>
+          </label>
+          <label class="field">နောက်နက္ခတ် (မိန်းမ / မူလီ / ယာယီ / စားသုံးခြင်း ခံရသူ)
+            <select id="mm-pair-second"></select>
+          </label>
+          <button class="janma-submit" type="submit"><span aria-hidden="true">✦</span> စစ်ဆေးမည်</button>
+        </form>
+        <div id="meinmamyat-pairs-result" aria-live="polite"></div>
+      </div>
+      <details class="tri-guide">
+        <summary>မိန်းမမြတ်စက် တွက်နည်း၊ အရပ်မျက်နှာအသုံးပြုပုံနှင့် နက္ခတ် (၂၃) တွဲ (စာမျက်နှာ ၇၄ – ၇၈)</summary>
+        <h4>စက်ချပုံ</h4>
+        <p>တနင်္ဂနွေစီးနက္ခတ်မှစ၍ နက္ခတ် (၂၇) လုံးကို ကိုးကွက်ပတ်လည် အဋ္ဌလက်ခွင်စက်တွင် တစ်ကွက်လျှင် နက္ခတ် (၃) လုံးစီ ထည့်သွင်းသည်။ ပထမ (၃) လုံးကို <strong>အလယ်ကွက်</strong>၊ နောက် (၃) လုံးကို <strong>အရှေ့ကွက်</strong>မှစ၍ လက်ယာရစ်အတိုင်း အရှေ့တောင်၊ တောင်၊ အနောက်တောင်၊ အနောက်၊ အနောက်မြောက်၊ မြောက်၊ အရှေ့မြောက် ဟူ၍ အစဉ်လိုက် ချထားပြီး တနင်္လာစီးနက္ခတ် ကျရောက်ရာအကွက်ဖြင့် ဟောပြောသည်။ မူလတနင်္ဂနွေနှင့် မူလတနင်္လာတို့ဖြင့်လည်း အသုံးပြုနိုင်သည်။</p>
+        <h4>အရပ်မျက်နှာ ဗဟိုပြုနည်းနှင့် ကျောပေး/မျက်နှာမူနည်း</h4>
+        <p>ဤစနစ်ပါ အရပ်မျက်နှာများကို <strong>မိမိနေအိမ်</strong>ကို ဗဟိုပြု၍ တွက်ထုတ်ရသည်။ ညအိပ်ခရီးသွားနေချိန်တွင် တစ်ညအိပ်ပြီးတာနှင့် ထိုနေရာကို ဗဟိုပြုနိုင်ပြီး၊ ခုနစ်ညဆက်တိုက် အိပ်ပြီးသောနေရာမှ တွက်ထုတ်ပါက ယတြာအာနိသင် ပိုမိုကြီးမားသည်။</p>
+        <p>မိမိကိုယ်တိုင်အကျိုးအတွက်ဆိုလျှင် သက်ဆိုင်ရာအရပ်ကို <strong>ကျောပေးခြင်း</strong>က အာနိသင်ပိုမြန်ပြီး၊ သူတစ်ပါးကို မိမိအကျိုးအတွက် ဆွဲဆောင်သိမ်းသွင်းခြင်း၊ မေတ္တာတောင်းခံခြင်းတို့တွင် <strong>မျက်နှာမူခြင်း</strong>က အာနိသင်ပိုမြန်သည်။</p>
+        <p>တနင်္လာ <strong>မြောက်အရပ်</strong>တွင် ရှိချိန်၌ ချမ်းသာကြွယ်ဝရေးအတွက် သင့်လျော်သော အမျိုးသမီးများနှင့် တိုင်ပင်ဆွေးနွေးခြင်း၊ မေတ္တာပို့ပေးရန် တောင်းဆိုခြင်း ပြုနိုင်သည်။ မိမိ၏ ဇနမနက္ခတ် ဤအကွက်တွင် ကျရောက်ပါက သင့်လျော်ရာ မယ်တော်တစ်ပါးပါးကို ကိုးကွယ်ပူဇော်နိုင်သည်။</p>
+        <h4>နက္ခတ် (၂၃) တွဲ မှတ်ချက်</h4>
+        <p>ရှေ့နက္ခတ်သည် <strong>ယောကျ်ား / နဂို / မူလ / စားသုံးသူ</strong> ဖြစ်ပြီး၊ နောက်နက္ခတ်သည် <strong>မိန်းမ / မူလီ / ယာယီ / စားသုံးခြင်း ခံရသူ</strong> ဖြစ်သည်။ ဖော်ပြထားသော အကျိုးပေးများသည် ရေရှည်ပတ်သက် ပေါင်းသင်းဆက်ဆံမှုမှ ဖြစ်လာမည့် အကျိုးပေးများဖြစ်ပြီး ရေတိုဆက်ဆံမှုတွင် ပြဿနာမရှိပါ။ မူလဇာတာတွင် သက်ဆိုင်ရာနက္ခတ်ပေါ် ပါပဂြိုဟ်စီးနေပါက ပါပဂြိုဟ်ယတြာပြုရင်း တွဲဖက်အသုံးပြုနိုင်သည်။</p>
       </details>
     </section>
     <section id="panchang" class="catalog" hidden>

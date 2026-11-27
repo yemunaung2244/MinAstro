@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ကာမသျှတ္တရကျမ်း · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ကာမသျှတ္တရကျမ်း</h1>
+  <form id="chart-form" class="panel controls">
+    <p class="hint">နှစ်ဦး၏ မွေးချိန် စန်းယှဉ်နက္ခတ်ကို အခြေခံ၍ တွက်သည်။ အချိန်ကို မြန်မာစံတော်ချိန်ဖြင့် ထည့်ပါ။</p>
+    <label class="field">အမျိုးသား မွေးရက်နှင့် မွေးချိန်
+      <input name="man" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">အမျိုးသမီး မွေးရက်နှင့် မွေးချိန်
+      <input name="woman" type="datetime-local" step="1" required>
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="error" role="alert" hidden>မွေးရက်နှင့် မွေးချိန်ကို ပြန်စစ်ပါ။</p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">ကာမသျှတ္တရကျမ်း ရလဒ်</h2>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">မည်သူ</th><th scope="col">စန်းယှဉ်နက္ခတ်</th><th scope="col">အုပ်စု</th></tr></thead>
+      <tbody id="result-rows"></tbody>
+    </table>
+    <article class="entry">
+      <h3>ကျမ်းပါ အတွဲဖတ်ချက်</h3>
+      <p id="reading"></p>
+    </article>
+  </section>
+  <details class="tri-guide">
+    <summary>ကျမ်းပါ နက္ခတ်အုပ်စု ၃ စု</summary>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">အုပ်စု</th><th scope="col">နက္ခတ်များ</th></tr></thead>
+      <tbody id="groups"></tbody>
+    </table>
+  </details>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

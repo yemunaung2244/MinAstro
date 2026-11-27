@@ -511,7 +511,7 @@ input[type="datetime-local"] { max-width: 100%; }
 .vedha-table th,
 .vedha-table td {
   padding: 6px 8px;
-  border-bottom: 1px solid #dbeaf3;
+  border: 1px solid #aacbdf;
   vertical-align: top;
 }
 .vedha-table th { color: var(--accent); white-space: nowrap; }
@@ -524,19 +524,22 @@ input[type="datetime-local"] { max-width: 100%; }
   .vedha-table thead { display: none; }
   .vedha-table tbody tr {
     display: grid;
-    gap: 3px;
-    padding: 8px 6px;
-    border-bottom: 1px solid var(--line);
+    border: 1px solid #aacbdf;
+    margin-block: 6px;
   }
   .vedha-table td {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
     gap: 8px;
-    padding: 2px 0;
+    padding: 6px;
     border: 0;
-    text-align: right;
+    overflow-wrap: anywhere;
+    text-align: start;
   }
+  .vedha-table td + td { border-block-start: 1px solid #aacbdf; }
   .vedha-table td::before {
+    border-inline-end: 1px solid #aacbdf;
+    padding-inline-end: 8px;
     content: attr(data-label);
     font-weight: 700;
     color: var(--accent);

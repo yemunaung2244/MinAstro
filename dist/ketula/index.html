@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ကေတုလစက် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ကေတုလစက်</h1>
+  <section id="ketula-input">
+  <form id="ketula-form" class="panel controls">
+    <label class="field">ကောဇာ ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="transit" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">မွေးရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်၊ ထည့်လိုပါက)
+      <input name="natal" type="datetime-local" step="1">
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="ketula-error" role="alert"></p>
+  </form>
+  </section>
+  <section id="ketula-output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="ketula-result-title" tabindex="-1">ကေတုလစက် ရလဒ်</h2>
+    <div id="ketula-results" aria-live="polite"></div>
+  </section>
+  <details class="entry">
+    <summary>ကေတုလစက် သမသတ်နက္ခတ် အတွဲ ၁၄ တွဲ</summary>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">စဉ်</th><th scope="col">နက္ခတ်</th><th scope="col">သမသတ်နက္ခတ်</th></tr></thead>
+      <tbody id="ketula-pairs"></tbody>
+    </table>
+  </details>
+  <details class="entry">
+    <summary>ကျမ်းပါ အသုံးပြုပုံနှင့် မှတ်ချက်များ</summary>
+    <p>မျက်နှာချင်းဆိုင်နက္ခတ်များ အပြန်အလှန် ထွင်းသည်။ ပါဒအရ ပထမနှင့် စတုတ္ထ၊ ဒုတိယနှင့် တတိယ အပြန်အလှန် ထွင်းသည်။</p>
+    <p>ကျမ်းတွင် စန်းယှဉ်မွေးနက္ခတ် မျက်နှာချင်းဆိုင်သူများ၏ အိမ်ထောင်ရေး၊ မိသားစု၊ မိတ်ဖက်နှင့် ပတ်သက်ပုံကို ဆွေးနွေးထားသည်။ အကျိုးပေးအချိန်နှင့် အတိုင်းအတာကို ဇာတာပါ အခြားအချက်များ၊ ပါဒထွင်းမှုတို့နှင့် တွဲဖတ်ရန် ဖော်ပြထားသည်။</p>
+    <p>တနင်္ဂနွေစီးနက္ခတ်၏ သမသတ်ဘက်တွင် ရှိသော မူလ၊ ကောဇာဂြိုဟ်များကို စစ်သည်။ မူလတနင်္ဂနွေနှင့် ကောဇာတနင်္လာ၊ မူလတနင်္လာနှင့် ကောဇာတနင်္ဂနွေ အတွဲများကိုလည်း သီးခြား စစ်နိုင်သည်။</p>
+    <p>ကျမ်းပါ အထူးမှတ်သားရန် နက္ခတ် ၈ လုံး</p>
+    <ul id="ketula-notes"></ul>
+  </details>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

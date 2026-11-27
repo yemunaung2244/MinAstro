@@ -10,6 +10,7 @@ import { tripatakiPlanetNames, tripatakiSingleReadings, tripatakiDoubleReadings,
 import { wishSelfDirections, wishBlessingDirections, wishDirectionForNakshatra } from './wish-direction.js';
 import { lattaPlanetDefs, sunLattaOccupantReadings, computeLattaSnapshot, evaluateLattaOnStar } from './latta.js';
 import { evaluateDashaYogaAt } from './dasha-yoga.js';
+import { evaluateNatalJamitra, evaluateTransitJamitra, rashiNames } from './jamitra.js';
 
 const byId = (id) => document.getElementById(id);
 const effectText = (name, effect) => {
@@ -100,6 +101,7 @@ const savedChartTypes = {
   tripataki: ['တြိပတာကီစက်', 'tripataki-form'],
   latta: ['လတ္တာစက်', 'latta-natal-form'],
   dashayoga: ['ဒဿယောဂစက်', 'dasha-natal-form'],
+  jamitra: ['ဇာမိတြနက္ခတ်', 'jamitra-natal-form'],
   akha: ['အခါပဒေသာ', 'akha-form'],
   panchang: ['Panchang', 'panchang-form'],
 };
@@ -200,8 +202,8 @@ function renderSavedCharts() {
     for (const record of group) {
       const fields = Object.fromEntries(record.fields);
       const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
-        ['janma', 'upa', 'tri', 'latta', 'dasha'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
-      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : type === 'dashayoga' ? 'dasha' : 'upa';
+        ['janma', 'upa', 'tri', 'latta', 'dasha', 'jamitra'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
+      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : type === 'dashayoga' ? 'dasha' : type === 'jamitra' ? 'jamitra' : 'upa';
       const birthTime = fields[birthPrefix + '-hour']
         ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
       const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
@@ -2389,6 +2391,7 @@ byId('wish-time-form').addEventListener('submit', event => {
     wishTransitInstant = myanmarBirthInstant(d, t);
     err.textContent = '';
     renderWishDirection(wishTransitInstant);
+    window.location.hash = 'wish-result';
   } catch {
     err.textContent = 'ရွေးထားသည့် ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
   }
@@ -2399,6 +2402,7 @@ byId('wish-now').addEventListener('click', () => {
   byId('wish-custom-time').value = '';
   byId('wish-time-error').textContent = '';
   renderWishDirection(new Date());
+  window.location.hash = 'wish-result';
 });
 
 connectTownSearch('latta');
@@ -2617,6 +2621,7 @@ byId('latta-transit-form').addEventListener('submit', event => {
     lattaTransitInstant = myanmarBirthInstant(d, t);
     err.textContent = '';
     renderLattaTransit(lattaTransitInstant);
+    window.location.hash = 'latta-transit-result';
   } catch {
     err.textContent = 'ရွေးထားသည့် ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
   }
@@ -2627,6 +2632,7 @@ byId('latta-transit-now').addEventListener('click', () => {
   byId('latta-transit-time').value = '';
   byId('latta-transit-error').textContent = '';
   renderLattaTransit(new Date());
+  window.location.hash = 'latta-transit-result';
 });
 
 byId('latta-natal-form').addEventListener('submit', event => {
@@ -2669,6 +2675,7 @@ byId('latta-natal-form').addEventListener('submit', event => {
 
     err.textContent = '';
     saveChart('latta');
+    window.location.hash = 'latta-natal-result';
   } catch {
     err.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
   }
@@ -2902,6 +2909,7 @@ byId('dasha-transit-form').addEventListener('submit', event => {
     dashaTransitInstant = myanmarBirthInstant(d, t);
     err.textContent = '';
     renderDashaTransit(dashaTransitInstant);
+    window.location.hash = 'dashayoga-transit-result';
   } catch {
     err.textContent = 'ရွေးထားသည့် ရက်နှင့် အချိန်ကို ပြန်စစ်ပါ။';
   }
@@ -2912,6 +2920,7 @@ byId('dasha-transit-now').addEventListener('click', () => {
   byId('dasha-transit-time').value = '';
   byId('dasha-transit-error').textContent = '';
   renderDashaTransit(new Date());
+  window.location.hash = 'dashayoga-transit-result';
 });
 
 byId('dasha-natal-form').addEventListener('submit', event => {
@@ -2948,6 +2957,297 @@ byId('dasha-natal-form').addEventListener('submit', event => {
 
     err.textContent = '';
     saveChart('dashayoga');
+    window.location.hash = 'dashayoga-natal-result';
+  } catch {
+    err.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
+// --- Jamitra Nakshatra (ဇာမိတြနက္ခတ် · စာမျက်နှာ ၆၀–၆၁) ---
+let jamitraTransitInstant;
+
+connectTownSearch('jamitra');
+connectTownSearch('jamitra-transit');
+const defaultJamitraTownIndex = towns.findIndex(([, en]) => en === 'Yangon');
+if (defaultJamitraTownIndex >= 0 && byId('jamitra-transit-city')) {
+  byId('jamitra-transit-city').value = String(defaultJamitraTownIndex);
+}
+
+function fillBirthPartsFromInstant(prefix, instant = new Date()) {
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Yangon',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+  });
+  const p = Object.fromEntries(fmt.formatToParts(instant).map(({ type, value }) => [type, value]));
+  const h24 = Number(p.hour);
+  const h12 = h24 % 12 || 12;
+  byId(prefix + '-day').value = String(Number(p.day));
+  byId(prefix + '-month').value = String(Number(p.month));
+  byId(prefix + '-year').value = p.year;
+  byId(prefix + '-hour').value = String(h12);
+  byId(prefix + '-minute').value = p.minute;
+  byId(prefix + '-second').value = p.second;
+  byId(prefix + '-period').value = h24 >= 12 ? 'PM' : 'AM';
+}
+
+fillBirthPartsFromInstant('jamitra-tr');
+
+const jamitraTabButtons = [...document.querySelectorAll('[data-jamitra-tab]')];
+jamitraTabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.jamitraTab;
+    jamitraTabButtons.forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+    byId('jamitra-panel-natal').hidden = tab !== 'natal';
+    byId('jamitra-panel-transit').hidden = tab !== 'transit';
+  });
+});
+
+function jamitraPlanetListText(planets) {
+  return planets.length ? planets.map(p => p.name + (p.retrograde ? ' (ဝကြ)' : '')).join('၊ ') : 'ဂြိုဟ်မရှိ';
+}
+
+function jamitraFmtClock(instant) {
+  return new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(instant);
+}
+
+function buildJamitraCard(title, rows, badgeText, badgeKind) {
+  const card = document.createElement('article');
+  card.className = 'entry';
+  const head = document.createElement('div');
+  head.className = 'detail-heading';
+  const h = document.createElement('h3');
+  h.textContent = title;
+  head.append(h);
+  if (badgeText) {
+    const pill = document.createElement('span');
+    pill.className = `pill ${badgeKind || 'good'}`;
+    pill.textContent = badgeText;
+    head.append(pill);
+  }
+  card.append(head);
+  const table = document.createElement('table');
+  table.className = 'tri-readings-table jamitra-summary-table';
+  const body = table.createTBody();
+  for (const [label, value] of rows) {
+    const row = body.insertRow();
+    const heading = document.createElement('th');
+    heading.scope = 'row';
+    heading.textContent = label;
+    row.append(heading);
+    row.insertCell().textContent = value;
+  }
+  card.append(table);
+  return card;
+}
+
+function renderJamitraTransit() {
+  const out = byId('jamitra-transit-result');
+  if (!out) return;
+  const instant = jamitraTransitInstant ?? new Date();
+  if (!jamitraTransitInstant) fillBirthPartsFromInstant('jamitra-tr', instant);
+  const citySelect = byId('jamitra-transit-city');
+  const townIdx = citySelect && citySelect.value !== '' ? Number(citySelect.value) : defaultJamitraTownIndex;
+  const town = towns[townIdx >= 0 ? townIdx : 0];
+  const res = evaluateTransitJamitra(instant, town[3], town[4]);
+  const timeFmt = new Intl.DateTimeFormat('my-MM', {
+    timeZone: 'Asia/Yangon', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  out.replaceChildren();
+
+  const lagnaName = yatraNames[res.lagna.index];
+  const jamitraName = yatraNames[res.jamitraIndex];
+  const moonName = yatraNames[res.moon.starIndex];
+  const samghatikaName = yatraNames[res.samghatikaIndex];
+
+  out.append(buildJamitraCard(
+    `ကောဇာ ဇာမိတြနက္ခတ် (${town[0]})`,
+    [
+      ['စစ်ဆေးချိန်', timeFmt.format(instant) + ' (မြန်မာစံတော်ချိန်)'],
+      ['ကောဇာ လဂ်စီးနက္ခတ်', `${lagnaName}နက္ခတ် (${rashiNames[res.lagna.rashiIndex]}ရာသီ · ပါဒ ${mm(res.lagna.pada)})`],
+      ['ကောဇာ ဇာမိတြနက္ခတ် (လဂ်မှ ၁၂ လုံးမြောက်)', `${jamitraName}နက္ခတ်`],
+      ['ကောဇာ စန်းစီးနက္ခတ်', `${moonName}နက္ခတ်`],
+      ['ကောဇာ သံဃာဋိကနက္ခတ် (စန်းမှ ၁၆ လုံးမြောက်)', `${samghatikaName}နက္ခတ်`],
+      ['ဇာမိတြနက္ခတ်ပေါ်ရှိ ကောဇာဂြိုဟ်များ', jamitraPlanetListText(res.occupantsOnJamitra)],
+    ],
+    res.hasJamitraDosha ? 'ပါပဂြိုဟ် စီးနေသည်' : 'ပါပဂြိုဟ် စီးနေခြင်း မတွေ့ပါ',
+    res.hasJamitraDosha ? 'caution' : 'good'
+  ));
+
+  if (res.hasJamitraDosha) {
+    out.append(buildJamitraCard(
+      'ကောဇာ ဇာမိတြဒေါသ စစ်ဆေးချက် (မင်္ဂလာ / အခါရွေး)',
+      [
+        ['ပါပဂြိုဟ်စီးနင်းမှု', `${jamitraName}နက္ခတ်ပေါ်တွင် ${jamitraPlanetListText(res.maleficsOnJamitra)} စီးနေပါသည်။`],
+        ['ကျမ်းအဆို', 'ကောဇာအခါရွေးအရ ဇာမိတြနက္ခတ်ကို ပါပဂြိုဟ်စီးနေချိန်တွင် မင်္ဂလာဆောင်ခဲ့ပါက ဇာမိတြဒေါသ သင့်တတ်ပါသည်။'],
+      ],
+      'သတိပြု',
+      'caution'
+    ));
+  }
+
+  const windowRows = res.windows.length
+    ? res.windows.map((w, i) => [
+        `အချိန်ပိုင်း ${mm(i + 1)}`,
+        `${jamitraFmtClock(w.start)} မှ ${jamitraFmtClock(w.end)} အထိ (မြန်မာစံတော်ချိန်)`,
+      ])
+    : [['ယနေ့အချိန်ပိုင်း', 'ရွေးထားသောနေ့အတွင်း တိုက်ဆိုင်ချိန် မတွေ့ပါ။']];
+  windowRows.push(['ကျမ်းမှတ်ချက် (စာမျက်နှာ ၆၁)', 'ကောဇာလဂ်မှ ကြည့်၍ ကောဇာစန်းသည် ဇာမိတြနက္ခတ် (၁၂ လုံးမြောက်) တွင် စီးနေချိန်ကို အစဉ်အကြယ် ရွေးချယ်အသုံးချနိုင်ကြောင်း ဆိုထားပါသည်။']);
+  out.append(buildJamitraCard(
+    'ရွေးထားသည့်နေ့တွင် ကောဇာစန်း ဇာမိတြနက္ခတ်ပေါ် စီးချိန်',
+    windowRows,
+    res.moonInJamitra ? 'ရွေးထားသည့်အချိန်၌ စီးနေသည်' : undefined,
+    'good'
+  ));
+}
+
+byId('jamitra-transit-form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const err = byId('jamitra-transit-error');
+  try {
+    jamitraTransitInstant = readBirthInstant('jamitra-tr');
+    err.textContent = '';
+    renderJamitraTransit();
+    window.location.hash = 'jamitra-transit-result';
+  } catch {
+    err.textContent = 'ရက်၊ လ၊ နှစ်၊ အချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
+  }
+});
+
+byId('jamitra-transit-now')?.addEventListener('click', () => {
+  jamitraTransitInstant = undefined;
+  fillBirthPartsFromInstant('jamitra-tr');
+  byId('jamitra-transit-error').textContent = '';
+  renderJamitraTransit();
+  window.location.hash = 'jamitra-transit-result';
+});
+
+byId('jamitra-natal-form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const err = byId('jamitra-natal-error');
+  const out = byId('jamitra-natal-result');
+  try {
+    const birthInstant = readBirthInstant('jamitra');
+    const cityVal = byId('jamitra-city').value;
+    const town = towns[Number(cityVal)];
+    if (!town) throw new RangeError('missing town');
+    const hasCustomTransit = ['day', 'month', 'year', 'hour', 'minute', 'second', 'period'].some(
+      part => byId('jamitra-nt-' + part).value.trim() !== ''
+    );
+    const transitInstant = hasCustomTransit ? readBirthInstant('jamitra-nt') : new Date();
+    const res = evaluateNatalJamitra(birthInstant, town[3], town[4], transitInstant);
+    const nameVal = byId('jamitra-natal-form-name').value.trim();
+    const timeFmt = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    out.replaceChildren();
+
+    const lagnaName = yatraNames[res.natalLagna.index];
+    const natalMoonName = yatraNames[res.natalMoon.starIndex];
+    const jamitraName = yatraNames[res.natalJamitraIndex];
+    const samghatikaName = yatraNames[res.natalSamghatikaIndex];
+    const transitMoonName = yatraNames[res.transitMoon.starIndex];
+
+    out.append(buildJamitraCard(
+      (nameVal ? `${nameVal} · ` : '') + 'မူလ ဇာမိတြနှင့် သံဃာဋိက အနှစ်ချုပ်',
+      [
+        ['မွေးချိန် / မြို့', `${timeFmt.format(birthInstant)} · ${town[0]}`],
+        ['ကောဇာ စစ်ဆေးချိန်', `${timeFmt.format(transitInstant)} (ကောဇာစန်း — ${transitMoonName}နက္ခတ်)`],
+        ['မူလ လဂ်စီးနက္ခတ် (ခန္ဓာကိုယ်)', `${lagnaName}နက္ခတ် (${rashiNames[res.natalLagna.rashiIndex]}ရာသီ · ပါဒ ${mm(res.natalLagna.pada)})`],
+        ['မူလ ဇာမိတြနက္ခတ် (လဂ်မှ ၁၂ လုံးမြောက်)', `${jamitraName}နက္ခတ်`],
+        ['မူလ စန်းစီး / ဇနမနက္ခတ် (စိတ်)', `${natalMoonName}နက္ခတ်`],
+        ['မူလ သံဃာဋိကနက္ခတ် (စန်းမှ ၁၆ လုံးမြောက်)', `${samghatikaName}နက္ခတ်`],
+      ],
+      res.hasNatalDosha ? 'မူလ ဇာမိတြဒေါသ သတိပြု' : 'မူလ ပါပဂြိုဟ် စီးနေခြင်း မတွေ့ပါ',
+      res.hasNatalDosha ? 'caution' : 'good'
+    ));
+
+    const compareRows = [
+      ['မူလ ဇာမိတြပေါ်ရှိ မူလဂြိုဟ်များ', jamitraPlanetListText(res.natalOnJamitra)],
+      ['မူလ ဇာမိတြပေါ်ရှိ ကောဇာဂြိုဟ်များ', jamitraPlanetListText(res.transitOnJamitra)],
+      ['မူလ သံဃာဋိကပေါ်ရှိ မူလဂြိုဟ်များ', jamitraPlanetListText(res.natalOnSamghatika)],
+      ['မူလ သံဃာဋိကပေါ်ရှိ ကောဇာဂြိုဟ်များ', jamitraPlanetListText(res.transitOnSamghatika)],
+    ];
+    if (res.natalSunOnJamitra) {
+      compareRows.push(['တနင်္ဂနွေ စီးနင်းမှု (ဇာမိတြ)', 'မူလလဂ်စီးမှ (၁၂) လုံးမြောက် ဇာမိတြနက္ခတ်တွင် တနင်္ဂနွေစီးနေသဖြင့် အိမ်ထောင်ဘက် ဖျားနာတတ်ကြောင်း ကျမ်းက ဆိုထားပါသည်။']);
+    }
+    if (res.natalSunOnSamghatika) {
+      compareRows.push(['တနင်္ဂနွေ စီးနင်းမှု (သံဃာဋိက)', 'မူလစန်းစီးမှ (၁၆) လုံးမြောက် သံဃာဋိကနက္ခတ်တွင် တနင်္ဂနွေစီးနေသဖြင့် အိမ်ထောင်ဘက်က စကားမတည်ဟု စိတ်ပျက်ဒေါသထွက်တတ်ကြောင်း ဆိုထားပါသည်။']);
+    }
+    if (res.transitMoonOnNatalJamitra) {
+      compareRows.push(['ကောဇာစန်း သတိပေးချက်', `ယခု ကောဇာစန်းသည် မိမိ၏ ဇာမိတြနက္ခတ် (${jamitraName}) ပေါ် စီးနေပါသည်။ အရက်သောက်ခြင်း၊ လောင်းကစားခြင်း စသည့် အလွန်အကျွံ စွဲလမ်းတပ်မက်မှုများကို သတိထားရှောင်ကြဉ်ပါ။`]);
+    }
+    if (res.transitMoonOnNatalSamghatika) {
+      compareRows.push(['ကောဇာစန်း (သံဃာဋိက)', `ယခု ကောဇာစန်းသည် မိမိ၏ သံဃာဋိကနက္ခတ် (${samghatikaName}) ပေါ် စီးနေပါသည်။ အေးချမ်း၍ ကျက်သရေရှိသော စွဲမက်မှုကာလ ဖြစ်ပါသည်။`]);
+    }
+    compareRows.push(
+      ['အိမ်ထောင်ဘက် စန်းယှဉ်နက္ခတ် မှတ်ချက်', `မိမိ၏ ဇာမိတြနက္ခတ် (${jamitraName}နက္ခတ်) နှင့် စန်းယှဉ်မွေးသူသည် ရေရှည်တွင် မနာလို၊ သဝန်တိုမှု ပူလောင်စေတတ်ပြီး သံသရာမှ လွတ်မြောက်လိုသူများ လက်မထပ်သင့်ကြောင်း ကျမ်းတစ်စောင်က ဆိုထားပါသည်။`],
+      ['အိမ်ထောင်ဘက် ပျော်ရွှင်စေရန်', `${jamitraName}နက္ခတ်၏ ပရိယာယ်၊ သဘောသဘာဝများနှင့် ချိန်ဆပြီး အိမ်ထောင်ဘက်အား သင့်လျော်ရာ လက်ဆောင်များ ပေးနိုင်ပါသည်။`]
+    );
+    out.append(buildJamitraCard(
+      'အိမ်ထောင်ဘက်၊ စွဲလမ်းမှုနှင့် ဒေါသ ချိန်ဆချက်',
+      compareRows,
+      res.transitMoonOnNatalJamitra ? 'ကောဇာစန်း ဇာမိတြပေါ်စီး' : res.hasTransitDosha ? 'ကောဇာ ပါပစီး' : undefined,
+      res.transitMoonOnNatalJamitra || res.hasTransitDosha ? 'caution' : 'good'
+    ));
+
+    const tableHeading = document.createElement('h3');
+    tableHeading.className = 'tri-section-title';
+    tableHeading.textContent = 'မူလဂြိုဟ် (၉) လုံးအလိုက် ဇာမိတြ (၁၂) နှင့် သံဃာဋိက (၁၆) ဇယား (စာမျက်နှာ ၆၁)';
+    const scroll = document.createElement('div');
+    scroll.className = 'tri-table-scroll';
+    const table = document.createElement('table');
+    table.className = 'tri-readings-table latta-table';
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    const headers = ['မူလဂြိုဟ်', 'မူလစီးနက္ခတ်', 'ဇာမိတြ (၁၂ လုံးမြောက်)', 'သံဃာဋိက (၁၆ လုံးမြောက်)'];
+    headers.forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      headRow.append(th);
+    });
+    thead.append(headRow);
+    const tbody = document.createElement('tbody');
+    for (const row of res.planetMatrix) {
+      const tr = document.createElement('tr');
+      if (row.transitMoonOnJamitra || row.transitMoonOnSamghatika) tr.className = 'tri-row-active';
+      const jStar = yatraNames[row.jamitraIndex];
+      const sStar = yatraNames[row.samghatikaIndex];
+      const jNote = [
+        jStar + "နက္ခတ်",
+        row.natalOnJamitra.length ? `မူလ: ${row.natalOnJamitra.map(p => p.name).join('၊ ')}` : '',
+        row.transitOnJamitra.length ? `ကောဇာ: ${row.transitOnJamitra.map(p => p.name).join('၊ ')}` : '',
+      ].filter(Boolean).join(' · ');
+      const sNote = [
+        sStar + "နက္ခတ်",
+        row.natalOnSamghatika.length ? `မူလ: ${row.natalOnSamghatika.map(p => p.name).join('၊ ')}` : '',
+        row.transitOnSamghatika.length ? `ကောဇာ: ${row.transitOnSamghatika.map(p => p.name).join('၊ ')}` : '',
+      ].filter(Boolean).join(' · ');
+      [row.planet.name + (row.planet.retrograde ? ' (ဝကြ)' : ''), yatraNames[row.planet.starIndex] + "နက္ခတ်", jNote, sNote].forEach((val, ci) => {
+        const td = document.createElement('td');
+        const lbl = document.createElement('span');
+        lbl.className = 'latta-cell-label';
+        lbl.textContent = headers[ci];
+        lbl.setAttribute('aria-hidden', 'true');
+        const value = document.createElement('span');
+        value.textContent = val;
+        td.append(lbl, value);
+        tr.append(td);
+      });
+      tbody.append(tr);
+    }
+    table.append(thead, tbody);
+    scroll.append(table);
+    out.append(tableHeading, scroll);
+
+    err.textContent = '';
+    saveChart('jamitra');
+    window.location.hash = 'jamitra-natal-result';
   } catch {
     err.textContent = 'မွေးရက်၊ မွေးချိန်နှင့် မြို့ကို ပြန်စစ်ပါ။';
   }
@@ -2955,7 +3255,7 @@ byId('dasha-natal-form').addEventListener('submit', event => {
 
 function showPage() {
   const rawHash = window.location.hash.slice(1);
-  const hash = ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
+  const hash = machineResults.has(rawHash) ? rawHash.replace(/(?:-(?:natal|transit))?-result$/, '') : ['practice', 'yatra7', 'yatra-food', 'yatra8'].includes(rawHash) ? 'yatra'
     : ['suriya-result', 'guru-result', 'upagraha-result', 'upagraha28-result', 'tripataki-result', 'panchang-result', 'akha-result'].includes(rawHash) ? rawHash.slice(0, -7) : rawHash;
   const route = /^nakshatra\/([0-6])\/([1-9]|[12][0-9]|30)\/(calculator|catalog)$/.exec(hash);
   const entry = route && catalogs[Number(route[1])]?.[Number(route[2]) - 1];
@@ -2966,7 +3266,7 @@ function showPage() {
   const generalLinks = [...generalTabs.querySelectorAll('[data-yatra-tab]')];
   const isGeneralPage = generalLinks.some(link => link.dataset.yatraTab === hash);
   const page = entry ? 'nakshatra-detail'
-    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'latta', 'dashayoga', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
+    : ['catalog', 'calculator', 'suriya', 'guru', 'upagraha', 'upagraha28', 'tripataki', 'latta', 'dashayoga', 'jamitra', 'wish', 'panchang', 'akha', 'saved', 'books'].includes(hash) || isGeneralPage || isYatraPage ? hash : 'home';
   byId('akha').hidden = page !== 'akha';
   const showAkhaResult = rawHash === 'akha-result' && akhaHasResult;
   byId('akha-form-title').hidden = showAkhaResult;
@@ -3028,23 +3328,29 @@ function showPage() {
   byId('tripataki-output').hidden = !showTriResult;
   if (showTriResult) byId('tri-output-title').focus();
   else if (page === 'tripataki' && rawHash === 'tripataki-result') window.history.replaceState(null, '', '#tripataki');
-  byId('latta').hidden = page !== 'latta';
-  if (page === 'latta') {
-    renderLattaTransit();
-    byId('latta-title').focus();
+  for (const id of Object.keys(machineResultIds)) {
+    const machine = byId(id);
+    machine.hidden = page !== id;
+    if (page !== id) continue;
+    const output = machine.querySelector('[data-machine-output]');
+    const result = machineResults.get(rawHash);
+    const showResult = Boolean(result?.childElementCount);
+    for (const child of machine.children) child.hidden = child === output ? !showResult : false;
+    if (showResult) {
+      for (const child of machine.children) if (child !== output) child.hidden = true;
+      for (const item of machineResultIds[id]) byId(item).hidden = byId(item) !== result;
+      output.querySelector('h2').focus();
+    } else if (machineResults.has(rawHash)) {
+      history.replaceState(null, '', '#' + id);
+    }
+    const prefix = id === 'dashayoga' ? 'dasha' : id;
+    if (id !== 'wish') {
+      const active = machine.querySelector('button[aria-pressed="true"]').dataset[prefix + 'Tab'];
+      for (const tab of ['natal', 'transit']) byId(prefix + '-panel-' + tab).hidden = showResult || active !== tab;
+    }
   }
-  byId('dashayoga').hidden = page !== 'dashayoga';
-  if (page === 'dashayoga') {
-    renderDashaTransit();
-    byId('dashayoga-title').focus();
-  }
-  byId('wish').hidden = page !== 'wish';
-  if (page === 'wish') {
-    renderWishDirection();
-    byId('wish-title').focus();
-  }
-  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
-  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-hero').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
+  byId('nadika-tabs').hidden = isHome || isSuriya || isUpa || isYatraPage || page === 'tripataki' || page === 'latta' || page === 'dashayoga' || page === 'jamitra' || page === 'wish' || page === 'panchang' || page === 'akha' || isSaved || isBooks;
   byId('nakshatra-detail').hidden = !entry;
   if (entry) {
     renderNakshatraDetail(entry, route[3]);
@@ -3077,6 +3383,39 @@ byId('yatra-entries').replaceChildren(...guruNames.map(name => {
   return button;
 }));
 connectStarInformation(document.querySelector('main'));
+
+const machineResultIds = {
+  wish: ['wish-live'],
+  latta: ['latta-transit-result', 'latta-natal-result'],
+  dashayoga: ['dasha-transit-result', 'dasha-natal-result'],
+  jamitra: ['jamitra-transit-result', 'jamitra-natal-result'],
+};
+const machineResults = new Map();
+for (const [id, resultIds] of Object.entries(machineResultIds)) {
+  const output = document.createElement('section');
+  output.dataset.machineOutput = '';
+  output.hidden = true;
+  const back = document.createElement('a');
+  back.className = 'back-home';
+  back.href = '#' + id;
+  back.textContent = '← အချက်အလက် ပြန်ပြင်ရန်';
+  const title = document.createElement('h2');
+  title.tabIndex = -1;
+  title.textContent = byId(id + '-title').textContent + ' ရလဒ်';
+  output.append(back, title);
+  for (const resultId of resultIds) {
+    const result = byId(resultId);
+    const route = id === 'wish' ? 'wish-result' : id + resultId.slice(resultId.indexOf('-'));
+    machineResults.set(route, result);
+    output.append(result);
+  }
+  if (id === 'wish') {
+    const table = byId('wish-table');
+    output.append(table.previousElementSibling, table);
+  }
+  if (id === 'jamitra') output.append(byId('jamitra-guide'));
+  byId(id).append(output);
+}
 
 window.addEventListener('hashchange', showPage);
 showPage();

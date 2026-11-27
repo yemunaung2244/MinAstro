@@ -74,7 +74,7 @@ select {
 .catalog { border: 1px solid var(--line); padding: 11px; border-radius: 11px; background: #f7fcff; }
 .chart-content { display: grid; gap: 10px; margin-top: 8px; }
 table { width: 100%; border-collapse: collapse; text-align: left; font-size: .9rem; overflow-wrap: anywhere; }
-th, td { padding: 6px 4px; border-bottom: 1px solid #dbeaf3; vertical-align: top; }
+th, td { padding: 6px 4px; border: 1px solid #aacbdf; vertical-align: top; }
 th { color: var(--accent); }
 .selected-row { background: #e0effa; font-weight: 750; }
 .calculator { margin-bottom: 36px; }

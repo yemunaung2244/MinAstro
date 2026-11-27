@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ဗြဟ္မပါဋစက် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ဗြဟ္မပါဋစက်</h1>
+  <form id="chart-form" class="panel controls">
+    <label class="field">ကောဇာ ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="transit" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">မွေးရက်စွဲနှင့် အချိန် (ထည့်လိုပါက)
+      <input name="natal" type="datetime-local" step="1">
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="chart-error" role="alert" hidden></p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">ဗြဟ္မပါဋစက် ရလဒ်</h2>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">တွက်ချက်မှု</th><th scope="col">နက္ခတ်နှင့် အရေအတွက်</th><th scope="col">ကျမ်းပါအဟော</th></tr></thead>
+      <tbody id="results"></tbody>
+    </table>
+    <details class="tri-guide">
+      <summary>နက္ခတ် ၂၇ လုံးမူ အဟောဇယား</summary>
+      <p>နေစီးနက္ခတ်ကို ၁ အဖြစ်ထားပြီး တနင်္လာစီးနက္ခတ်အထိ အစဉ်လိုက် ရေတွက်သည်။</p>
+      <table class="tri-readings-table">
+        <thead><tr><th scope="col">လုံးမြောက်</th><th scope="col">ကျမ်းပါအဟော</th></tr></thead>
+        <tbody id="reference"></tbody>
+      </table>
+    </details>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ အသုံးပြုပုံ</summary>
+      <p>မူလတနင်္ဂနွေနှင့် မူလတနင်္လာ၊ မူလတနင်္ဂနွေနှင့် ကောဇာတနင်္လာတို့ကို ဟောရာတွင် ကြည့်ပြီး ကောဇာတနင်္ဂနွေနှင့် ကောဇာတနင်္လာကို အခါရွေးရာတွင် ကြည့်ရန် ဖော်ပြထားသည်။</p>
+      <p>ဒုတိယပုံတွင် သင်္ကန်း၊ သပိတ်နှင့် တရားကျင့်သုံးသူများအတွက် အသုံးအဆောင်များ၊ ကျင့်ဝတ်စာအုပ်များ လှူဒါန်းခြင်းကို ရှင်းပြထားသည်။</p>
+    </details>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

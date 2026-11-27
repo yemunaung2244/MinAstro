@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>လျှို့ဝှက်အပ်သောစက် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>လျှို့ဝှက်အပ်သောစက်</h1>
+  <form id="chart-form" class="panel controls">
+    <p class="hint">ကျမ်းတွင် အမျိုးသမီးဇာတာအတွက် ဖော်ပြထားသော နက္ခတ် ၂၇ လုံးမူကို သုံးသည်။</p>
+    <label class="field">မွေးရက်စွဲနှင့် မွေးချိန် (မြန်မာစံတော်ချိန်)
+      <input name="birth" type="datetime-local" step="1" required>
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="chart-error" role="alert" hidden>မွေးရက်စွဲနှင့် မွေးချိန်ကို ပြန်စစ်ပါ။</p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">လျှို့ဝှက်အပ်သောစက် ရလဒ်</h2>
+    <p id="summary"></p>
+    <p id="reading"></p>
+    <table class="tri-readings-table">
+      <caption>နေစီးနက္ခတ်မှ စ၍ စီထားသော နက္ခတ် ၂၇ လုံး</caption>
+      <thead><tr><th scope="col">ကိုယ်ခန္ဓာအပိုင်း</th><th scope="col">လုံးမြောက်</th><th scope="col">နက္ခတ်</th></tr></thead>
+      <tbody id="chart-rows"></tbody>
+    </table>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>

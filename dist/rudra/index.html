@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="my">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ရုဒြနက္ခတ် · MinAstro</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../star-information.css">
+</head>
+<body>
+<main class="shell catalog">
+  <a class="back-home" href="../index.html#home">← ပင်မစာမျက်နှာ</a>
+  <h1>ရုဒြနက္ခတ်</h1>
+  <form id="chart-form" class="panel controls">
+    <label class="field">ကောဇာ ရက်စွဲနှင့် အချိန် (မြန်မာစံတော်ချိန်)
+      <input name="transit" type="datetime-local" step="1" required>
+    </label>
+    <label class="field">မွေးရက်စွဲနှင့် အချိန် (ထည့်လိုပါက)
+      <input name="natal" type="datetime-local" step="1">
+    </label>
+    <label class="field">တွက်နည်း
+      <select name="method">
+        <option value="table">ပုံပါ အဆင်သင့်ဇယား</option>
+        <option value="28">စာပိုဒ်ပါ အဘိဇိပါ နက္ခတ် ၂၈ လုံးမူ</option>
+      </select>
+    </label>
+    <button class="janma-submit" type="submit">တွက်မည်</button>
+    <p id="chart-error" role="alert" hidden></p>
+  </form>
+  <section id="output" hidden>
+    <a class="back-home" href="#input">← အချက်အလက် ပြန်ပြင်ရန်</a>
+    <h2 id="result-title" tabindex="-1">ရုဒြနက္ခတ် ရလဒ်</h2>
+    <p id="method-note" class="hint"></p>
+    <table class="tri-readings-table">
+      <thead><tr><th scope="col">တွက်ချက်မှု</th><th scope="col">နေစီး / လစီးနက္ခတ်</th><th scope="col">ရလဒ်</th></tr></thead>
+      <tbody id="results"></tbody>
+    </table>
+    <div id="candidates"></div>
+    <details class="tri-guide">
+      <summary>ကျမ်းပါ ရှင်းလင်းချက်</summary>
+      <p>ရုဒြ၏ သဘောကို မကောင်းမှု၊ အဝိဇ္ဇာနှင့် ဆင်းရဲချို့တဲ့မှုကို ပယ်ရှားနိုင်ခြင်း၊ ငြိမ်းချမ်းခြင်းနှင့် ဆက်စပ်၍ ကျမ်းတွင် ရှင်းပြထားသည်။ အစောပိုင်း အားနည်းချက်များနှင့် နောက်ပိုင်း အားကောင်းလာနိုင်ပုံကိုလည်း ဖော်ပြထားသည်။</p>
+      <p>လောကပါလနက္ခတ် လေးလုံး — အဒြနက္ခတ်၊ ဟဿတနက္ခတ်၊ ပြုဗ္ဗာသာဠ်နက္ခတ်၊ ဥတ္တရဘဒြပိုဒ်နက္ခတ်။</p>
+      <p lang="sa-Latn">Om Namo Bhagavate Rudraya</p>
+      <p lang="sa-Latn">Om Aim Rhim Kleem Chamundaye Vicche</p>
+    </details>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</body>
+</html>
