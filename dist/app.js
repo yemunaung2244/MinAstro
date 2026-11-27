@@ -110,6 +110,7 @@ const savedChartTypes = {
 const savedChartKey = 'nakshatra-saved-calculations-v1';
 let restoringChart = false;
 let savedChartError = '';
+let savedChartActiveTab = 'all';
 
 function readSavedCharts() {
   try {
@@ -120,20 +121,37 @@ function readSavedCharts() {
   }
 }
 
+function savedChartSignature(record) {
+  return JSON.stringify({ type: record.type, fields: record.fields, extra: record.extra ?? {} });
+}
+
 function saveChart(type, extra = {}) {
   if (restoringChart) return;
   const [, formId] = savedChartTypes[type];
   const fields = [...byId(formId).elements]
     .filter(field => field.id && ['INPUT', 'SELECT'].includes(field.tagName) && field.type !== 'search')
     .map(field => [field.id, field.id === formId + '-name' ? field.value.trim() : field.value]);
-  const record = {type, fields, extra};
+  const record = { type, fields, extra, savedAt: new Date().toISOString() };
   try {
-    const records = readSavedCharts();
-    if (records.some(saved => JSON.stringify(saved) === JSON.stringify(record))) return;
+    const sig = savedChartSignature(record);
+    const records = readSavedCharts().filter(saved => savedChartSignature(saved) !== sig);
     localStorage.setItem(savedChartKey, JSON.stringify([record, ...records]));
     savedChartError = '';
   } catch {
     savedChartError = 'ဘရောက်ဇာသိုလှောင်မှုတွင် ဇာတာ ထပ်သိမ်း၍ မရပါ။';
+  }
+}
+
+function deleteSavedChart(record) {
+  try {
+    const sig = savedChartSignature(record);
+    const remaining = readSavedCharts().filter(saved => savedChartSignature(saved) !== sig);
+    localStorage.setItem(savedChartKey, JSON.stringify(remaining));
+    savedChartError = '';
+    renderSavedCharts();
+  } catch {
+    savedChartError = 'သိမ်းထားသော ဇာတာကို ဖျက်၍ မရပါ။';
+    renderSavedCharts();
   }
 }
 
@@ -143,8 +161,13 @@ function openSavedChart(record) {
   try {
     window.history.pushState(null, '', '#' + record.type);
     showPage();
+    if (['latta', 'dashayoga', 'jamitra', 'meinmamyat'].includes(record.type)) {
+      const tabBtn = byId(record.type)?.querySelector(`[data-${record.type === 'dashayoga' ? 'dasha' : record.type}-tab="natal"]`);
+      tabBtn?.click();
+    }
     const chartForm = byId(formId);
-    byId(formId + '-name').value = '';
+    const nameInput = byId(formId + '-name');
+    if (nameInput) nameInput.value = '';
     for (const search of chartForm.querySelectorAll('input[type="search"]')) {
       if (search === townSearch) continue;
       search.value = '';
@@ -160,18 +183,18 @@ function openSavedChart(record) {
     }
     if (record.type === 'calculator') {
       timeMode.value = 'manual';
-      catalogSlot = record.extra.slot ?? null;
+      catalogSlot = record.extra?.slot ?? null;
       lastUpdate = '';
       updateResult();
       byId('result').focus();
       return;
     }
     if (formId === 'upagraha-form') {
-      upaTransitInstant = record.extra.transit ? new Date(record.extra.transit) : undefined;
-      byId('upa-transit-time').value = record.extra.transit ? myanmarDateTimeValue(upaTransitInstant) : '';
+      upaTransitInstant = record.extra?.transit ? new Date(record.extra.transit) : undefined;
+      byId('upa-transit-time').value = record.extra?.transit ? myanmarDateTimeValue(upaTransitInstant) : '';
     }
     chartForm.requestSubmit();
-    if (formId === 'janma-form' && record.extra.transit && birthStarIndex !== undefined) {
+    if (formId === 'janma-form' && record.extra?.transit && birthStarIndex !== undefined) {
       const instant = new Date(record.extra.transit);
       byId('goza-custom-time').value = myanmarDateTimeValue(instant);
       updateGoza(instant);
@@ -188,39 +211,173 @@ function myanmarDateTimeValue(instant) {
   return formatter.format(instant).replace(' ', 'T');
 }
 
+function extractSavedDetails(record) {
+  const [label, formId] = savedChartTypes[record.type] ?? [record.type, ''];
+  const fields = Object.fromEntries(record.fields ?? []);
+  const name = (fields[formId + '-name'] ?? '').trim();
+  const birthPrefix = record.type === 'suriya' || record.type === 'guru' ? 'janma'
+    : record.type === 'tripataki' ? 'tri'
+    : record.type === 'latta' ? 'latta'
+    : record.type === 'dashayoga' ? 'dasha'
+    : record.type === 'jamitra' ? 'jamitra'
+    : record.type === 'meinmamyat' ? 'mm'
+    : record.type === 'akha' ? 'akha-birth'
+    : 'upa';
+
+  const joinPartsDate = (prefix) => {
+    const d = fields[prefix + '-day'];
+    const m = fields[prefix + '-month'];
+    const y = fields[prefix + '-year'];
+    return d && m && y ? `${d}/${m}/${y}` : '';
+  };
+  const joinPartsTime = (prefix) => {
+    const h = fields[prefix + '-hour'];
+    const mi = fields[prefix + '-minute'];
+    const s = fields[prefix + '-second'];
+    const p = fields[prefix + '-period'];
+    return h ? `${h}:${mi || '00'}:${s || '00'}${p ? ' ' + p : ''}` : '';
+  };
+
+  const eventDate = fields.date || fields['akha-date'] || fields['panchang-date'] || '';
+  const birthDate = joinPartsDate(birthPrefix);
+  const birthTime = joinPartsTime(birthPrefix);
+  const eventTime = fields.time || '';
+
+  const cityVal = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
+  const cityText = cityVal === 'custom'
+    ? `${fields.latitude}°, ${fields.longitude}°`
+    : (cityVal !== undefined && cityVal !== '' && towns[Number(cityVal)]
+      ? `${towns[Number(cityVal)][0]} (${towns[Number(cityVal)][2]})` : '');
+  const birthCityVal = record.type === 'akha' ? fields['akha-birth-city'] : undefined;
+  const birthCityText = birthCityVal !== undefined && birthCityVal !== '' && towns[Number(birthCityVal)]
+    ? towns[Number(birthCityVal)][0] : '';
+
+  const transitPartsDate = record.type === 'jamitra' ? joinPartsDate('jamitra-nt')
+    : record.type === 'meinmamyat' ? joinPartsDate('mm-nt') : '';
+  const transitPartsTime = record.type === 'jamitra' ? joinPartsTime('jamitra-nt')
+    : record.type === 'meinmamyat' ? joinPartsTime('mm-nt') : '';
+  const transitText = record.extra?.transit
+    ? myanmarDateTimeValue(new Date(record.extra.transit)).replace('T', ' ')
+    : fields['latta-natal-transit']?.replace('T', ' ')
+    || fields['dasha-natal-transit']?.replace('T', ' ')
+    || fields['tri-target-date']
+    || (transitPartsDate ? [transitPartsDate, transitPartsTime].filter(Boolean).join(' ') : '');
+
+  const rows = [];
+  if (eventDate) rows.push(['ရက်စွဲ', mm(eventDate.split('-').reverse().join('/'))]);
+  if (eventTime) rows.push(['အချိန်', mm(eventTime)]);
+  if (birthDate) rows.push(['မွေးသက္ကရာဇ်', mm(birthDate)]);
+  if (birthTime) rows.push(['မွေးချိန်', mm(birthTime)]);
+  if (cityText) rows.push([record.type === 'akha' ? 'အခါရွေးမြို့' : 'မြို့ / တည်နေရာ', cityText]);
+  if (birthCityText) rows.push(['မွေးဖွားရာမြို့', birthCityText]);
+  if (transitText) rows.push(['ကောဇာ / စစ်ဆေးချိန်', mm(transitText)]);
+  if (record.savedAt) {
+    const savedFmt = new Intl.DateTimeFormat('my-MM', {
+      timeZone: 'Asia/Yangon', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    rows.push(['သိမ်းဆည်းချိန်', savedFmt.format(new Date(record.savedAt))]);
+  }
+  const searchBlob = [label, name, ...rows.map(([, v]) => v)].join(' ').toLowerCase();
+  return { label, name, rows, searchBlob };
+}
+
 function renderSavedCharts() {
   const list = byId('saved-chart-list');
+  const tabsNav = byId('saved-chart-tabs');
+  const searchInput = byId('saved-chart-search');
   list.replaceChildren();
-  const records = readSavedCharts();
-  byId('saved-chart-status').textContent = savedChartError ||
-    (records.length ? '' : 'သိမ်းထားသော တွက်ချက်မှု မရှိသေးပါ။');
-  for (const [type, [label, formId]] of Object.entries(savedChartTypes)) {
-    const group = records.filter(record => record.type === type);
-    if (!group.length) continue;
-    const section = document.createElement('section');
-    const heading = document.createElement('h2');
-    heading.textContent = label + ' · ' + mm(group.length);
-    section.append(heading);
-    for (const record of group) {
-      const fields = Object.fromEntries(record.fields);
-      const date = fields.date || fields['akha-date'] || fields['panchang-date'] ||
-        ['janma', 'upa', 'tri', 'latta', 'dasha', 'jamitra', 'mm'].map(prefix => ['day', 'month', 'year'].map(part => fields[prefix + '-' + part]).join('/')).find(value => value && value !== '//');
-      const birthPrefix = type === 'suriya' || type === 'guru' ? 'janma' : type === 'tripataki' ? 'tri' : type === 'latta' ? 'latta' : type === 'dashayoga' ? 'dasha' : type === 'jamitra' ? 'jamitra' : type === 'meinmamyat' ? 'mm' : 'upa';
-      const birthTime = fields[birthPrefix + '-hour']
-        ? ['hour', 'minute', 'second'].map(part => fields[birthPrefix + '-' + part]).join(':') + ' ' + fields[birthPrefix + '-period'] : '';
-      const city = fields.location ?? fields['panchang-city'] ?? fields['akha-city'] ?? fields[birthPrefix + '-city'];
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'home-choice';
-      button.textContent = [fields[formId + '-name'], mm(date ?? ''), mm(fields.time || birthTime), city === 'custom'
-        ? fields.latitude + '°, ' + fields.longitude + '°' : towns[Number(city)]?.[0],
-        record.extra.transit ? 'ကောဇာ ' + mm(myanmarDateTimeValue(new Date(record.extra.transit)).replace('T', ' ')) : ''].filter(Boolean).join(' · ');
-      button.addEventListener('click', () => openSavedChart(record));
-      section.append(button);
+  tabsNav.replaceChildren();
+
+  const records = readSavedCharts().filter(r => r && savedChartTypes[r.type]);
+  const counts = new Map();
+  for (const r of records) counts.set(r.type, (counts.get(r.type) ?? 0) + 1);
+
+  if (savedChartActiveTab !== 'all' && !counts.has(savedChartActiveTab)) {
+    savedChartActiveTab = 'all';
+  }
+
+  if (records.length) {
+    const tabEntries = [
+      ['all', 'အားလုံး', records.length],
+      ...Object.entries(savedChartTypes)
+        .filter(([type]) => counts.has(type))
+        .map(([type, [label]]) => [type, label, counts.get(type)]),
+    ];
+    for (const [tabId, tabLabel, count] of tabEntries) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'saved-tab-btn';
+      btn.setAttribute('aria-pressed', String(savedChartActiveTab === tabId));
+      btn.textContent = `${tabLabel} (${mm(count)})`;
+      btn.addEventListener('click', () => {
+        savedChartActiveTab = tabId;
+        renderSavedCharts();
+      });
+      tabsNav.append(btn);
     }
-    list.append(section);
+  }
+  tabsNav.hidden = !records.length;
+
+  const query = (searchInput?.value ?? '').trim().toLowerCase();
+  const visible = records
+    .filter(r => savedChartActiveTab === 'all' || r.type === savedChartActiveTab)
+    .map(r => ({ record: r, details: extractSavedDetails(r) }))
+    .filter(({ details }) => !query || details.searchBlob.includes(query));
+
+  byId('saved-chart-status').textContent = savedChartError ||
+    (!records.length
+      ? 'သိမ်းထားသော တွက်ချက်မှု မရှိသေးပါ။'
+      : !visible.length
+        ? 'ရှာဖွေမှုနှင့် ကိုက်ညီသော ဇာတာ မတွေ့ပါ။'
+        : `စုစုပေါင်း ${mm(visible.length)} ခု ပြသထားပါသည်။`);
+
+  for (const { record, details } of visible) {
+    const card = document.createElement('article');
+    card.className = 'saved-card';
+
+    const header = document.createElement('div');
+    header.className = 'saved-card-header';
+    const title = document.createElement('h2');
+    title.className = details.name ? 'saved-card-name' : 'saved-card-name saved-card-unnamed';
+    title.textContent = details.name || 'အမည်မထည့်ထားပါ';
+    const badge = document.createElement('span');
+    badge.className = 'saved-card-badge';
+    badge.textContent = details.label;
+    header.append(title, badge);
+
+    const dl = document.createElement('dl');
+    dl.className = 'saved-card-meta';
+    for (const [k, v] of details.rows) {
+      const row = document.createElement('div');
+      const dt = document.createElement('dt');
+      dt.textContent = k;
+      const dd = document.createElement('dd');
+      dd.textContent = v;
+      row.append(dt, dd);
+      dl.append(row);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'saved-card-actions';
+    const openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'saved-open-btn';
+    openBtn.textContent = 'ဖွင့်ကြည့်မည်';
+    openBtn.addEventListener('click', () => openSavedChart(record));
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'saved-delete-btn';
+    delBtn.textContent = 'ဖျက်မည်';
+    delBtn.addEventListener('click', () => deleteSavedChart(record));
+
+    actions.append(openBtn, delBtn);
+    card.append(header, dl, actions);
+    list.append(card);
   }
 }
+
+byId('saved-chart-search')?.addEventListener('input', () => renderSavedCharts());
 
 function updateResult() {
   const fixed = slotMode.value === 'fixed';

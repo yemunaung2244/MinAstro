@@ -114,8 +114,14 @@
     </section>
     <section id="saved-charts" class="catalog" hidden>
       <h1>သိမ်းထားသော ဇာတာများ</h1>
+      <div class="saved-toolbar">
+        <label class="saved-search-label">ရှာဖွေရန်
+          <input id="saved-chart-search" type="search" placeholder="အမည်၊ ရက်စွဲ သို့မဟုတ် မြို့ ရှာပါ">
+        </label>
+      </div>
+      <nav id="saved-chart-tabs" class="saved-tabs" aria-label="စက်အလိုက် ရွေးရန်"></nav>
       <p id="saved-chart-status" role="status"></p>
-      <div id="saved-chart-list"></div>
+      <div id="saved-chart-list" class="saved-card-grid"></div>
     </section>
     <section id="tripataki" class="catalog" hidden>
       <h1 id="tripataki-title">တြိပတာကီစက်</h1>

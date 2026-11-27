@@ -7,6 +7,7 @@
 <meta name="description" content="တိထိ၊ အဝတ္ထာန်နှင့် ယုဂ်များကို မြန်မာစံတော်ချိန်ဖြင့် တွက်ချက်ရန်">
 <title>တိထိစက်</title>
 <link rel="stylesheet" href="./style.css?v=20261127b">
+<link rel="stylesheet" href="../star-information.css">
 </head>
 <body>
 <header><div class="shell masthead"><a href="../index.html#home">← ပင်မစာမျက်နှာ</a><a href="#calculator"><span class="brand-icon" aria-hidden="true">◐</span> တိထိစက်</a><span>မြန်မာစံတော်ချိန် <b>UTC+06:30</b></span></div></header>
@@ -21,5 +22,6 @@
 </form>
 </main>
 <script type="module" src="./app.mjs?v=20261127b"></script>
+<script type="module">import { connectStarInformation } from '../star-information.js'; connectStarInformation(document.querySelector('main'));</script>
 </body>
 </html>

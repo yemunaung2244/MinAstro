@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#edf7fd">
 <title>တွက်ချက်ရလဒ် · တိထိစက်</title>
 <link rel="stylesheet" href="./style.css?v=20261127b">
+<link rel="stylesheet" href="../star-information.css">
 </head>
 <body>
 <header><div class="shell masthead"><a href="../index.html#home">← ပင်မစာမျက်နှာ</a><a href="./index.html#calculator"><span class="brand-icon" aria-hidden="true">◐</span> တိထိစက်</a><span>မြန်မာစံတော်ချိန် <b>UTC+06:30</b></span></div></header>
@@ -14,5 +15,6 @@
   <section id="result" class="panel result" aria-label="တွက်ချက်ရလဒ်" aria-live="polite"></section>
 </main>
 <script type="module" src="./result.mjs?v=20261127b"></script>
+<script type="module">import { connectStarInformation } from '../star-information.js'; connectStarInformation(document.querySelector('main'));</script>
 </body>
 </html>

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#eef7ff">
 <title>တာရာရလဒ် · တာရာကိုးပါးစက်</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../star-information.css">
 <script defer src="vendor/astronomy.js"></script>
 <script defer src="cities.js"></script>
 <script defer src="readings.js"></script>
@@ -56,5 +57,6 @@
 </section>
 <footer>တွက်ချက်မှုတွင် Lahiri အယနာံသ အနီးစပ်ဆုံးတန်ဖိုးနှင့် နက္ခတ် ၂၇ လုံးစနစ်ကို အသုံးပြုထားပါသည်။</footer>
 </main>
+<script type="module">import { connectStarInformation } from '../star-information.js'; connectStarInformation(document.querySelector('main'));</script>
 </body>
 </html>

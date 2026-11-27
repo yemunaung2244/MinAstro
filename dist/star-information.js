@@ -251,20 +251,45 @@ export function openStarInformation(name) {
 }
 
 
+const starAliases = [
+  ['အဘီဇိ', 'အဘိဇိ'],
+  ['ပြုဗ္ဗသာဠ်', 'ပြုဗ္ဗာသာဠ်'],
+  ['ပြုဗ္ဗာသာန်', 'ပြုဗ္ဗာသာဠ်'],
+  ['ပြုဗ္ဗသာန်', 'ပြုဗ္ဗာသာဠ်'],
+  ['ဥတ္တရသာဠ်', 'ဥတ္တရာသာဠ်'],
+  ['ဥတ္တရာသာန်', 'ဥတ္တရာသာဠ်'],
+  ['ဥတ္တရသာန်', 'ဥတ္တရာသာဠ်'],
+  ['ပြုဗ္ဗာဘဒြပိုဒ်', 'ပြုဗ္ဗဘဒြပိုဒ်'],
+  ['ဥတ္တရာဘဒြပိုဒ်', 'ဥတ္တရဘဒြပိုဒ်'],
+  ['ပြုဗ္ဗာဖလဂုဏီ', 'ပြုဗ္ဗဖလဂုဏီ'],
+  ['ဥတ္တရာဖလဂုဏီ', 'ဥတ္တရဖလဂုဏီ'],
+  ['သတ္တဘိသျ', 'သတ္တဘိသျှ'],
+  ['သတ္တဘိသ', 'သတ္တဘိသျှ'],
+  ['ပုဏ္ဏာဖုသျှ', 'ပုဏ္ဏဖုသျှ'],
+  ['အဿဝနီ', 'အဿဝဏီ'],
+  ['ရောဟနီ', 'ရောဟဏီ'],
+  ['ဘရနီ', 'ဘရဏီ'],
+  ['သရဝန်', 'သရဝဏ်'],
+  ['ဇေဌ', 'ဇေဋ္ဌ'],
+];
+
 // Limit plain-text linking to rendered content. Interactive chart controls use
 // their own handlers so their selection and Vedha behavior remain intact.
 export function connectStarInformation(root, displayNames = chartNames) {
   const names = new Map(displayNames.map((name, index) => [name, chartNames[index]]));
+  for (const [alias, canonical] of starAliases) {
+    if (!names.has(alias)) names.set(alias, canonical);
+  }
   const alternatives = [...names.keys()].filter(name => name !== 'မူလ')
     .sort((a, b) => b.length - a.length);
   const pattern = new RegExp('(' + alternatives.join('|') + ')(နက္ခတ်)?|(မူလ)နက္ခတ်', 'gu');
-  const excluded = 'a, button, select, input, textarea, script, style, svg, #star-information, #akha';
+  const excluded = 'a, button, select, input, textarea, script, style, svg, #star-information';
   function linkText(node) {
     if (!node.parentElement || node.parentElement.closest(excluded)) return;
     const value = node.textContent;
-    // A standalone table value can be the star, whereas the same word in
+    // A standalone table/list value can be the star, whereas the same word in
     // a longer label can mean natal.
-    const matches = value.trim() === 'မူလ' && node.parentElement.closest('td')
+    const matches = value.trim() === 'မူလ' && node.parentElement.closest('td, li, dd, span')
       ? [Object.assign(['မူလ', 'မူလ'], { index: value.indexOf('မူလ') })]
       : [...value.matchAll(pattern)];
     if (!matches.length) return;

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#eef7ff">
 <title>တာရာကိုးပါးစက်</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../star-information.css">
 <script defer src="vendor/astronomy.js"></script>
 <script defer src="cities.js"></script>
 <script defer src="app.js"></script>
@@ -34,5 +35,6 @@
 <p id="feedback" role="status"></p>
 </form>
 </main>
+<script type="module">import { connectStarInformation } from '../star-information.js'; connectStarInformation(document.querySelector('main'));</script>
 </body>
 </html>
